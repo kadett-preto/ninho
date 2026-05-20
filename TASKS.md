@@ -12,9 +12,9 @@
 
 ## Status Geral
 
-- **Fase atual:** 0 — Setup (quase completa)
+- **Fase atual:** 0 — Setup ✓ (concluída)
 - **Última atualização:** 2026-05-19
-- **Bloqueios ativos:** PostHog API key (0.8) — aguardando criação
+- **Bloqueios ativos:** —
 
 ---
 
@@ -27,7 +27,7 @@
 - [x] **0.5.** CI baseline (GitHub Actions: format/analyze/test/coverage) em `.github/workflows/flutter-ci.yml`
 - [x] **0.6.** Dependabot semanal em `.github/dependabot.yml` (pub + github-actions)
 - [x] **0.7.** Sentry mobile integrado (`SentryService`, sampling 0.2, PII scrubbed, §7.5). Pendente: criar projeto `ninho-edge` (Deno) ao iniciar Edge Functions.
-- [!] **0.8.** PostHog SDK + flag inicial — aguardando API key
+- [x] **0.8.** PostHog SDK adicionado com config restritiva (autocapture/session-replay/lifecycle off; identifiedOnly). `PosthogService.setupIfConsented` aguarda consentimento LGPD da Fase 2 antes de inicializar. Falta: AUTO_INIT=false em AndroidManifest + Info.plist na Fase 2.
 - [x] **0.9.** README mínimo (`README.md`)
 
 ---
@@ -225,3 +225,4 @@
 - **2026-05-19** — Fase 0 parcialmente concluída: 0.1, 0.2, 0.5, 0.6, 0.9 ✓. 0.3, 0.4, 0.7, 0.8 bloqueadas aguardando contas externas. Commit inicial `36a190e`.
 - **2026-05-19** — Supabase dev criado, 0.3 e 0.4 ✓. Commit `20ba10d` (supabase_flutter + flutter_dotenv).
 - **2026-05-19** — Sentry mobile integrado (PII scrub + sampling 0.2). 0.7 ✓. Commit `86542f8`.
+- **2026-05-19** — PostHog SDK adicionado com consent-gate (não inicializa até Fase 2). 0.8 ✓. Commit `8d04c90`. **Fase 0 concluída.**
