@@ -12,9 +12,9 @@
 
 ## Status Geral
 
-- **Fase atual:** 2 — Auth + Onboarding (em andamento)
+- **Fase atual:** 3 — Cadastro de Ninho (próxima)
 - **Última atualização:** 2026-05-20
-- **Bloqueios ativos:** Cards 2 e 3 do onboarding (placeholders no momento); providers Supabase Auth (2.4/2.5)
+- **Bloqueios ativos:** Cards 2 e 3 do onboarding (placeholder até Stitch entregar); Apple Auth (2.5) precisa Apple Developer account ($99/ano) — adiado para pré-release
 
 ---
 
@@ -60,10 +60,10 @@
 - [~] **2.2.** Onboarding 3 cards — card 1 "Bem-vindo" implementado (`welcome_card.dart`); cards 2 e 3 como placeholder até Stitch entregar
 - [x] **2.3.** Login com hero circle + Google/Apple buttons + termos/privacidade (`login_screen.dart`). Provider real fica em 2.4/2.5.
 - [x] **2.4.** Supabase Auth Google funcionando end-to-end (`AuthService.signInWithGoogle`, Supabase Provider Google ativo, redirect web via `Uri.base.origin`). Mobile pendente (deep-link scheme `io.supabase.ninho://login-callback/`).
-- [ ] **2.5.** Wire-up Supabase Auth: Apple provider (obrigatório iOS)
+- [!] **2.5.** Apple provider — adiado: exige Apple Developer ($99/ano) e Sign in with Apple service config. Faremos antes do release iOS.
 - [x] **2.6.** Consentimento LGPD — 3 cards (1 obrigatório + 2 opcionais) (`lgpd_consent_screen.dart`)
 - [x] **2.7.** Persistência LGPD: `UsersRepository.updateLgpdConsent` + trigger Postgres `log_lgpd_consent` (audit_log append-only) + `PosthogService.setupIfConsented` se analytics opt-in. Splash checa `hasLgpdConsent` e pula `/consent` quando já aceito.
-- [~] **2.8.** Logout — implementando
+- [x] **2.8.** Logout: `HomePlaceholderScreen` exibe email + botão "Sair do ninho". Sequência: `PosthogService.optOutAndReset` → `AuthService.signOut` (invalida sessão local+servidor §7.2) → redirect `/splash`.
 - [x] **2.9.** Roteamento go_router (`lib/ui/core/routes.dart`, MaterialApp.router em `app.dart`)
 - [x] **2.10.** Widget tests — 5 testes verdes (splash + welcome + login + LGPD + theme)
 
@@ -233,3 +233,4 @@
 - **2026-05-19** — Fase 1 schema MVP + RLS implementados (5 migrations, 13 tabelas, 40 pgTAP tests verdes em local). Tasks 1.1–1.10 ✓. Commit `01fe7b3`. Falta: push remoto (1.12) + CI db tests (1.13).
 - **2026-05-20** — Migrations aplicadas no remoto `ninho-dev` via `supabase db push`. CI workflow `db-ci.yml` adicionado (1.12 + 1.13 ✓). Commit `c4efb77`. **Fase 1 concluída.**
 - **2026-05-20** — Fase 2 telas implementadas via Stitch MCP: splash, onboarding card 1, login, LGPD consent + routing go_router + 5 widget tests verdes. Tasks 2.1, 2.3, 2.6, 2.9, 2.10 ✓; 2.2 parcial; 2.4, 2.5, 2.7, 2.8 pendentes. Commit `f051fb2`.
+- **2026-05-20** — Logo oficial no splash (`fe3b09a`); Google Auth end-to-end validado em web (commit `fe3b09a`); LGPD persistência + triggers + grants (commits relacionados); Logout (`ac337b8`). **Fase 2 fechada pragmaticamente** — 2.5 (Apple) adiada p/ pré-release iOS; cards 2/3 onboarding aguardam Stitch.

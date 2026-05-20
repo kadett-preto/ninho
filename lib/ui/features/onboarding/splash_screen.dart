@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../data/repositories/environments_repository.dart';
 import '../../../data/repositories/users_repository.dart';
 import '../../../data/services/auth_service.dart';
 import '../../core/colors.dart';
@@ -36,8 +37,14 @@ class _SplashScreenState extends State<SplashScreen> {
     }
     try {
       final consented = await UsersRepository().hasLgpdConsent();
+      if (!consented) {
+        if (!mounted) return;
+        context.go(NinhoRoutes.consent);
+        return;
+      }
+      final hasEnv = await EnvironmentsRepository().hasActiveEnvironment();
       if (!mounted) return;
-      context.go(consented ? NinhoRoutes.home : NinhoRoutes.consent);
+      context.go(hasEnv ? NinhoRoutes.home : NinhoRoutes.setupStep1);
     } catch (_) {
       if (!mounted) return;
       context.go(NinhoRoutes.consent);

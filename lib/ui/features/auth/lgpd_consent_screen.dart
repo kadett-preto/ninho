@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../data/repositories/environments_repository.dart';
 import '../../../data/repositories/users_repository.dart';
 import '../../../data/services/posthog_service.dart';
 import '../../core/colors.dart';
@@ -33,8 +34,9 @@ class _LgpdConsentScreenState extends State<LgpdConsentScreen> {
       // Trigger Postgres já gravou audit_log "consent.lgpd.accepted".
       // Liga PostHog só se opt-in explícito (§3.10).
       await PosthogService.setupIfConsented(consented: _analyticsConsent);
+      final hasEnv = await EnvironmentsRepository().hasActiveEnvironment();
       if (!mounted) return;
-      context.go(NinhoRoutes.home);
+      context.go(hasEnv ? NinhoRoutes.home : NinhoRoutes.setupStep1);
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
