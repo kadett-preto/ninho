@@ -12,9 +12,9 @@
 
 ## Status Geral
 
-- **Fase atual:** 0 — Setup (parcial — pendências externas)
+- **Fase atual:** 0 — Setup (quase completa)
 - **Última atualização:** 2026-05-19
-- **Bloqueios ativos:** Aguardando criação dos projetos Supabase/Sentry/PostHog (0.3, 0.4, 0.7, 0.8) — usuário sinalizou criar quando for testar
+- **Bloqueios ativos:** Sentry DSN (0.7) e PostHog API key (0.8) — aguardando criação
 
 ---
 
@@ -22,8 +22,8 @@
 
 - [x] **0.1.** `flutter create` com estrutura inicial (arch best-practices — skill `flutter-apply-architecture-best-practices`). Flutter 3.44, `lib/{data,domain,ui}` criados.
 - [x] **0.2.** `git init` + `.gitignore` Flutter padrão + commit inicial (`36a190e`)
-- [!] **0.3.** Criar projeto Supabase (dev) + capturar URL/anon key em `.env` (§7.7) — aguardando usuário
-- [!] **0.4.** Configurar `supabase_flutter` no app + smoke test de conexão — depende 0.3
+- [x] **0.3.** Projeto Supabase `ninho-dev` (region sa-east) criado; URL+anon em `.env` local. Data API: on. Auto-expose new tables: off (defense-in-depth, §7.1).
+- [x] **0.4.** `supabase_flutter` + `flutter_dotenv` integrados (`SupabaseService.init` em `lib/data/services/supabase_client.dart`, bootstrap em `main()`). Smoke real de conexão fica p/ Fase 1 (precisa tabela existir).
 - [x] **0.5.** CI baseline (GitHub Actions: format/analyze/test/coverage) em `.github/workflows/flutter-ci.yml`
 - [x] **0.6.** Dependabot semanal em `.github/dependabot.yml` (pub + github-actions)
 - [!] **0.7.** Sentry SDK (mascaramento de PII, §7.5) — aguardando DSN
@@ -223,3 +223,4 @@
 
 - **2026-05-19** — arquivo criado, plano inicial derivado de `IDEA.md` (todas fases pendentes).
 - **2026-05-19** — Fase 0 parcialmente concluída: 0.1, 0.2, 0.5, 0.6, 0.9 ✓. 0.3, 0.4, 0.7, 0.8 bloqueadas aguardando contas externas. Commit inicial `36a190e`.
+- **2026-05-19** — Supabase dev criado, 0.3 e 0.4 ✓. Commit `20ba10d` (supabase_flutter + flutter_dotenv).
