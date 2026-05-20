@@ -12,9 +12,9 @@
 
 ## Status Geral
 
-- **Fase atual:** 1 — Modelagem + RLS ✓ (concluída) · próxima: Fase 2 (Auth)
+- **Fase atual:** 2 — Auth + Onboarding (em andamento)
 - **Última atualização:** 2026-05-20
-- **Bloqueios ativos:** Várias telas da Fase 2 aguardam exports/links do Stitch (§2)
+- **Bloqueios ativos:** Cards 2 e 3 do onboarding (placeholders no momento); providers Supabase Auth (2.4/2.5)
 
 ---
 
@@ -56,16 +56,16 @@
 
 ## Fase 2 — Autenticação + Onboarding Inicial
 
-- [!] **2.1.** Tela Splash — aguardando Stitch
-- [!] **2.2.** Onboarding 3 cards — aguardando Stitch
-- [!] **2.3.** Tela Login (Google + Apple) — aguardando Stitch
+- [x] **2.1.** Splash com wordmark + auto-advance 1.2s (`lib/ui/features/onboarding/splash_screen.dart`)
+- [~] **2.2.** Onboarding 3 cards — card 1 "Bem-vindo" implementado (`welcome_card.dart`); cards 2 e 3 como placeholder até Stitch entregar
+- [x] **2.3.** Login com hero circle + Google/Apple buttons + termos/privacidade (`login_screen.dart`). Provider real fica em 2.4/2.5.
 - [ ] **2.4.** Wire-up Supabase Auth: Google provider
 - [ ] **2.5.** Wire-up Supabase Auth: Apple provider (obrigatório iOS)
-- [!] **2.6.** Tela consentimento LGPD — aguardando Stitch (§5.10)
-- [ ] **2.7.** Persistência consentimento em `users` + `audit_log`
+- [x] **2.6.** Consentimento LGPD — 3 cards (1 obrigatório + 2 opcionais) (`lgpd_consent_screen.dart`)
+- [ ] **2.7.** Persistência consentimento via Edge Function (users.lgpd_consent_at + audit_log + PosthogService.setupIfConsented)
 - [ ] **2.8.** Logout invalida sessão local + servidor (§7.2)
-- [ ] **2.9.** Roteamento declarativo inicial (skill `flutter-setup-declarative-routing`)
-- [ ] **2.10.** Widget tests de login + onboarding (§8.2)
+- [x] **2.9.** Roteamento go_router (`lib/ui/core/routes.dart`, MaterialApp.router em `app.dart`)
+- [x] **2.10.** Widget tests — 5 testes verdes (splash + welcome + login + LGPD + theme)
 
 ---
 
@@ -232,3 +232,4 @@
 - **2026-05-19** — PostHog SDK adicionado com consent-gate (não inicializa até Fase 2). 0.8 ✓. Commit `8d04c90`. **Fase 0 concluída.**
 - **2026-05-19** — Fase 1 schema MVP + RLS implementados (5 migrations, 13 tabelas, 40 pgTAP tests verdes em local). Tasks 1.1–1.10 ✓. Commit `01fe7b3`. Falta: push remoto (1.12) + CI db tests (1.13).
 - **2026-05-20** — Migrations aplicadas no remoto `ninho-dev` via `supabase db push`. CI workflow `db-ci.yml` adicionado (1.12 + 1.13 ✓). Commit `c4efb77`. **Fase 1 concluída.**
+- **2026-05-20** — Fase 2 telas implementadas via Stitch MCP: splash, onboarding card 1, login, LGPD consent + routing go_router + 5 widget tests verdes. Tasks 2.1, 2.3, 2.6, 2.9, 2.10 ✓; 2.2 parcial; 2.4, 2.5, 2.7, 2.8 pendentes. Commit `f051fb2`.
