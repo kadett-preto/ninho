@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../data/services/auth_service.dart';
 import '../../core/colors.dart';
 import '../../core/routes.dart';
 import '../../core/spacing.dart';
@@ -24,7 +25,14 @@ class _SplashScreenState extends State<SplashScreen> {
     super.initState();
     _navTimer = Timer(const Duration(milliseconds: 1400), () {
       if (!mounted) return;
-      context.go(NinhoRoutes.onboarding);
+      // Se já tem sessão Supabase, pula onboarding/login e cai direto no
+      // gate de consentimento (que verifica e encaminha para home se já ok).
+      // TODO(task 2.7): checar users.lgpd_consent_at p/ pular /consent quando
+      // já aceitou anteriormente.
+      final session = AuthService.currentSession;
+      context.go(
+        session == null ? NinhoRoutes.onboarding : NinhoRoutes.consent,
+      );
     });
   }
 

@@ -1,15 +1,51 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 
+import '../../../data/services/auth_service.dart';
 import '../../core/colors.dart';
-import '../../core/routes.dart';
 import '../../core/spacing.dart';
 
 // Tela de login (Stitch — Login · Playful Geometric Variant 3).
-// Providers reais (Google, Apple) entram nas tasks 2.4 e 2.5 — por enquanto
-// os botões redirecionam para o gate de consentimento LGPD.
-class LoginScreen extends StatelessWidget {
+// Google em produção via Supabase OAuth (task 2.4). Apple ainda stubbed
+// (task 2.5).
+class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
+
+  @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  bool _loading = false;
+
+  Future<void> _signInGoogle() async {
+    if (_loading) return;
+    setState(() => _loading = true);
+    try {
+      await AuthService.signInWithGoogle();
+      // Em web, signInWithOAuth redireciona a página inteira. Quando voltar
+      // do callback do Google, o app reinicializa e SplashScreen vê a sessão.
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Falha ao entrar com Google: $e')));
+      setState(() => _loading = false);
+    }
+  }
+
+  Future<void> _signInApple() async {
+    if (_loading) return;
+    setState(() => _loading = true);
+    try {
+      await AuthService.signInWithApple();
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Falha ao entrar com Apple: $e')));
+      setState(() => _loading = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -54,8 +90,9 @@ class LoginScreen extends StatelessWidget {
                     ),
                   ),
                   _AuthButtons(
-                    onGoogle: () => context.go(NinhoRoutes.consent),
-                    onApple: () => context.go(NinhoRoutes.consent),
+                    loading: _loading,
+                    onGoogle: _signInGoogle,
+                    onApple: _signInApple,
                   ),
                   const SizedBox(height: NinhoSpacing.stackMd),
                   _LegalFooter(theme: theme),
@@ -185,10 +222,15 @@ class _HeroCircle extends StatelessWidget {
 }
 
 class _AuthButtons extends StatelessWidget {
-  const _AuthButtons({required this.onGoogle, required this.onApple});
+  const _AuthButtons({
+    required this.onGoogle,
+    required this.onApple,
+    required this.loading,
+  });
 
   final VoidCallback onGoogle;
   final VoidCallback onApple;
+  final bool loading;
 
   @override
   Widget build(BuildContext context) {
@@ -200,7 +242,7 @@ class _AuthButtons extends StatelessWidget {
           foreground: NinhoColors.onSurface,
           borderColor: NinhoColors.outlineVariant,
           icon: Icons.public, // TODO(stitch): trocar pelo SVG do Google
-          onPressed: onGoogle,
+          onPressed: loading ? null : onGoogle,
         ),
         const SizedBox(height: NinhoSpacing.stackSm),
         _AuthButton(
@@ -208,8 +250,12 @@ class _AuthButtons extends StatelessWidget {
           background: NinhoColors.inverseSurface,
           foreground: NinhoColors.inverseOnSurface,
           icon: Icons.apple,
-          onPressed: onApple,
+          onPressed: loading ? null : onApple,
         ),
+        if (loading) ...[
+          const SizedBox(height: NinhoSpacing.stackSm),
+          const LinearProgressIndicator(minHeight: 2),
+        ],
       ],
     );
   }
@@ -230,7 +276,7 @@ class _AuthButton extends StatelessWidget {
   final Color foreground;
   final IconData icon;
   final Color? borderColor;
-  final VoidCallback onPressed;
+  final VoidCallback? onPressed;
 
   @override
   Widget build(BuildContext context) {
