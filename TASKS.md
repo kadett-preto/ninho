@@ -71,14 +71,14 @@
 
 ## Fase 3 — Cadastro de Ninho
 
-- [!] **3.1.** Tela "Criar ninho ou entrar" — aguardando Stitch
-- [!] **3.2.** Tela criar ninho (nome, fuso, idioma) — aguardando Stitch
-- [ ] **3.3.** Lógica de timezone default = device, persistir em `environments.timezone` (§5.2)
-- [!] **3.4.** Tela cadastrar cômodos (nome, P/M/G, foto opcional) — aguardando Stitch
-- [ ] **3.5.** Upload de foto de cômodo para Supabase Storage com signed URL + EXIF strip (§7.4)
-- [ ] **3.6.** Validação tipo/tamanho de arquivo no upload (§7.4)
-- [ ] **3.7.** Edge Function: criar ninho (atômico — environment + member owner + audit)
-- [ ] **3.8.** Widget + integration tests do fluxo
+- [~] **3.1.** Splash + LGPD agora redirecionam pra `/setup/step1` se sem ninho (pulando tela explícita "Criar ou entrar" — fluxo único por enquanto)
+- [x] **3.2.** Step 1 (`step1_name_screen.dart`) coleta nome do ninho com placeholder "Nosso apê". Idioma/icon picker do Stitch ainda não wired (icon picker comentado).
+- [x] **3.3.** Timezone default `America/Sao_Paulo` no `SetupController`; Step 3 exibe + permite confirmar. Lookup IANA via plugin `flutter_timezone` adiar (compat web).
+- [x] **3.4.** Step 2 (`step2_rooms_screen.dart`) — grid 2-col cards Sala/Quarto/Cozinha/Banheiro + dialog "novo cômodo". Foto por cômodo (câmera icon) ainda não wired.
+- [ ] **3.5.** Upload foto cômodo via Storage signed URL + EXIF strip (§7.4)
+- [ ] **3.6.** Validação tipo/tamanho upload (§7.4)
+- [ ] **3.7.** Edge Function p/ atomicidade — hoje cliente faz 2 inserts (environment + rooms); trigger handle_new_environment já cria membership. OK p/ MVP mas mover p/ Edge Function antes do release.
+- [~] **3.8.** Tests: 8 unit do `SetupController`. Widget tests das 3 telas + integration pendentes.
 
 ---
 

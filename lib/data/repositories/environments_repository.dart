@@ -17,7 +17,14 @@ class EnvironmentsRepository {
     required List<Room> rooms,
   }) async {
     final client = SupabaseService.client;
-    final userId = client.auth.currentUser?.id;
+    var session = client.auth.currentSession;
+    if (session == null || session.isExpired) {
+      // Tenta renovar antes de falhar — o token JWT é o que PostgREST usa
+      // para resolver auth.uid() nas policies de RLS (§7.1).
+      await client.auth.refreshSession();
+      session = client.auth.currentSession;
+    }
+    final userId = session?.user.id;
     if (userId == null) throw StateError('Sem sessão Supabase ativa');
 
     final envInsert = await client
