@@ -12,7 +12,7 @@
 
 ## Status Geral
 
-- **Fase atual:** 0 — Setup ✓ (concluída)
+- **Fase atual:** 1 — Modelagem + RLS (em andamento)
 - **Última atualização:** 2026-05-19
 - **Bloqueios ativos:** —
 
@@ -36,17 +36,21 @@
 
 > Pré-requisito de quase tudo. Sem isso, nada de feature.
 
-- [ ] **1.1.** Migration: `users` (vinculada `auth.users`)
-- [ ] **1.2.** Migration: `environments` + `environment_members`
-- [ ] **1.3.** Migration: `rooms`
-- [ ] **1.4.** Migration: `tasks` + `task_completions` + `task_transfers`
-- [ ] **1.5.** Migration: `streaks` + `dust_ledger`
-- [ ] **1.6.** Migration: `feed_events` + `notification_log`
-- [ ] **1.7.** Migration: `invites` (token_hash, expires_at, used_at, revoked_at — §7.3)
-- [ ] **1.8.** Migration: `audit_log` (§7.5)
-- [ ] **1.9.** Policies RLS em todas tabelas com `environment_id`
-- [ ] **1.10.** **Testes de RLS (positivos e negativos)** — bloqueador de merge (§8.3)
-- [ ] **1.11.** Testes de rollback de cada migration (§8.3)
+> Schema condensado em 5 migrations timestampadas (não 8 tabelas separadas). Aplicado em local dev; remoto pendente.
+
+- [x] **1.1.** `users` (em `20260519230100_core_schema.sql`)
+- [x] **1.2.** `environments` + `environment_members` (em `20260519230100`)
+- [x] **1.3.** `rooms` (em `20260519230200_rooms_and_tasks.sql`)
+- [x] **1.4.** `tasks` + `task_completions` + `task_transfers` (em `20260519230200`)
+- [x] **1.5.** `streaks` + `dust_ledger` (em `20260519230300_engagement.sql`)
+- [x] **1.6.** `feed_events` + `notification_log` (em `20260519230300` e `20260519230400`)
+- [x] **1.7.** `invites` com token_hash + expires_at + used_at + revoked_at (em `20260519230400_security_and_audit.sql`)
+- [x] **1.8.** `audit_log` (em `20260519230400`)
+- [x] **1.9.** RLS habilitado em todas as 13 tabelas + policies por papel (owner/member); tabelas só-server (invites/audit/notification/dust/transfers/streaks) sem INSERT/UPDATE/DELETE de cliente
+- [x] **1.10.** 40 pgTAP tests passando (`supabase test db`) — `01_rls_core_isolation` (26) + `02_rls_sensitive_tables` (14). Cobre helpers, isolamento Alice/Bob/Carol, forja de created_by/completed_by, lockdown de tabelas sensíveis
+- [ ] **1.11.** Testes de rollback de migrations — Supabase não tem down migrations nativas; usar `supabase db reset` p/ replay determinístico já cobre o objetivo. Marcado como N/A salvo necessidade futura
+- [ ] **1.12.** Push migrations p/ `ninho-dev` remoto (depende de `supabase login` + `supabase link`)
+- [ ] **1.13.** Adicionar `supabase test db` ao CI workflow
 
 ---
 
@@ -226,3 +230,4 @@
 - **2026-05-19** — Supabase dev criado, 0.3 e 0.4 ✓. Commit `20ba10d` (supabase_flutter + flutter_dotenv).
 - **2026-05-19** — Sentry mobile integrado (PII scrub + sampling 0.2). 0.7 ✓. Commit `86542f8`.
 - **2026-05-19** — PostHog SDK adicionado com consent-gate (não inicializa até Fase 2). 0.8 ✓. Commit `8d04c90`. **Fase 0 concluída.**
+- **2026-05-19** — Fase 1 schema MVP + RLS implementados (5 migrations, 13 tabelas, 40 pgTAP tests verdes em local). Tasks 1.1–1.10 ✓. Commit `01fe7b3`. Falta: push remoto (1.12) + CI db tests (1.13).
