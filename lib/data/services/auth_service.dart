@@ -18,9 +18,24 @@ class AuthService {
   static Stream<AuthState> get onAuthStateChange =>
       _client.auth.onAuthStateChange;
 
-  static Session? get currentSession => _client.auth.currentSession;
+  // Os getters abaixo são tolerantes a Supabase não-inicializado (útil em
+  // widget tests). Em runtime real, SupabaseService.init garante que
+  // `Supabase.instance` esteja disponível.
+  static Session? get currentSession {
+    try {
+      return _client.auth.currentSession;
+    } catch (_) {
+      return null;
+    }
+  }
 
-  static User? get currentUser => _client.auth.currentUser;
+  static User? get currentUser {
+    try {
+      return _client.auth.currentUser;
+    } catch (_) {
+      return null;
+    }
+  }
 
   static String _redirectTo() {
     if (kIsWeb) {

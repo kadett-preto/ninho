@@ -62,8 +62,8 @@
 - [x] **2.4.** Supabase Auth Google funcionando end-to-end (`AuthService.signInWithGoogle`, Supabase Provider Google ativo, redirect web via `Uri.base.origin`). Mobile pendente (deep-link scheme `io.supabase.ninho://login-callback/`).
 - [ ] **2.5.** Wire-up Supabase Auth: Apple provider (obrigatório iOS)
 - [x] **2.6.** Consentimento LGPD — 3 cards (1 obrigatório + 2 opcionais) (`lgpd_consent_screen.dart`)
-- [ ] **2.7.** Persistência consentimento via Edge Function (users.lgpd_consent_at + audit_log + PosthogService.setupIfConsented)
-- [ ] **2.8.** Logout invalida sessão local + servidor (§7.2)
+- [x] **2.7.** Persistência LGPD: `UsersRepository.updateLgpdConsent` + trigger Postgres `log_lgpd_consent` (audit_log append-only) + `PosthogService.setupIfConsented` se analytics opt-in. Splash checa `hasLgpdConsent` e pula `/consent` quando já aceito.
+- [~] **2.8.** Logout — implementando
 - [x] **2.9.** Roteamento go_router (`lib/ui/core/routes.dart`, MaterialApp.router em `app.dart`)
 - [x] **2.10.** Widget tests — 5 testes verdes (splash + welcome + login + LGPD + theme)
 

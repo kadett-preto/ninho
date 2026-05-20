@@ -5,6 +5,7 @@ import 'package:ninho/ui/core/colors.dart';
 import 'package:ninho/ui/core/theme.dart';
 import 'package:ninho/ui/features/auth/lgpd_consent_screen.dart';
 import 'package:ninho/ui/features/auth/login_screen.dart';
+import 'package:ninho/ui/features/home/home_placeholder_screen.dart';
 import 'package:ninho/ui/features/onboarding/splash_screen.dart';
 import 'package:ninho/ui/features/onboarding/welcome_card.dart';
 
@@ -71,6 +72,14 @@ void main() {
     final metrics = tester.widget<Switch>(switches.at(2));
     expect(metrics.onChanged, isNotNull);
     expect(metrics.value, isFalse);
+  });
+
+  testWidgets('home placeholder shows logout button', (tester) async {
+    _setMobile(tester);
+    await tester.pumpWidget(_wrap(const HomePlaceholderScreen()));
+    expect(find.text('Bem-vindo ao Ninho.'), findsOneWidget);
+    expect(find.text('Sair do ninho'), findsOneWidget);
+    expect(find.byIcon(Icons.logout), findsOneWidget);
   });
 
   testWidgets('theme uses primary terracotta', (tester) async {
