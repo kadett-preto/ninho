@@ -12,9 +12,9 @@
 
 ## Status Geral
 
-- **Fase atual:** 1 — Modelagem + RLS (em andamento)
-- **Última atualização:** 2026-05-19
-- **Bloqueios ativos:** —
+- **Fase atual:** 1 — Modelagem + RLS ✓ (concluída) · próxima: Fase 2 (Auth)
+- **Última atualização:** 2026-05-20
+- **Bloqueios ativos:** Várias telas da Fase 2 aguardam exports/links do Stitch (§2)
 
 ---
 
@@ -49,8 +49,8 @@
 - [x] **1.9.** RLS habilitado em todas as 13 tabelas + policies por papel (owner/member); tabelas só-server (invites/audit/notification/dust/transfers/streaks) sem INSERT/UPDATE/DELETE de cliente
 - [x] **1.10.** 40 pgTAP tests passando (`supabase test db`) — `01_rls_core_isolation` (26) + `02_rls_sensitive_tables` (14). Cobre helpers, isolamento Alice/Bob/Carol, forja de created_by/completed_by, lockdown de tabelas sensíveis
 - [ ] **1.11.** Testes de rollback de migrations — Supabase não tem down migrations nativas; usar `supabase db reset` p/ replay determinístico já cobre o objetivo. Marcado como N/A salvo necessidade futura
-- [ ] **1.12.** Push migrations p/ `ninho-dev` remoto (depende de `supabase login` + `supabase link`)
-- [ ] **1.13.** Adicionar `supabase test db` ao CI workflow
+- [x] **1.12.** Migrations aplicadas no remoto `ninho-dev` via `supabase db push` (link + PAT + db password gerenciados localmente, fora do repo)
+- [x] **1.13.** `.github/workflows/db-ci.yml` roda `supabase start` + `supabase test db` em mudanças a migrations/tests/config — bloqueia merge se RLS quebrar
 
 ---
 
@@ -231,3 +231,4 @@
 - **2026-05-19** — Sentry mobile integrado (PII scrub + sampling 0.2). 0.7 ✓. Commit `86542f8`.
 - **2026-05-19** — PostHog SDK adicionado com consent-gate (não inicializa até Fase 2). 0.8 ✓. Commit `8d04c90`. **Fase 0 concluída.**
 - **2026-05-19** — Fase 1 schema MVP + RLS implementados (5 migrations, 13 tabelas, 40 pgTAP tests verdes em local). Tasks 1.1–1.10 ✓. Commit `01fe7b3`. Falta: push remoto (1.12) + CI db tests (1.13).
+- **2026-05-20** — Migrations aplicadas no remoto `ninho-dev` via `supabase db push`. CI workflow `db-ci.yml` adicionado (1.12 + 1.13 ✓). Commit `c4efb77`. **Fase 1 concluída.**
