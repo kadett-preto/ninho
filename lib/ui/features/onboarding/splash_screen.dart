@@ -5,9 +5,10 @@ import 'package:go_router/go_router.dart';
 
 import '../../core/colors.dart';
 import '../../core/routes.dart';
+import '../../core/spacing.dart';
 
-// Splash placeholder. Logo final virá do Stitch (asset `logo_sem_fundo.png`).
-// Por enquanto, exibe wordmark Montserrat 700 primary terracotta + 1.2s delay.
+// Splash — logo oficial do Stitch (assets/branding/logo.png) + wordmark.
+// Auto-advance para /onboarding em 1.4s.
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
 
@@ -21,7 +22,7 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    _navTimer = Timer(const Duration(milliseconds: 1200), () {
+    _navTimer = Timer(const Duration(milliseconds: 1400), () {
       if (!mounted) return;
       context.go(NinhoRoutes.onboarding);
     });
@@ -39,12 +40,27 @@ class _SplashScreenState extends State<SplashScreen> {
     return Scaffold(
       backgroundColor: NinhoColors.surface,
       body: Center(
-        child: Text(
-          'ninho',
-          style: theme.textTheme.displayLarge?.copyWith(
-            color: NinhoColors.primary,
-            fontWeight: FontWeight.w700,
-          ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Image.asset(
+              'assets/branding/logo.png',
+              width: 160,
+              height: 160,
+              fit: BoxFit.contain,
+              errorBuilder: (_, _, _) =>
+                  const SizedBox(width: 160, height: 160),
+            ),
+            const SizedBox(height: NinhoSpacing.stackMd),
+            Text(
+              'ninho',
+              style: theme.textTheme.headlineLarge?.copyWith(
+                color: NinhoColors.primary,
+                fontWeight: FontWeight.w700,
+                letterSpacing: -1,
+              ),
+            ),
+          ],
         ),
       ),
     );
