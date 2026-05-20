@@ -10,12 +10,14 @@ select plan(14);
 
 -- ---- Setup -----------------------------------------------------------------
 
-insert into auth.users (id) values
-  ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa'),
-  ('bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb');
-insert into public.users (id, display_name) values
-  ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'Alice'),
-  ('bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb', 'Bob');
+insert into auth.users (id, email) values
+  ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'alice@test.local'),
+  ('bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb', 'bob@test.local');
+-- Trigger on_auth_user_created já cria public.users; só normalizamos nome.
+update public.users set display_name = 'Alice'
+ where id = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa';
+update public.users set display_name = 'Bob'
+ where id = 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb';
 
 insert into public.environments (id, owner_id, name, timezone) values
   ('eeeeeeee-1111-1111-1111-111111111111', 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'Ninho Alice', 'America/Sao_Paulo');

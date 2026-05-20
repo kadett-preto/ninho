@@ -8,17 +8,20 @@ select plan(26);
 
 -- ---- Setup -----------------------------------------------------------------
 
--- Crio 3 usuários em auth.users (mínimo: id) e seus perfis em public.users.
-insert into auth.users (id) values
-  ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa'),
-  ('bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb'),
-  ('cccccccc-cccc-cccc-cccc-cccccccccccc');
+-- Crio 3 usuários em auth.users; o trigger on_auth_user_created cria as linhas
+-- correspondentes em public.users automaticamente. Atualizamos depois apenas o
+-- display_name para nomes amigáveis no teste.
+insert into auth.users (id, email) values
+  ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'alice@test.local'),
+  ('bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb', 'bob@test.local'),
+  ('cccccccc-cccc-cccc-cccc-cccccccccccc', 'carol@test.local');
 
--- Insiro perfis usando service_role implícito (postgres bypassa RLS).
-insert into public.users (id, display_name) values
-  ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'Alice'),
-  ('bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb', 'Bob'),
-  ('cccccccc-cccc-cccc-cccc-cccccccccccc', 'Carol');
+update public.users set display_name = 'Alice'
+ where id = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa';
+update public.users set display_name = 'Bob'
+ where id = 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb';
+update public.users set display_name = 'Carol'
+ where id = 'cccccccc-cccc-cccc-cccc-cccccccccccc';
 
 -- Alice cria seu ninho. Inserção feita como postgres (bypass RLS) para
 -- simular o caminho "trigger handle_new_environment cria membership owner".

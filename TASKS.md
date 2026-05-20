@@ -59,7 +59,7 @@
 - [x] **2.1.** Splash com wordmark + auto-advance 1.2s (`lib/ui/features/onboarding/splash_screen.dart`)
 - [~] **2.2.** Onboarding 3 cards — card 1 "Bem-vindo" implementado (`welcome_card.dart`); cards 2 e 3 como placeholder até Stitch entregar
 - [x] **2.3.** Login com hero circle + Google/Apple buttons + termos/privacidade (`login_screen.dart`). Provider real fica em 2.4/2.5.
-- [ ] **2.4.** Wire-up Supabase Auth: Google provider
+- [x] **2.4.** Supabase Auth Google funcionando end-to-end (`AuthService.signInWithGoogle`, Supabase Provider Google ativo, redirect web via `Uri.base.origin`). Mobile pendente (deep-link scheme `io.supabase.ninho://login-callback/`).
 - [ ] **2.5.** Wire-up Supabase Auth: Apple provider (obrigatório iOS)
 - [x] **2.6.** Consentimento LGPD — 3 cards (1 obrigatório + 2 opcionais) (`lgpd_consent_screen.dart`)
 - [ ] **2.7.** Persistência consentimento via Edge Function (users.lgpd_consent_at + audit_log + PosthogService.setupIfConsented)

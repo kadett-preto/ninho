@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../data/repositories/users_repository.dart';
+import '../../../data/services/posthog_service.dart';
 import '../../core/colors.dart';
 import '../../core/routes.dart';
 import '../../core/spacing.dart';
@@ -15,16 +17,31 @@ class LgpdConsentScreen extends StatefulWidget {
 }
 
 class _LgpdConsentScreenState extends State<LgpdConsentScreen> {
+  final _usersRepo = UsersRepository();
   bool _notificationsConsent = false;
   bool _analyticsConsent = false;
+  bool _saving = false;
 
-  void _accept() {
-    // TODO(task 2.7): persistir consentimentos via Edge Function:
-    //   - users.lgpd_consent_at = now()
-    //   - audit_log entry "consent.lgpd.accepted"
-    //   - notifications/analytics flags em users meta
-    // E disparar PosthogService.setupIfConsented(analytics) só se opt-in.
-    context.go(NinhoRoutes.home);
+  Future<void> _accept() async {
+    if (_saving) return;
+    setState(() => _saving = true);
+    try {
+      await _usersRepo.updateLgpdConsent(
+        notifications: _notificationsConsent,
+        analytics: _analyticsConsent,
+      );
+      // Trigger Postgres já gravou audit_log "consent.lgpd.accepted".
+      // Liga PostHog só se opt-in explícito (§3.10).
+      await PosthogService.setupIfConsented(consented: _analyticsConsent);
+      if (!mounted) return;
+      context.go(NinhoRoutes.home);
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Falha ao salvar consentimento: $e')),
+      );
+      setState(() => _saving = false);
+    }
   }
 
   @override
@@ -98,11 +115,20 @@ class _LgpdConsentScreenState extends State<LgpdConsentScreen> {
               ),
               const SizedBox(height: NinhoSpacing.stackSm),
               FilledButton(
-                onPressed: _accept,
+                onPressed: _saving ? null : _accept,
                 style: FilledButton.styleFrom(
                   minimumSize: const Size.fromHeight(56),
                 ),
-                child: const Text('Aceitar e continuar'),
+                child: _saving
+                    ? const SizedBox(
+                        width: 22,
+                        height: 22,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2.5,
+                          color: NinhoColors.onPrimary,
+                        ),
+                      )
+                    : const Text('Aceitar e continuar'),
               ),
               const SizedBox(height: NinhoSpacing.stackSm),
             ],
