@@ -12,23 +12,23 @@
 
 ## Status Geral
 
-- **Fase atual:** 0 — Setup (em andamento)
+- **Fase atual:** 0 — Setup (parcial — pendências externas)
 - **Última atualização:** 2026-05-19
-- **Bloqueios ativos:** Flutter SDK não instalado (resolvendo via snap)
+- **Bloqueios ativos:** Aguardando criação dos projetos Supabase/Sentry/PostHog (0.3, 0.4, 0.7, 0.8) — usuário sinalizou criar quando for testar
 
 ---
 
 ## Fase 0 — Setup do Projeto
 
-- [ ] **0.1.** `flutter create` com estrutura inicial (arch best-practices — usar skill `flutter-apply-architecture-best-practices`)
-- [ ] **0.2.** `git init` + `.gitignore` Flutter padrão + commit inicial
-- [ ] **0.3.** Criar projeto Supabase (dev) + capturar URL/anon key em `.env` (fora do repo, §7.7)
-- [ ] **0.4.** Configurar `supabase_flutter` no app + smoke test de conexão
-- [ ] **0.5.** CI baseline (GitHub Actions): `flutter analyze` + `flutter test` em PR
-- [ ] **0.6.** Dependabot/Renovate ativo (§7.9)
-- [ ] **0.7.** Sentry SDK (mobile + Edge Functions) com mascaramento de PII (§7.5)
-- [ ] **0.8.** PostHog SDK + flag inicial de teste
-- [ ] **0.9.** README mínimo (como rodar, como testar, link IDEA.md)
+- [x] **0.1.** `flutter create` com estrutura inicial (arch best-practices — skill `flutter-apply-architecture-best-practices`). Flutter 3.44, `lib/{data,domain,ui}` criados.
+- [x] **0.2.** `git init` + `.gitignore` Flutter padrão + commit inicial (`36a190e`)
+- [!] **0.3.** Criar projeto Supabase (dev) + capturar URL/anon key em `.env` (§7.7) — aguardando usuário
+- [!] **0.4.** Configurar `supabase_flutter` no app + smoke test de conexão — depende 0.3
+- [x] **0.5.** CI baseline (GitHub Actions: format/analyze/test/coverage) em `.github/workflows/flutter-ci.yml`
+- [x] **0.6.** Dependabot semanal em `.github/dependabot.yml` (pub + github-actions)
+- [!] **0.7.** Sentry SDK (mascaramento de PII, §7.5) — aguardando DSN
+- [!] **0.8.** PostHog SDK + flag inicial — aguardando API key
+- [x] **0.9.** README mínimo (`README.md`)
 
 ---
 
@@ -222,3 +222,4 @@
 ## Histórico de Mudanças
 
 - **2026-05-19** — arquivo criado, plano inicial derivado de `IDEA.md` (todas fases pendentes).
+- **2026-05-19** — Fase 0 parcialmente concluída: 0.1, 0.2, 0.5, 0.6, 0.9 ✓. 0.3, 0.4, 0.7, 0.8 bloqueadas aguardando contas externas. Commit inicial `36a190e`.
