@@ -34,13 +34,10 @@ class SentryService {
     final user = event.user;
     if (user == null) return event;
 
-    return event.copyWith(
-      user: user.copyWith(
-        email: null,
-        ipAddress: null,
-        name: null,
-        username: null,
-      ),
-    );
+    user.email = null;
+    user.ipAddress = null;
+    user.name = null;
+    user.username = null;
+    return event;
   }
 }
