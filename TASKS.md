@@ -71,10 +71,11 @@
 
 ## Fase 3 — Cadastro de Ninho
 
-- [~] **3.1.** Splash + LGPD agora redirecionam pra `/setup/step1` se sem ninho (pulando tela explícita "Criar ou entrar" — fluxo único por enquanto)
-- [x] **3.2.** Step 1 (`step1_name_screen.dart`) coleta nome do ninho com placeholder "Nosso apê". Idioma/icon picker do Stitch ainda não wired (icon picker comentado).
-- [x] **3.3.** Timezone default `America/Sao_Paulo` no `SetupController`; Step 3 exibe + permite confirmar. Lookup IANA via plugin `flutter_timezone` adiar (compat web).
-- [x] **3.4.** Step 2 (`step2_rooms_screen.dart`) — grid 2-col cards Sala/Quarto/Cozinha/Banheiro + dialog "novo cômodo". Foto por cômodo (câmera icon) ainda não wired.
+- [~] **3.1.** Splash + LGPD redirecionam pra `/setup/step1` se sem ninho.
+- [x] **3.2.** Step 1 coleta nome do ninho. Icon picker pendente.
+- [x] **3.3.** Timezone default `America/Sao_Paulo`. Lookup IANA via plugin pendente (compat web).
+- [x] **3.4.** Step 2 grid de cômodos + dialog novo. Foto por cômodo pendente.
+- [x] **fix RLS:** `environments_select_member` policy aceita `owner_id = auth.uid()` p/ destravar INSERT...RETURNING — trigger AFTER inserir membership não tinha rodado quando o RETURNING checava SELECT USING. Migration `20260520210000`. End-to-end validado.
 - [ ] **3.5.** Upload foto cômodo via Storage signed URL + EXIF strip (§7.4)
 - [ ] **3.6.** Validação tipo/tamanho upload (§7.4)
 - [ ] **3.7.** Edge Function p/ atomicidade — hoje cliente faz 2 inserts (environment + rooms); trigger handle_new_environment já cria membership. OK p/ MVP mas mover p/ Edge Function antes do release.
@@ -234,3 +235,4 @@
 - **2026-05-20** — Migrations aplicadas no remoto `ninho-dev` via `supabase db push`. CI workflow `db-ci.yml` adicionado (1.12 + 1.13 ✓). Commit `c4efb77`. **Fase 1 concluída.**
 - **2026-05-20** — Fase 2 telas implementadas via Stitch MCP: splash, onboarding card 1, login, LGPD consent + routing go_router + 5 widget tests verdes. Tasks 2.1, 2.3, 2.6, 2.9, 2.10 ✓; 2.2 parcial; 2.4, 2.5, 2.7, 2.8 pendentes. Commit `f051fb2`.
 - **2026-05-20** — Logo oficial no splash (`fe3b09a`); Google Auth end-to-end validado em web (commit `fe3b09a`); LGPD persistência + triggers + grants (commits relacionados); Logout (`ac337b8`). **Fase 2 fechada pragmaticamente** — 2.5 (Apple) adiada p/ pré-release iOS; cards 2/3 onboarding aguardam Stitch.
+- **2026-05-20** — Wizard de cadastro de ninho (Fase 3 mínima) implementado em 3 passos. Bug RLS em INSERT...RETURNING diagnosticado e fixado via SELECT policy fallback (`owner_id = auth.uid()`). End-to-end validado: splash → onboarding → login → consent → setup → home. Pendentes Fase 3: foto cômodo + EXIF strip + signed URL + Edge Function atomicidade.
