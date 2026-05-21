@@ -19,8 +19,8 @@ class EnvironmentsRepository {
     final client = SupabaseService.client;
     var session = client.auth.currentSession;
     if (session == null || session.isExpired) {
-      // Tenta renovar antes de falhar — o token JWT é o que PostgREST usa
-      // para resolver auth.uid() nas policies de RLS (§7.1).
+      // O token JWT é o que PostgREST usa para resolver auth.uid() nas
+      // policies de RLS (§7.1).
       await client.auth.refreshSession();
       session = client.auth.currentSession;
     }
@@ -32,7 +32,6 @@ class EnvironmentsRepository {
         .insert({'owner_id': userId, 'name': name, 'timezone': timezone})
         .select('id')
         .single();
-
     final environmentId = envInsert['id'] as String;
 
     if (rooms.isNotEmpty) {
