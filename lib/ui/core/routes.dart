@@ -8,6 +8,8 @@ import '../features/feed/feed_screen.dart';
 import '../features/home/home_screen.dart';
 import '../features/invite/accept_invite_screen.dart';
 import '../features/invite/invite_screen.dart';
+import '../features/invite/qr_scan_screen.dart';
+import '../features/invite/tour_screen.dart';
 import '../features/notifications/notification_settings_screen.dart';
 import '../features/shop/shop_screen.dart';
 import '../features/onboarding/onboarding_screen.dart';
@@ -35,7 +37,9 @@ class NinhoRoutes {
   static const setupStep3 = '/setup/step3';
   static const inviteFromSetup = '/invite/setup';
   static const invite = '/invite';
+  static const inviteScan = '/invite/scan';
   static const acceptInvite = '/i';
+  static const tour = '/tour';
   static const suggestions = '/suggestions';
   static const feed = '/feed';
   static const tasks = '/tasks';
@@ -80,6 +84,18 @@ GoRouter createNinhoRouter({
       GoRoute(
         path: NinhoRoutes.inviteFromSetup,
         builder: (context, state) => const InviteScreen(fromSetup: true),
+      ),
+      GoRoute(
+        path: NinhoRoutes.inviteScan,
+        builder: (context, state) => const QrScanScreen(),
+      ),
+      GoRoute(
+        path: NinhoRoutes.tour,
+        builder: (context, state) {
+          final extra = state.extra;
+          final envName = extra is String ? extra : null;
+          return TourScreen(environmentName: envName);
+        },
       ),
       // Deep link / QR: /i/<token>. Token vai no path (não em query) para
       // evitar logs de servidores intermediários (§7.3).

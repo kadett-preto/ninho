@@ -118,6 +118,16 @@ class _SetupStep1NameScreenState extends State<SetupStep1NameScreen> {
                 ],
               ),
             ),
+            const SizedBox(height: NinhoSpacing.stackLg),
+            TextButton.icon(
+              key: const Key('setup_scan_invite_button'),
+              onPressed: () => context.go(NinhoRoutes.inviteScan),
+              icon: const Icon(Icons.qr_code_scanner),
+              label: const Text('Tenho convite — escanear QR'),
+              style: TextButton.styleFrom(
+                foregroundColor: NinhoColors.primary,
+              ),
+            ),
           ],
         ),
       ),

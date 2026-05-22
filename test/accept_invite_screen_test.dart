@@ -49,6 +49,11 @@ Widget _wrap(AcceptInviteScreen screen) {
         builder: (_, _) => const Scaffold(body: Text('HOME')),
       ),
       GoRoute(
+        path: '/tour',
+        builder: (_, state) =>
+            Scaffold(body: Text('TOUR ${state.extra ?? ''}')),
+      ),
+      GoRoute(
         path: '/',
         builder: (_, _) => const Scaffold(body: Text('SPLASH')),
       ),
@@ -103,13 +108,28 @@ void main() {
     expect(find.text('Não, obrigada'), findsOneWidget);
   });
 
-  testWidgets('tap em "Entrar no ninho" chama acceptInvite e navega pra home', (
+  testWidgets('tap em "Entrar no ninho" chama acceptInvite e navega pro tour', (
     tester,
   ) async {
     _setMobile(tester);
     final repo = _FakeInvitesRepo(preview: _preview());
     await tester.pumpWidget(
       _wrap(AcceptInviteScreen(token: 'tok-1', invitesRepository: repo)),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(const Key('accept_invite_primary_button')));
+    await tester.pumpAndSettle();
+
+    expect(repo.acceptCalls, 1);
+    expect(find.text('TOUR Nosso apê'), findsOneWidget);
+  });
+
+  testWidgets('já-membro pula tour e vai direto pra home', (tester) async {
+    _setMobile(tester);
+    final repo = _FakeInvitesRepo(preview: _preview(alreadyMember: true));
+    await tester.pumpWidget(
+      _wrap(AcceptInviteScreen(token: 'tok-am', invitesRepository: repo)),
     );
     await tester.pumpAndSettle();
 

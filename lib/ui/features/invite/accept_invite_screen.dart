@@ -86,10 +86,15 @@ class _AcceptInviteScreenState extends State<AcceptInviteScreen> {
       _errorMessage = null;
     });
     try {
-      await _repo.acceptInvite(token: widget.token);
+      final result = await _repo.acceptInvite(token: widget.token);
       if (!mounted) return;
-      // Sucesso → home (já é membro, pode usar o ninho).
-      context.go(NinhoRoutes.home);
+      // Já-membro pula o tour (já viu o app); novo morador passa pelo tour
+      // antes de cair na home (IDEA.md §4.4 — "Tour 3 cards pós-entrada").
+      if (result.alreadyMember) {
+        context.go(NinhoRoutes.home);
+      } else {
+        context.go(NinhoRoutes.tour, extra: result.environmentName);
+      }
     } catch (e) {
       if (!mounted) return;
       // Se o convite virou expirado/usado entre o preview e o accept,

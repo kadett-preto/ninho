@@ -27,7 +27,7 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSCameraUsageDescription</key>
-	<string>O Ninho usa a câmera para anexar fotos opcionais dos cômodos.</string>
+	<string>O Ninho usa a câmera para anexar fotos opcionais dos cômodos e ler QR Codes de convite.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>O Ninho acessa sua galeria para anexar fotos opcionais dos cômodos.</string>
 	<key>UIApplicationSceneManifest</key>
