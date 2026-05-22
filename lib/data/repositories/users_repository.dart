@@ -41,6 +41,16 @@ class UsersRepository {
     return row != null && row['lgpd_consent_at'] != null;
   }
 
+  // LGPD §5.10: exporta dados pessoais via RPC SECURITY DEFINER.
+  // RPC valida auth.uid() e filtra todas as queries pelo caller.
+  // Retorna Map JSON-serializável; UI escreve em arquivo + share.
+  Future<Map<String, dynamic>> exportUserData() async {
+    final response = await SupabaseService.client.rpc('export_user_data');
+    if (response is Map<String, dynamic>) return response;
+    if (response is Map) return Map<String, dynamic>.from(response);
+    throw StateError('Resposta inesperada do servidor.');
+  }
+
   // Lê perfil do user logado: display_name + email (Supabase auth).
   // RLS: users_select_self → só o próprio id.
   Future<UserProfileSnapshot?> fetchSelf() async {

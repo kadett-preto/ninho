@@ -484,6 +484,13 @@ class _MenuSection extends StatelessWidget {
         ),
         const SizedBox(height: NinhoSpacing.unit),
         _MenuRow(
+          keyValue: 'profile_menu_export',
+          icon: Icons.cloud_download_outlined,
+          label: 'Exportar meus dados',
+          onTap: () => context.go(NinhoRoutes.profileExport),
+        ),
+        const SizedBox(height: NinhoSpacing.unit),
+        _MenuRow(
           keyValue: 'profile_menu_help',
           icon: Icons.help_outline,
           label: 'Ajuda',
