@@ -12,7 +12,7 @@
 
 ## Status Geral
 
-- **Fase atual:** 6 — Tela Home (Hoje) + Tasks Tab concluída exceto integração de dados reais em 6.2
+- **Fase atual:** 7 — Streak + Jobs concluída exceto 7.5 (push notif depende Fase 8)
 - **Última atualização:** 2026-05-22
 - **Bloqueios ativos:** Cards 2 e 3 do onboarding (placeholder até Stitch entregar); Apple Auth (2.5) precisa Apple Developer account ($99/ano) — adiado para pré-release
 - **Stitch atualizado:** projeto `16698352297286313348` agora tem telas de Convite, Home, Tasks, Feed, Loja, Perfil, Notificações, IA, Configurações — destrava maioria das tasks `[!] aguardando Stitch`. Lista completa em `CLAUDE.md` §2.
@@ -129,12 +129,12 @@
 
 ## Fase 7 — Streak + Jobs
 
-- [ ] **7.1.** Lógica pura de streak (testável unitariamente, §8.2)
-- [ ] **7.2.** Edge Function + Supabase Cron: avaliação à meia-noite no fuso do ninho (§5.7)
-- [ ] **7.3.** Política de freeze automático (2/mês, individual apenas, não acumulável)
-- [ ] **7.4.** Modo "viagem" (owner pausa ninho até 14d/ano, §5.7)
-- [ ] **7.5.** Streak quebrado dispara notif (§5.6)
-- [ ] **7.6.** Testes com clock mockado (virada de dia, freeze esgotado, modo viagem ativo)
+- [x] **7.1.** Lógica pura de streak em `lib/domain/streak_engine.dart` — `StreakEngine.evaluate` aceita `StreakInput` (data + tasks + completions + estado prévio + vacationDays) e devolve `StreakOutcome` por usuário + ninho. `StreakTask.isExpectedOn` cobre `FREQ=DAILY;INTERVAL=N`. Sem dependência de I/O — clock injetável via parâmetro.
+- [x] **7.2.** RPC `evaluate_environment_streaks(env_id, evaluation_date)` SECURITY DEFINER (migration `20260522060000_streak_evaluator.sql`) replica a engine em PL/pgSQL: lê fuso do ninho, calcula expected/completed por usuário, aplica freeze/quebra/avanço. Cron via `pg_cron`: função `run_nightly_streak_evaluation` roda `0 * * * *` UTC e dispara evaluation só em ninhos cujo "agora local" = 0h.
+- [x] **7.3.** Freeze 2/mês embutido no schema existente (`streaks.freezes_left_month` + `freezes_month_key`). Engine reseta cota na virada de mês; tasks de ninho não consomem freeze (IDEA.md §5.7).
+- [x] **7.4.** Modo viagem: tabela `vacation_periods` (`started_on`/`ended_on`, 1 aberto por ninho via unique index) + RPCs `start_vacation`/`end_vacation` SECURITY DEFINER (owner-only, cap de 14d/ano). Evaluator detecta período aberto e devolve `paused=true` mantendo streaks + freezes intactos.
+- [ ] **7.5.** Streak quebrado dispara notif (§5.6) — bloqueado, depende de FCM/APNs (Fase 8).
+- [x] **7.6.** 12 unit tests em `test/streak_engine_test.dart` cobrindo: isExpectedOn (daily/weekly/pré-start), happy path, falha com freeze, falha sem freeze, ninho zera mesmo com freeze individual, modo viagem pausa tudo, virada de mês reseta freezes, dia sem task esperada (clean day), task sem assignee. pgTAP `12_streak_evaluator.test.sql` adiciona 15 testes server-side cobrindo evaluator + vacation RPCs.
 
 ---
 
@@ -253,4 +253,5 @@
 - **2026-05-22** — 6.5 + 6.6 ✓: conclusão transacional de task com `complete_task` (completion + dust + supressão de notifs + feed + audit) e upload opcional de foto de conclusão. Migration `20260522040000_task_completion_photos.sql` cria bucket privado `task-completion-photos` e reforça validação de `photo_path` por bucket/path/existência. `TaskCompletionScreen` agora escolhe câmera/galeria, reaproveita strip EXIF/validação JPG até 8 MB e envia signed upload antes da RPC. Testes: `supabase test db` 152 ✓, `flutter analyze` limpo, `flutter test` 65 ✓, `home_dashboard_test` passou no Galaxy S24 incluindo bottom sheet de foto.
 - **2026-05-22** — Remoto Supabase sincronizado: `supabase migration repair --status reverted` usado para marcar como revertidas 3 versões remotas antigas duplicadas (`20260521022116`, `20260521022130`, `20260521023324`), depois `supabase db push` aplicou migrations locais `20260521014723`–`20260522040000`. `supabase migration list` confirma local/remoto alinhados até `20260522040000`.
 - **2026-05-23** — 6.7 ✓: Tela Tasks implementada a partir do Stitch "Gerenciamento de Tarefas". `TasksRepository.fetchTaskList` (RLS-safe) traz tasks ativas + rooms + completions dos últimos 7d via PostgREST embed. `TasksController` aplica filtros client-side (Todas/Minhas/Pendentes/Concluídas), seleção opcional de cômodo via bottom sheet e toggle Hoje/Semana redefinindo o cutoff. Rota `/tasks` em `routes.dart`; bottom nav da Home agora navega pra Tarefas. Empty state com CTA para `/suggestions`. Testes: `flutter analyze` limpo, `flutter test` 73 ✓ (8 novos em `test/tasks_screen_test.dart`), `home_dashboard_test` no Galaxy S24 passa cobrindo Home → Detalhes → Confirmação → Tarefas (4 testes verdes em ~5s).
+- **2026-05-22** — Fase 7 (Streak + Jobs) ✓ exceto 7.5: engine pura em Dart (`StreakEngine`) + RPC PL/pgSQL `evaluate_environment_streaks` espelhando a lógica; cron `pg_cron` horário que dispara evaluation só em ninhos cujo "agora local" = 0h. Vacation: tabela `vacation_periods` + RPCs `start_vacation`/`end_vacation` com cap 14d/ano. Freeze 2/mês via colunas existentes em `streaks`. 12 unit tests Dart + 15 pgTAP novos (suite total `flutter test` 96 ✓ + `supabase test db` 167 ✓). 7.5 (notif quebrou streak) bloqueada até Fase 8 (FCM/APNs).
 - **2026-05-22** — 6.8 + 6.9 + 6.10 + 6.11 ✓: Tela `TaskFormScreen` cobre criação + edição a partir do Stitch "Criar Tarefa" (`36b5246bf0744fe4878f4a57ba90d84b`). `TasksRepository.createTask`/`updateTask`/`archiveTask` direto via PostgREST (RLS restringe — criar exige member + `created_by=auth.uid()`, editar exige owner ou assignee). Modo-cards no topo só aparece em criação (atalho "Gerar com IA" → `/suggestions`); modo edição mostra "Arquivar tarefa" com dialog de confirmação. Recorrências: enum `TaskRecurrence` com mapping para RRULE `FREQ=DAILY;INTERVAL=N` consistente com `accept_suggested_tasks`. Rotas `/tasks/new` e `/tasks/:taskId/edit`; CTA "+" da TasksScreen e atalho "Editar" do TaskDetailScreen apontados pra cá. Locale do `showDatePicker` (pt-BR) fica como pendente da Fase 12. Testes: `flutter analyze` limpo, `flutter test` 84 ✓ (8 novos em `task_form_screen_test.dart` + 3 goldens em `task_components_golden_test.dart` — TasksScreen 3-difficulties / empty / chip row). Goldens isolam GoogleFonts (`allowRuntimeFetching=false` + theme stub). `home_dashboard_test` no Galaxy S24 ampliado para cobrir `/tasks/new` (5 specs ✓ em ~10s). PNGs em `test/goldens/`.
