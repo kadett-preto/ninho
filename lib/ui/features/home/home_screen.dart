@@ -100,6 +100,10 @@ class _HomeScreenState extends State<HomeScreen> {
       context.go(NinhoRoutes.tasks);
       return;
     }
+    if (index == 2) {
+      context.go(NinhoRoutes.feed);
+      return;
+    }
     if (index == 3) {
       context.go(NinhoRoutes.shop);
       return;

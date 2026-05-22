@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../features/auth/lgpd_consent_screen.dart';
 import '../features/auth/login_screen.dart';
 import '../features/feed/feed_photo_detail_screen.dart';
+import '../features/feed/feed_screen.dart';
 import '../features/home/home_screen.dart';
 import '../features/invite/accept_invite_screen.dart';
 import '../features/invite/invite_screen.dart';
@@ -90,6 +91,10 @@ GoRouter createNinhoRouter({
       GoRoute(
         path: NinhoRoutes.suggestions,
         builder: (context, state) => const SuggestionsScreen(),
+      ),
+      GoRoute(
+        path: NinhoRoutes.feed,
+        builder: (context, state) => const FeedScreen(),
       ),
       GoRoute(
         path: '${NinhoRoutes.feed}/:eventId',

@@ -9,6 +9,62 @@ const _taskCompletionPhotosBucket = 'task-completion-photos';
 class FeedRepository {
   const FeedRepository();
 
+  Future<String> fetchEnvironmentName({required String environmentId}) async {
+    final rows = await SupabaseService.client
+        .from('environments')
+        .select('name')
+        .eq('id', environmentId)
+        .limit(1);
+    if (rows.isEmpty) return 'Seu ninho';
+    return rows.first['name'] as String? ?? 'Seu ninho';
+  }
+
+  Future<List<FeedTimelineItem>> fetchTimeline({
+    required String environmentId,
+    int limit = 30,
+  }) async {
+    final client = SupabaseService.client;
+    final rows = await client
+        .from('feed_events')
+        .select('id, actor_id, event_type, payload, created_at')
+        .eq('environment_id', environmentId)
+        .order('created_at', ascending: false)
+        .limit(limit);
+
+    final items = <FeedTimelineItem>[];
+    for (final row in rows as List<dynamic>) {
+      final event = row as Map<String, dynamic>;
+      final payload = _asMap(event['payload']);
+      final actorId = event['actor_id'] as String?;
+      final createdAt =
+          DateTime.tryParse(event['created_at'] as String? ?? '')?.toLocal() ??
+          DateTime.now();
+      final photoPath = payload['photo_path'] as String?;
+      final photoUrl = await _signedPhotoUrl(client, photoPath);
+      items.add(
+        FeedTimelineItem(
+          id: event['id'] as String,
+          eventType: event['event_type'] as String? ?? 'event',
+          actorId: actorId,
+          actorLabel: _actorLabel(actorId),
+          createdAt: createdAt,
+          title:
+              payload['task_title'] as String? ?? payload['title'] as String?,
+          caption: payload['caption'] as String? ?? _defaultCaption(null),
+          difficulty: TaskDifficulty.tryParse(payload['difficulty'] as String?),
+          photoUrl: photoUrl,
+          heartCount: (payload['heart_count'] as num?)?.toInt() ?? 0,
+          celebrationCount:
+              (payload['celebration_count'] as num?)?.toInt() ?? 0,
+          summary: payload['summary'] as String?,
+          memberName: payload['member_name'] as String?,
+          streakCount: (payload['streak_count'] as num?)?.toInt(),
+        ),
+      );
+    }
+    return items;
+  }
+
   Future<FeedPhotoDetail> fetchPhotoDetail({required String eventId}) async {
     final client = SupabaseService.client;
     final rows = await client
@@ -48,12 +104,7 @@ class FeedRepository {
     final photoUrl = await _signedPhotoUrl(client, photoPath);
     final actorId =
         event['actor_id'] as String? ?? completion['completed_by'] as String?;
-    final currentUser = AuthService.currentUser;
-    final actorLabel = actorId == null
-        ? 'Morador'
-        : actorId == currentUser?.id
-        ? currentUser?.email?.split('@').first ?? 'Você'
-        : 'Morador #${_shortId(actorId)}';
+    final actorLabel = _actorLabel(actorId);
 
     final rooms = task['rooms'];
     final roomName = rooms is Map<String, dynamic>
@@ -95,6 +146,46 @@ class FeedRepository {
         .from(_taskCompletionPhotosBucket)
         .createSignedUrl(path, 60 * 60);
   }
+}
+
+class FeedTimelineItem {
+  const FeedTimelineItem({
+    required this.id,
+    required this.eventType,
+    required this.actorId,
+    required this.actorLabel,
+    required this.createdAt,
+    required this.title,
+    required this.caption,
+    required this.difficulty,
+    required this.photoUrl,
+    required this.heartCount,
+    required this.celebrationCount,
+    required this.summary,
+    required this.memberName,
+    required this.streakCount,
+  });
+
+  final String id;
+  final String eventType;
+  final String? actorId;
+  final String actorLabel;
+  final DateTime createdAt;
+  final String? title;
+  final String caption;
+  final TaskDifficulty? difficulty;
+  final String? photoUrl;
+  final int heartCount;
+  final int celebrationCount;
+  final String? summary;
+  final String? memberName;
+  final int? streakCount;
+
+  bool get hasPhoto => photoUrl != null;
+  bool get isCompletedTask => eventType == 'task.completed';
+  bool get isWeeklySummary => eventType == 'weekly.summary';
+  bool get isNewMember => eventType == 'member.joined';
+  bool get isStreak => eventType == 'streak.milestone';
 }
 
 class FeedPhotoDetail {
@@ -168,6 +259,15 @@ List<FeedComment> _commentsFromPayload(Object? value) {
 
 String _shortId(String value) =>
     value.length >= 6 ? value.substring(0, 6) : value;
+
+String _actorLabel(String? actorId) {
+  if (actorId == null) return 'Morador';
+  final currentUser = AuthService.currentUser;
+  if (actorId == currentUser?.id) {
+    return currentUser?.email?.split('@').first ?? 'Você';
+  }
+  return 'Morador #${_shortId(actorId)}';
+}
 
 String _defaultCaption(String? roomName) {
   if (roomName == null || roomName.isEmpty) return 'Tarefa concluída.';
