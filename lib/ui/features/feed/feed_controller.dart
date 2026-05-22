@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../data/repositories/environments_repository.dart';
 import '../../../data/repositories/feed_repository.dart';
@@ -9,11 +12,17 @@ class FeedController extends ChangeNotifier {
   FeedController({
     EnvironmentsRepository? environmentsRepository,
     FeedRepository? repository,
+    this.realtimeEnabled = true,
   }) : _envRepo = environmentsRepository ?? EnvironmentsRepository(),
        _repository = repository ?? const FeedRepository();
 
   final EnvironmentsRepository _envRepo;
   final FeedRepository _repository;
+  final bool realtimeEnabled;
+  RealtimeChannel? _channel;
+  String? _environmentId;
+  bool _refreshing = false;
+  bool _disposed = false;
 
   FeedStatus _status = FeedStatus.idle;
   FeedStatus get status => _status;
@@ -36,10 +45,12 @@ class FeedController extends ChangeNotifier {
       if (envId == null) {
         throw StateError('Você precisa cadastrar um ninho primeiro.');
       }
+      _environmentId = envId;
       _environmentName = await _repository.fetchEnvironmentName(
         environmentId: envId,
       );
       _items = await _repository.fetchTimeline(environmentId: envId);
+      _subscribe(envId);
       _status = FeedStatus.ready;
     } catch (_) {
       _status = FeedStatus.error;
@@ -47,5 +58,37 @@ class FeedController extends ChangeNotifier {
     } finally {
       notifyListeners();
     }
+  }
+
+  Future<void> refreshFromRealtime() async {
+    final envId = _environmentId;
+    if (envId == null || _refreshing || _disposed) return;
+    _refreshing = true;
+    try {
+      _items = await _repository.fetchTimeline(environmentId: envId);
+      if (!_disposed) notifyListeners();
+    } catch (_) {
+      // Realtime é incremental; se o refresh falhar, a próxima mudança ou
+      // reload manual recupera a lista sem derrubar a tela já carregada.
+    } finally {
+      _refreshing = false;
+    }
+  }
+
+  void _subscribe(String environmentId) {
+    if (!realtimeEnabled || _channel != null) return;
+    _channel = _repository.watchTimeline(
+      environmentId: environmentId,
+      onChange: () {
+        unawaited(refreshFromRealtime());
+      },
+    );
+  }
+
+  @override
+  void dispose() {
+    _disposed = true;
+    _channel?.unsubscribe();
+    super.dispose();
   }
 }

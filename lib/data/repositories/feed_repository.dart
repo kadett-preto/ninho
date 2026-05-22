@@ -65,6 +65,26 @@ class FeedRepository {
     return items;
   }
 
+  RealtimeChannel watchTimeline({
+    required String environmentId,
+    required void Function() onChange,
+  }) {
+    return SupabaseService.client
+        .channel('feed:$environmentId')
+        .onPostgresChanges(
+          event: PostgresChangeEvent.all,
+          schema: 'public',
+          table: 'feed_events',
+          filter: PostgresChangeFilter(
+            type: PostgresChangeFilterType.eq,
+            column: 'environment_id',
+            value: environmentId,
+          ),
+          callback: (_) => onChange(),
+        )
+        .subscribe();
+  }
+
   Future<FeedPhotoDetail> fetchPhotoDetail({required String eventId}) async {
     final client = SupabaseService.client;
     final rows = await client

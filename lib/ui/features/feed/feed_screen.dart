@@ -13,10 +13,16 @@ import 'feed_controller.dart';
 
 // Stitch — "Mural do Ambiente" (5a57a56c0a2e41a0ad5b185827798f95).
 class FeedScreen extends StatelessWidget {
-  const FeedScreen({super.key, this.environmentsRepository, this.repository});
+  const FeedScreen({
+    super.key,
+    this.environmentsRepository,
+    this.repository,
+    this.realtimeEnabled = true,
+  });
 
   final EnvironmentsRepository? environmentsRepository;
   final FeedRepository? repository;
+  final bool realtimeEnabled;
 
   @override
   Widget build(BuildContext context) {
@@ -24,6 +30,7 @@ class FeedScreen extends StatelessWidget {
       create: (_) => FeedController(
         environmentsRepository: environmentsRepository,
         repository: repository,
+        realtimeEnabled: realtimeEnabled,
       )..load(),
       child: const _View(),
     );

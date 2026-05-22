@@ -88,8 +88,11 @@ Widget _wrap({
     routes: [
       GoRoute(
         path: '/feed',
-        builder: (_, _) =>
-            FeedScreen(environmentsRepository: envRepo, repository: feedRepo),
+        builder: (_, _) => FeedScreen(
+          environmentsRepository: envRepo,
+          repository: feedRepo,
+          realtimeEnabled: false,
+        ),
       ),
       GoRoute(
         path: '/feed/:eventId',
