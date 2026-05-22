@@ -5,6 +5,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 
 import '../repositories/notifications_repository.dart';
+import 'supabase_client.dart';
 
 // Wrapper de firebase_messaging + register/revoke do token no backend.
 //
@@ -43,6 +44,8 @@ class PushNotificationsService {
 
     FirebaseMessaging.instance.onTokenRefresh.listen((newToken) async {
       _currentToken = newToken;
+      // Só registra se já houver sessão. RPC exige authenticated.
+      if (SupabaseService.client.auth.currentSession == null) return;
       try {
         await const NotificationsRepository().registerPushToken(
           token: newToken,

@@ -1,7 +1,12 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../data/services/auth_service.dart';
 import '../../core/colors.dart';
+import '../../core/routes.dart';
 import '../../core/spacing.dart';
 
 // Tela de login (Stitch — Login · Playful Geometric Variant 3).
@@ -16,6 +21,29 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   bool _loading = false;
+  StreamSubscription<AuthState>? _authSub;
+
+  @override
+  void initState() {
+    super.initState();
+    // Mobile: deep link do OAuth callback dispara onAuthStateChange.
+    // Web: signInWithOAuth força full-page redirect — listener nem chega.
+    _authSub = AuthService.onAuthStateChange.listen((event) {
+      if (!mounted) return;
+      if (event.event == AuthChangeEvent.signedIn ||
+          event.event == AuthChangeEvent.initialSession) {
+        if (AuthService.currentSession != null) {
+          context.go(NinhoRoutes.splash);
+        }
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _authSub?.cancel();
+    super.dispose();
+  }
 
   Future<void> _signInGoogle() async {
     if (_loading) return;
