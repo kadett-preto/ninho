@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../features/auth/lgpd_consent_screen.dart';
 import '../features/auth/login_screen.dart';
+import '../features/feed/feed_photo_detail_screen.dart';
 import '../features/home/home_screen.dart';
 import '../features/invite/accept_invite_screen.dart';
 import '../features/invite/invite_screen.dart';
@@ -35,6 +36,7 @@ class NinhoRoutes {
   static const invite = '/invite';
   static const acceptInvite = '/i';
   static const suggestions = '/suggestions';
+  static const feed = '/feed';
   static const tasks = '/tasks';
   static const taskDetail = '/tasks';
   static const notificationSettings = '/settings/notifications';
@@ -88,6 +90,11 @@ GoRouter createNinhoRouter({
       GoRoute(
         path: NinhoRoutes.suggestions,
         builder: (context, state) => const SuggestionsScreen(),
+      ),
+      GoRoute(
+        path: '${NinhoRoutes.feed}/:eventId',
+        builder: (context, state) =>
+            FeedPhotoDetailScreen(eventId: state.pathParameters['eventId']!),
       ),
       GoRoute(
         path: NinhoRoutes.tasks,
