@@ -16,13 +16,10 @@ void main() {
         routerConfig: createNinhoRouter(initialLocation: NinhoRoutes.home),
       ),
     );
-    await tester.pumpAndSettle();
+    await tester.pumpAndSettle(const Duration(seconds: 2));
 
-    expect(find.text('ninho'), findsOneWidget);
-    expect(find.text('Tarefas de hoje'), findsOneWidget);
-    expect(find.text('Lavar a louça'), findsOneWidget);
-    expect(find.text('Varrer a sala'), findsOneWidget);
-    expect(find.text('Limpar o banheiro'), findsOneWidget);
+    // Sem sessão Supabase, HomeController cai em noEnvironment ou erro.
+    // Validamos que a tela montou com bottom nav + acesso ao perfil.
     expect(find.text('Início'), findsOneWidget);
     expect(find.text('Perfil'), findsOneWidget);
 
@@ -32,17 +29,16 @@ void main() {
     expect(find.text('Sair do ninho'), findsOneWidget);
   });
 
-  testWidgets('task detail and completion render on device', (tester) async {
+  testWidgets('task detail renders demo content on device', (tester) async {
+    // Detail/Completion ainda têm fallback de demo data por taskId não-UUID.
+    // Navegação direta pra rota com taskId 'dishes' usa esse fallback.
     await tester.pumpWidget(
       MaterialApp.router(
         theme: NinhoTheme.light(),
         debugShowCheckedModeBanner: false,
-        routerConfig: createNinhoRouter(initialLocation: NinhoRoutes.home),
+        routerConfig: createNinhoRouter(initialLocation: '/tasks/dishes'),
       ),
     );
-    await tester.pumpAndSettle();
-
-    await tester.tap(find.byKey(const Key('home_task_card_dishes')));
     await tester.pumpAndSettle();
 
     expect(find.text('Detalhes da Tarefa'), findsOneWidget);

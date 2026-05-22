@@ -22,7 +22,7 @@ class TasksRepository {
         .from('tasks')
         .select(
           'id, title, room_id, difficulty, assignee_id, recurrence_rule, '
-          'rooms(name), '
+          'start_date, rooms(name), '
           'task_completions(id, completed_at, completed_by)',
         )
         .eq('environment_id', environmentId)
@@ -75,7 +75,7 @@ class TasksRepository {
         .from('tasks')
         .select(
           'id, title, room_id, difficulty, assignee_id, recurrence_rule, '
-          'rooms(name), '
+          'start_date, rooms(name), '
           'task_completions(id, completed_at, completed_by)',
         )
         .eq('id', taskId)
@@ -204,6 +204,7 @@ class TaskListItem {
     required this.assigneeId,
     required this.recurrenceRule,
     required this.recentCompletions,
+    this.startDate,
   });
 
   factory TaskListItem.fromJson(Map<String, dynamic> json) {
@@ -237,6 +238,7 @@ class TaskListItem {
       difficulty: difficulty,
       assigneeId: json['assignee_id'] as String?,
       recurrenceRule: json['recurrence_rule'] as String?,
+      startDate: _parseDate(json['start_date'] as String?),
       recentCompletions: completions,
     );
   }
@@ -248,7 +250,50 @@ class TaskListItem {
   final TaskDifficulty difficulty;
   final String? assigneeId;
   final String? recurrenceRule;
+  final DateTime? startDate;
   final List<TaskCompletionRef> recentCompletions;
+
+  // Intervalo em dias da RRULE FREQ=DAILY;INTERVAL=N. null se sem recorrência.
+  int? get intervalDays {
+    final rrule = recurrenceRule;
+    if (rrule == null || rrule.isEmpty) return null;
+    final match = RegExp(r'INTERVAL=(\d+)').firstMatch(rrule);
+    if (match == null) return 1; // FREQ=DAILY sem INTERVAL = diária
+    return int.tryParse(match.group(1)!) ?? 1;
+  }
+
+  // Task ativa em [date] se: tem startDate, é diária (intervalDays==1) OU
+  // (date - startDate).days % intervalDays == 0. Sem recorrência: ativa só
+  // no startDate. Sem startDate: sempre ativa (fallback conservador).
+  bool isExpectedOn(DateTime date) {
+    final start = startDate;
+    if (start == null) return true;
+    final d = DateTime(date.year, date.month, date.day);
+    final s = DateTime(start.year, start.month, start.day);
+    if (d.isBefore(s)) return false;
+    final delta = d.difference(s).inDays;
+    final interval = intervalDays;
+    if (interval == null) return delta == 0;
+    if (interval <= 1) return true;
+    return delta % interval == 0;
+  }
+
+  bool completedOn(DateTime date) {
+    final start = DateTime(date.year, date.month, date.day);
+    final end = start.add(const Duration(days: 1));
+    for (final c in recentCompletions) {
+      if (!c.completedAt.isBefore(start) && c.completedAt.isBefore(end)) {
+        return true;
+      }
+    }
+    return false;
+  }
+}
+
+DateTime? _parseDate(String? raw) {
+  if (raw == null || raw.isEmpty) return null;
+  // DATE columns vêm como YYYY-MM-DD sem hora.
+  return DateTime.tryParse(raw.length == 10 ? '${raw}T00:00:00' : raw);
 }
 
 class TaskCompletionRef {

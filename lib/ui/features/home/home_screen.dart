@@ -1,24 +1,63 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 
+import '../../../data/repositories/environments_repository.dart';
+import '../../../data/repositories/shop_repository.dart';
+import '../../../data/repositories/streaks_repository.dart';
+import '../../../data/repositories/suggestions_repository.dart'
+    show TaskDifficulty;
+import '../../../data/repositories/tasks_repository.dart';
 import '../../../data/services/auth_service.dart';
 import '../../../data/services/posthog_service.dart';
 import '../../core/colors.dart';
 import '../../core/routes.dart';
 import '../../core/spacing.dart';
-import '../tasks/task_demo_data.dart';
+import 'home_controller.dart';
 
 // Stitch — "Início" (63345f0e4cd44e0fbc15ef27f70c8cc9).
-// Fase 6.1/6.2: dashboard Hoje com tab bar. Dados reais de tasks entram nas
-// próximas subtasks da Fase 6; esta tela mantém o contrato visual navegável.
-class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+// Fase 6.2: dashboard Hoje com dados reais (tasks esperadas hoje p/ o user,
+// streaks individual + ninho, saldo de poeira). RLS no banco isola tudo.
+class HomeScreen extends StatelessWidget {
+  const HomeScreen({
+    super.key,
+    this.environmentsRepository,
+    this.tasksRepository,
+    this.streaksRepository,
+    this.shopRepository,
+    this.currentUserId,
+  });
+
+  final EnvironmentsRepository? environmentsRepository;
+  final TasksRepository? tasksRepository;
+  final StreaksRepository? streaksRepository;
+  final ShopRepository? shopRepository;
+  // Injetável p/ testes — em produção o controller pega do AuthService.
+  final String? currentUserId;
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  Widget build(BuildContext context) {
+    return ChangeNotifierProvider<HomeController>(
+      create: (_) => HomeController(
+        environmentsRepository: environmentsRepository,
+        tasksRepository: tasksRepository,
+        streaksRepository: streaksRepository,
+        shopRepository: shopRepository,
+        currentUserId: currentUserId,
+      )..load(),
+      child: const _HomeView(),
+    );
+  }
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeView extends StatefulWidget {
+  const _HomeView();
+
+  @override
+  State<_HomeView> createState() => _HomeViewState();
+}
+
+class _HomeViewState extends State<_HomeView> {
   bool _signingOut = false;
 
   Future<void> _signOut() async {
@@ -46,8 +85,8 @@ class _HomeScreenState extends State<HomeScreen> {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
-      builder: (context) {
-        final theme = Theme.of(context);
+      builder: (sheetCtx) {
+        final theme = Theme.of(sheetCtx);
         return SafeArea(
           child: Padding(
             padding: const EdgeInsets.all(NinhoSpacing.marginMobile),
@@ -115,45 +154,152 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final ctrl = context.watch<HomeController>();
     return Scaffold(
       backgroundColor: NinhoColors.background,
       body: SafeArea(
         bottom: false,
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            return Center(
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 520),
-                child: CustomScrollView(
-                  slivers: [
-                    const SliverToBoxAdapter(child: _HomeTopBar()),
-                    SliverPadding(
-                      padding: const EdgeInsets.fromLTRB(
-                        NinhoSpacing.marginMobile,
-                        NinhoSpacing.stackMd,
-                        NinhoSpacing.marginMobile,
-                        120,
-                      ),
-                      sliver: SliverList.list(
-                        children: const [
-                          _WelcomeSection(),
-                          SizedBox(height: NinhoSpacing.stackLg),
-                          _StatsRow(),
-                          SizedBox(height: NinhoSpacing.stackLg),
-                          _TasksSection(),
-                          SizedBox(height: NinhoSpacing.stackLg),
-                          _CalmFooter(),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            );
-          },
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 520),
+            child: _Body(controller: ctrl),
+          ),
         ),
       ),
       bottomNavigationBar: _HomeBottomNav(onTap: _handleTab),
+    );
+  }
+}
+
+class _Body extends StatelessWidget {
+  const _Body({required this.controller});
+  final HomeController controller;
+
+  @override
+  Widget build(BuildContext context) {
+    switch (controller.status) {
+      case HomeStatus.idle:
+      case HomeStatus.loading:
+        return const Center(
+          child: CircularProgressIndicator(color: NinhoColors.primary),
+        );
+      case HomeStatus.error:
+        return _ErrorBody(
+          message: controller.error ?? 'Erro desconhecido',
+          onRetry: controller.load,
+        );
+      case HomeStatus.noEnvironment:
+        return const _NoEnvBody();
+      case HomeStatus.ready:
+        return _ReadyBody(controller: controller);
+    }
+  }
+}
+
+class _ErrorBody extends StatelessWidget {
+  const _ErrorBody({required this.message, required this.onRetry});
+  final String message;
+  final VoidCallback onRetry;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Padding(
+      padding: const EdgeInsets.all(NinhoSpacing.marginMobile),
+      child: Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              message,
+              key: const Key('home_error'),
+              textAlign: TextAlign.center,
+              style: theme.textTheme.bodyLarge?.copyWith(
+                color: NinhoColors.error,
+              ),
+            ),
+            const SizedBox(height: NinhoSpacing.stackMd),
+            FilledButton.tonal(
+              key: const Key('home_retry'),
+              onPressed: onRetry,
+              child: const Text('Tentar de novo'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _NoEnvBody extends StatelessWidget {
+  const _NoEnvBody();
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Padding(
+      padding: const EdgeInsets.all(NinhoSpacing.marginMobile),
+      child: Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'Você ainda não tem ninho.',
+              key: const Key('home_no_env'),
+              textAlign: TextAlign.center,
+              style: theme.textTheme.titleMedium?.copyWith(
+                color: NinhoColors.onSurface,
+              ),
+            ),
+            const SizedBox(height: NinhoSpacing.stackMd),
+            FilledButton(
+              onPressed: () => context.go(NinhoRoutes.setupStep1),
+              child: const Text('Criar meu ninho'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ReadyBody extends StatelessWidget {
+  const _ReadyBody({required this.controller});
+  final HomeController controller;
+
+  @override
+  Widget build(BuildContext context) {
+    return RefreshIndicator(
+      onRefresh: controller.load,
+      color: NinhoColors.primary,
+      child: CustomScrollView(
+        slivers: [
+          const SliverToBoxAdapter(child: _HomeTopBar()),
+          SliverPadding(
+            padding: const EdgeInsets.fromLTRB(
+              NinhoSpacing.marginMobile,
+              NinhoSpacing.stackMd,
+              NinhoSpacing.marginMobile,
+              120,
+            ),
+            sliver: SliverList.list(
+              children: [
+                const _WelcomeSection(),
+                const SizedBox(height: NinhoSpacing.stackLg),
+                _StatsRow(
+                  userStreak: controller.userStreak,
+                  envStreak: controller.environmentStreak,
+                  dust: controller.dustBalance,
+                ),
+                const SizedBox(height: NinhoSpacing.stackLg),
+                _TasksSection(tasks: controller.todayTasks),
+                const SizedBox(height: NinhoSpacing.stackLg),
+                if (controller.todayTasks.isEmpty) const _CalmFooter(),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -191,11 +337,8 @@ class _HomeTopBar extends StatelessWidget {
             ),
             child: IconButton(
               key: const Key('home_notifications_button'),
-              onPressed: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Nada novo por enquanto.')),
-                );
-              },
+              onPressed: () =>
+                  context.go(NinhoRoutes.notificationSettings),
               color: NinhoColors.primary,
               icon: const Icon(Icons.notifications_none),
             ),
@@ -262,32 +405,44 @@ class _WelcomeSection extends StatelessWidget {
 }
 
 class _StatsRow extends StatelessWidget {
-  const _StatsRow();
+  const _StatsRow({
+    required this.userStreak,
+    required this.envStreak,
+    required this.dust,
+  });
+
+  final int userStreak;
+  final int envStreak;
+  final int dust;
 
   @override
   Widget build(BuildContext context) {
-    return const SingleChildScrollView(
+    String dayLabel(int n) => n == 1 ? '1 dia' : '$n dias';
+    return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       clipBehavior: Clip.none,
       child: Row(
         children: [
           _StatPill(
+            key: const Key('home_stat_env_streak'),
             icon: Icons.local_fire_department_outlined,
-            label: '12 dias',
+            label: dayLabel(envStreak),
             background: NinhoColors.secondaryContainer,
             foreground: NinhoColors.onSecondaryContainer,
           ),
-          SizedBox(width: 12),
+          const SizedBox(width: 12),
           _StatPill(
+            key: const Key('home_stat_user_streak'),
             icon: Icons.home_outlined,
-            label: '8 dias',
+            label: dayLabel(userStreak),
             background: NinhoColors.primaryContainer,
             foreground: NinhoColors.onPrimaryContainer,
           ),
-          SizedBox(width: 12),
+          const SizedBox(width: 12),
           _StatPill(
+            key: const Key('home_stat_dust'),
             icon: Icons.auto_awesome,
-            label: '145',
+            label: '$dust',
             background: NinhoColors.surfaceContainerHigh,
             foreground: NinhoColors.onSurface,
             iconColor: NinhoColors.tertiary,
@@ -300,6 +455,7 @@ class _StatsRow extends StatelessWidget {
 
 class _StatPill extends StatelessWidget {
   const _StatPill({
+    super.key,
     required this.icon,
     required this.label,
     required this.background,
@@ -342,7 +498,9 @@ class _StatPill extends StatelessWidget {
 }
 
 class _TasksSection extends StatelessWidget {
-  const _TasksSection();
+  const _TasksSection({required this.tasks});
+
+  final List<TaskListItem> tasks;
 
   @override
   Widget build(BuildContext context) {
@@ -357,11 +515,52 @@ class _TasksSection extends StatelessWidget {
           ),
         ),
         const SizedBox(height: NinhoSpacing.stackMd),
-        for (final task in _todayTasks) ...[
-          _TaskCard(task: task),
-          const SizedBox(height: NinhoSpacing.stackMd),
-        ],
+        if (tasks.isEmpty)
+          _EmptyTasksCard(theme: theme)
+        else
+          for (final task in tasks) ...[
+            _TaskCard(task: task),
+            const SizedBox(height: NinhoSpacing.stackMd),
+          ],
       ],
+    );
+  }
+}
+
+class _EmptyTasksCard extends StatelessWidget {
+  const _EmptyTasksCard({required this.theme});
+  final ThemeData theme;
+
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: NinhoColors.surfaceContainerLowest,
+        borderRadius: BorderRadius.circular(NinhoRadii.xl),
+        border: Border.all(color: NinhoColors.surfaceContainerHigh),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(NinhoSpacing.paddingCard),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Hoje você tá de boa',
+              key: const Key('home_tasks_empty'),
+              style: theme.textTheme.titleMedium?.copyWith(
+                color: NinhoColors.onSurface,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              'Nenhuma tarefa esperada pra você hoje. Aproveita o descanso.',
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: NinhoColors.onSurfaceVariant,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
@@ -369,11 +568,12 @@ class _TasksSection extends StatelessWidget {
 class _TaskCard extends StatelessWidget {
   const _TaskCard({required this.task});
 
-  final TaskDemo task;
+  final TaskListItem task;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final style = _DifficultyStyle.of(task.difficulty);
     return Material(
       color: Colors.transparent,
       child: InkWell(
@@ -390,7 +590,7 @@ class _TaskCard extends StatelessWidget {
           child: IntrinsicHeight(
             child: Row(
               children: [
-                Container(width: 8, color: task.accent),
+                Container(width: 8, color: style.accent),
                 Expanded(
                   child: Padding(
                     padding: const EdgeInsets.all(NinhoSpacing.paddingCard),
@@ -400,12 +600,12 @@ class _TaskCard extends StatelessWidget {
                           width: 48,
                           height: 48,
                           decoration: BoxDecoration(
-                            color: task.iconBackground,
+                            color: style.iconBackground,
                             shape: BoxShape.circle,
                           ),
                           child: Icon(
-                            task.icon,
-                            color: task.iconColor,
+                            Icons.cleaning_services_outlined,
+                            color: style.iconColor,
                             size: 24,
                           ),
                         ),
@@ -426,15 +626,15 @@ class _TaskCard extends StatelessWidget {
                               const SizedBox(height: 4),
                               Row(
                                 children: [
-                                  Icon(
-                                    task.roomIcon,
+                                  const Icon(
+                                    Icons.home_outlined,
                                     size: 14,
                                     color: NinhoColors.onSurfaceVariant,
                                   ),
                                   const SizedBox(width: 4),
                                   Flexible(
                                     child: Text(
-                                      task.room,
+                                      task.roomName ?? 'Sem cômodo',
                                       overflow: TextOverflow.ellipsis,
                                       style: theme.textTheme.bodySmall
                                           ?.copyWith(
@@ -446,12 +646,9 @@ class _TaskCard extends StatelessWidget {
                                 ],
                               ),
                               const SizedBox(height: 8),
-                              Row(
-                                children: [
-                                  _DifficultyBadge(task: task),
-                                  const SizedBox(width: 8),
-                                  _MiniAvatar(initial: task.assigneeInitial),
-                                ],
+                              _DifficultyBadge(
+                                difficulty: task.difficulty,
+                                style: style,
                               ),
                             ],
                           ),
@@ -489,54 +686,77 @@ class _TaskCard extends StatelessWidget {
   }
 }
 
-class _DifficultyBadge extends StatelessWidget {
-  const _DifficultyBadge({required this.task});
+class _DifficultyStyle {
+  const _DifficultyStyle({
+    required this.accent,
+    required this.iconBackground,
+    required this.iconColor,
+    required this.badgeBackground,
+    required this.badgeForeground,
+    required this.label,
+  });
 
-  final TaskDemo task;
+  final Color accent;
+  final Color iconBackground;
+  final Color iconColor;
+  final Color badgeBackground;
+  final Color badgeForeground;
+  final String label;
+
+  static _DifficultyStyle of(TaskDifficulty difficulty) {
+    switch (difficulty) {
+      case TaskDifficulty.mamao:
+        return const _DifficultyStyle(
+          accent: NinhoColors.secondaryFixedDim,
+          iconBackground: NinhoColors.secondaryContainer,
+          iconColor: NinhoColors.onSecondaryContainer,
+          badgeBackground: NinhoColors.secondaryFixedDim,
+          badgeForeground: NinhoColors.onSecondaryFixedVariant,
+          label: 'Mamão',
+        );
+      case TaskDifficulty.embacada:
+        return const _DifficultyStyle(
+          accent: NinhoColors.tertiaryFixedDim,
+          iconBackground: NinhoColors.tertiaryContainer,
+          iconColor: NinhoColors.onTertiaryContainer,
+          badgeBackground: NinhoColors.tertiaryFixedDim,
+          badgeForeground: NinhoColors.onTertiaryFixedVariant,
+          label: 'Embaçada',
+        );
+      case TaskDifficulty.treta:
+        return const _DifficultyStyle(
+          accent: NinhoColors.primaryContainer,
+          iconBackground: NinhoColors.primaryContainer,
+          iconColor: NinhoColors.onPrimaryContainer,
+          badgeBackground: NinhoColors.primaryContainer,
+          badgeForeground: NinhoColors.onPrimaryContainer,
+          label: 'Treta',
+        );
+    }
+  }
+}
+
+class _DifficultyBadge extends StatelessWidget {
+  const _DifficultyBadge({required this.difficulty, required this.style});
+
+  final TaskDifficulty difficulty;
+  final _DifficultyStyle style;
 
   @override
   Widget build(BuildContext context) {
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: task.difficultyBackground,
+        color: style.badgeBackground,
         borderRadius: BorderRadius.circular(NinhoRadii.full),
       ),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
         child: Text(
-          task.difficultyLabel,
+          style.label,
           style: Theme.of(context).textTheme.labelSmall?.copyWith(
             fontSize: 10,
-            color: task.difficultyForeground,
+            color: style.badgeForeground,
           ),
-        ),
-      ),
-    );
-  }
-}
-
-class _MiniAvatar extends StatelessWidget {
-  const _MiniAvatar({required this.initial});
-
-  final String initial;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 24,
-      height: 24,
-      alignment: Alignment.center,
-      decoration: BoxDecoration(
-        color: NinhoColors.primaryFixed,
-        shape: BoxShape.circle,
-        border: Border.all(color: NinhoColors.surfaceContainerHigh),
-      ),
-      child: Text(
-        initial,
-        style: Theme.of(context).textTheme.labelSmall?.copyWith(
-          fontSize: 10,
-          letterSpacing: 0,
-          color: NinhoColors.primary,
         ),
       ),
     );
@@ -716,8 +936,6 @@ class _AmbientShadow extends BoxShadow {
         offset: const Offset(0, 4),
       );
 }
-
-const _todayTasks = taskDemoItems;
 
 String _currentFirstName() {
   final user = AuthService.currentUser;
