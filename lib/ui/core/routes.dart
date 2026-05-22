@@ -6,6 +6,7 @@ import '../features/auth/login_screen.dart';
 import '../features/home/home_screen.dart';
 import '../features/invite/accept_invite_screen.dart';
 import '../features/invite/invite_screen.dart';
+import '../features/notifications/notification_settings_screen.dart';
 import '../features/onboarding/onboarding_screen.dart';
 import '../features/onboarding/splash_screen.dart';
 import '../features/setup/setup_controller.dart';
@@ -35,6 +36,7 @@ class NinhoRoutes {
   static const suggestions = '/suggestions';
   static const tasks = '/tasks';
   static const taskDetail = '/tasks';
+  static const notificationSettings = '/settings/notifications';
 }
 
 typedef SetupControllerFactory = SetupController Function();
@@ -88,6 +90,10 @@ GoRouter createNinhoRouter({
       GoRoute(
         path: NinhoRoutes.tasks,
         builder: (context, state) => const TasksScreen(),
+      ),
+      GoRoute(
+        path: NinhoRoutes.notificationSettings,
+        builder: (context, state) => const NotificationSettingsScreen(),
       ),
       GoRoute(
         path: '${NinhoRoutes.tasks}/new',

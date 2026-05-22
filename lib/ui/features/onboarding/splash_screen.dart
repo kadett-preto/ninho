@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import '../../../data/repositories/environments_repository.dart';
 import '../../../data/repositories/users_repository.dart';
 import '../../../data/services/auth_service.dart';
+import '../../../data/services/push_notifications_service.dart';
 import '../../core/colors.dart';
 import '../../core/routes.dart';
 import '../../core/spacing.dart';
@@ -44,6 +45,11 @@ class _SplashScreenState extends State<SplashScreen> {
       }
       final hasEnv = await EnvironmentsRepository().hasActiveEnvironment();
       if (!mounted) return;
+      // Sessão autenticada + LGPD ok → registra push token (no-op se
+      // Firebase não estiver configurado).
+      unawaited(
+        PushNotificationsService.requestPermissionAndRegister(),
+      );
       context.go(hasEnv ? NinhoRoutes.home : NinhoRoutes.setupStep1);
     } catch (_) {
       if (!mounted) return;

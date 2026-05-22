@@ -436,3 +436,17 @@ enabled = true
 verify_jwt = true
 import_map = "./functions/preview-invite/deno.json"
 entrypoint = "./functions/preview-invite/index.ts"
+
+[functions.send-task-reminders]
+enabled = true
+# Chamado por cron com service_role no header. verify_jwt mantido para
+# que requests anônimas sejam barradas; o handler valida o role.
+verify_jwt = false
+import_map = "./functions/send-task-reminders/deno.json"
+entrypoint = "./functions/send-task-reminders/index.ts"
+
+[functions.notify-trigger]
+enabled = true
+verify_jwt = false
+import_map = "./functions/notify-trigger/deno.json"
+entrypoint = "./functions/notify-trigger/index.ts"

@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import 'push_notifications_service.dart';
 import 'supabase_client.dart';
 
 // Wrapper sobre Supabase Auth (IDEA.md §5.1, §7.2). Centraliza:
@@ -65,6 +66,12 @@ class AuthService {
   }
 
   static Future<void> signOut() async {
+    // Importado dinamicamente para evitar ciclo com PushNotificationsService.
+    try {
+      await PushNotificationsService.revokeCurrentToken();
+    } catch (_) {
+      // Sem push configurado, segue para o signOut normalmente.
+    }
     await _client.auth.signOut();
   }
 }
