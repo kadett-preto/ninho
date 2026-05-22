@@ -101,6 +101,7 @@ class _SetupStep1NameScreenState extends State<SetupStep1NameScreen> {
                   Text('Nome do ninho', style: theme.textTheme.titleMedium),
                   const SizedBox(height: NinhoSpacing.stackSm),
                   TextField(
+                    key: const ValueKey('setup_ninho_name_field'),
                     controller: _nameCtrl,
                     decoration: const InputDecoration(
                       hintText: 'Nosso apê',

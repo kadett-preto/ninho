@@ -406,3 +406,33 @@ s3_secret_key = "env(S3_SECRET_KEY)"
 # declarative_schema_path = "./database"
 # JSON string passed through to pg-delta SQL formatting.
 # format_options = "{\"keywordCase\":\"upper\",\"indent\":2,\"maxWidth\":80,\"commaStyle\":\"trailing\"}"
+
+[functions.create-environment]
+enabled = true
+verify_jwt = true
+import_map = "./functions/create-environment/deno.json"
+entrypoint = "./functions/create-environment/index.ts"
+
+[functions.create-invite]
+enabled = true
+verify_jwt = true
+import_map = "./functions/create-invite/deno.json"
+entrypoint = "./functions/create-invite/index.ts"
+
+[functions.accept-invite]
+enabled = true
+verify_jwt = true
+import_map = "./functions/accept-invite/deno.json"
+entrypoint = "./functions/accept-invite/index.ts"
+
+[functions.suggest-tasks]
+enabled = true
+verify_jwt = true
+import_map = "./functions/suggest-tasks/deno.json"
+entrypoint = "./functions/suggest-tasks/index.ts"
+
+[functions.preview-invite]
+enabled = true
+verify_jwt = true
+import_map = "./functions/preview-invite/deno.json"
+entrypoint = "./functions/preview-invite/index.ts"

@@ -1,8 +1,25 @@
+import 'dart:typed_data';
+
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:ninho/data/services/room_photo_service.dart';
 import 'package:ninho/domain/models/room.dart';
+import 'package:ninho/domain/models/room_photo_draft.dart';
 import 'package:ninho/domain/models/room_size.dart';
 import 'package:ninho/ui/features/setup/setup_controller.dart';
+
+class _FakeRoomPhotoService implements RoomPhotoService {
+  _FakeRoomPhotoService({this.draft, this.error});
+
+  final RoomPhotoDraft? draft;
+  final Object? error;
+
+  @override
+  Future<RoomPhotoDraft?> pickAndPrepare(RoomPhotoSource source) async {
+    if (error != null) throw error!;
+    return draft;
+  }
+}
 
 void main() {
   group('SetupController', () {
@@ -59,6 +76,53 @@ void main() {
       final r2 = r.copyWith(size: RoomSize.g);
       expect(r.size, RoomSize.p);
       expect(r2.size, RoomSize.g);
+    });
+
+    test('pickRoomPhoto anexa draft ao cômodo existente', () async {
+      final draft = RoomPhotoDraft(
+        bytes: Uint8List.fromList([1, 2, 3]),
+        contentType: 'image/jpeg',
+        extension: 'jpg',
+      );
+      final c = SetupController(
+        photoService: _FakeRoomPhotoService(draft: draft),
+      );
+
+      final ok = await c.pickRoomPhoto('Sala', RoomPhotoSource.gallery);
+
+      expect(ok, isTrue);
+      expect(c.rooms.firstWhere((r) => r.name == 'Sala').photoDraft, draft);
+      expect(c.lastError, isNull);
+    });
+
+    test('pickRoomPhoto registra erro de validação', () async {
+      final c = SetupController(
+        photoService: _FakeRoomPhotoService(
+          error: const RoomPhotoValidationException('Foto inválida'),
+        ),
+      );
+
+      final ok = await c.pickRoomPhoto('Sala', RoomPhotoSource.gallery);
+
+      expect(ok, isFalse);
+      expect(c.lastError, 'Foto inválida');
+    });
+
+    test('removeRoomPhoto limpa draft sem remover cômodo', () async {
+      final draft = RoomPhotoDraft(
+        bytes: Uint8List.fromList([1]),
+        contentType: 'image/jpeg',
+        extension: 'jpg',
+      );
+      final c = SetupController(
+        photoService: _FakeRoomPhotoService(draft: draft),
+      );
+      await c.pickRoomPhoto('Sala', RoomPhotoSource.gallery);
+
+      c.removeRoomPhoto('Sala');
+
+      final room = c.rooms.firstWhere((r) => r.name == 'Sala');
+      expect(room.photoDraft, isNull);
     });
   });
 }

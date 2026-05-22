@@ -29,7 +29,9 @@ class SetupStep3TimezoneScreen extends StatelessWidget {
         final id = await controller.submit();
         if (!context.mounted) return;
         if (id != null) {
-          context.go(NinhoRoutes.home);
+          // Stitch: pós cadastro abre "Convidar Parceiro" com botão "Pular
+          // por agora" — fluxo §4 do IDEA.md.
+          context.go(NinhoRoutes.inviteFromSetup);
         }
       },
       onBack: () => context.go(NinhoRoutes.setupStep2),

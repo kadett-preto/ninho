@@ -48,9 +48,11 @@ class AuthService {
   }
 
   static Future<bool> signInWithGoogle() async {
+    final redirect = _redirectTo();
+    debugPrint('[auth] signInWithGoogle redirectTo=$redirect');
     return _client.auth.signInWithOAuth(
       OAuthProvider.google,
-      redirectTo: _redirectTo(),
+      redirectTo: redirect,
     );
   }
 

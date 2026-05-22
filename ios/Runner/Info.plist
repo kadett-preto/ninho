@@ -26,6 +26,10 @@
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>O Ninho usa a câmera para anexar fotos opcionais dos cômodos.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>O Ninho acessa sua galeria para anexar fotos opcionais dos cômodos.</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

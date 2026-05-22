@@ -1,13 +1,16 @@
+import 'package:supabase_flutter/supabase_flutter.dart';
+
 import '../../domain/models/room.dart';
 import '../../domain/models/room_size.dart';
 import '../services/supabase_client.dart';
 
+const _roomPhotosBucket = 'room-photos';
+
 // Cadastro de ninho (IDEA.md §5.2). Insert atômico: o trigger
 // `handle_new_environment` (migration 20260519230100) já cria o membership
-// owner. Aqui apenas inserimos environment + rooms numa transação lógica.
-//
-// TODO(task 3.7): mover para Edge Function quando precisarmos garantir
-// atomicidade real entre múltiplos inserts e validações server-side.
+// owner. Environment + rooms são criados pela Edge Function
+// `create-environment`, que chama o RPC transacional
+// `create_environment_with_rooms`.
 class EnvironmentsRepository {
   EnvironmentsRepository();
 
@@ -27,23 +30,54 @@ class EnvironmentsRepository {
     final userId = session?.user.id;
     if (userId == null) throw StateError('Sem sessão Supabase ativa');
 
-    final envInsert = await client
-        .from('environments')
-        .insert({'owner_id': userId, 'name': name, 'timezone': timezone})
-        .select('id')
-        .single();
-    final environmentId = envInsert['id'] as String;
+    final response = await client.functions.invoke(
+      'create-environment',
+      body: {
+        'name': name,
+        'timezone': timezone,
+        'rooms': [
+          for (final room in rooms)
+            {'name': room.name, 'sizeCategory': room.size.label},
+        ],
+      },
+    );
+    final data = response.data as Map<String, dynamic>;
+    final environmentId = data['environmentId'] as String;
+    final createdRooms = _CreatedRoom.fromResponse(data['rooms']);
 
-    if (rooms.isNotEmpty) {
-      await client.from('rooms').insert([
-        for (final room in rooms)
-          {
-            'environment_id': environmentId,
-            'name': room.name,
-            'size_category': room.size.label,
-            'photo_path': room.photoPath,
-          },
-      ]);
+    for (var i = 0; i < rooms.length; i++) {
+      final room = rooms[i];
+      final draft = room.photoDraft;
+      final createdRoom = createdRooms[room.name];
+      if (draft == null || createdRoom == null) continue;
+
+      try {
+        final path =
+            '$environmentId/rooms/${_slug(room.name)}-${DateTime.now().microsecondsSinceEpoch}-$i.${draft.extension}';
+        final signedUrl = await client.storage
+            .from(_roomPhotosBucket)
+            .createSignedUploadUrl(path);
+        await client.storage
+            .from(_roomPhotosBucket)
+            .uploadBinaryToSignedUrl(
+              signedUrl.path,
+              signedUrl.token,
+              draft.bytes,
+              FileOptions(
+                contentType: draft.contentType,
+                cacheControl: '31536000',
+              ),
+            );
+
+        await client
+            .from('rooms')
+            .update({'photo_path': path})
+            .eq('id', createdRoom.id);
+      } catch (_) {
+        // Foto de cômodo é opcional; ninho + cômodos já foram criados de
+        // forma transacional, então uma falha de upload não deve prender o
+        // usuário no cadastro.
+      }
     }
 
     return environmentId;
@@ -63,6 +97,82 @@ class EnvironmentsRepository {
         .limit(1);
     return rows.isNotEmpty;
   }
+
+  // Lista cômodos de um ninho. RLS filtra automaticamente — usuário não-membro
+  // recebe array vazio em vez de erro (vide policy `rooms_select_member`).
+  Future<List<RoomRow>> fetchRooms(String environmentId) async {
+    final client = SupabaseService.client;
+    final rows = await client
+        .from('rooms')
+        .select('id, name, size_category')
+        .eq('environment_id', environmentId)
+        .order('created_at');
+    return [
+      for (final row in rows)
+        RoomRow(
+          id: row['id'] as String,
+          name: row['name'] as String,
+          sizeCategory: row['size_category'] as String,
+        ),
+    ];
+  }
+
+  // Retorna o environment_id do ninho ativo do usuário. MVP: cada usuário
+  // está em no máximo 1 ninho — quando a feature de múltiplos ninhos chegar,
+  // este método precisa de critério explícito de "ninho corrente".
+  Future<String?> fetchCurrentEnvironmentId() async {
+    final client = SupabaseService.client;
+    final userId = client.auth.currentUser?.id;
+    if (userId == null) return null;
+    final rows = await client
+        .from('environment_members')
+        .select('environment_id')
+        .eq('user_id', userId)
+        .filter('left_at', 'is', null)
+        .limit(1);
+    if (rows.isEmpty) return null;
+    return rows.first['environment_id'] as String;
+  }
+}
+
+class RoomRow {
+  const RoomRow({
+    required this.id,
+    required this.name,
+    required this.sizeCategory,
+  });
+
+  final String id;
+  final String name;
+  final String sizeCategory;
+}
+
+class _CreatedRoom {
+  const _CreatedRoom({required this.id, required this.name});
+
+  final String id;
+  final String name;
+
+  static Map<String, _CreatedRoom> fromResponse(Object? value) {
+    if (value is! List) return {};
+    return {
+      for (final item in value)
+        if (item is Map && item['id'] is String && item['name'] is String)
+          item['name'] as String: _CreatedRoom(
+            id: item['id'] as String,
+            name: item['name'] as String,
+          ),
+    };
+  }
+}
+
+String _slug(String value) {
+  final slug = value
+      .trim()
+      .toLowerCase()
+      .replaceAll(RegExp(r'[^a-z0-9]+'), '-')
+      .replaceAll(RegExp(r'^-+|-+$'), '');
+  return slug.isEmpty ? 'comodo' : slug;
 }
 
 // Defaults usados no Step 2 (cards predefinidos) — UI/UX só.

@@ -47,6 +47,7 @@ class SetupScaffold extends StatelessWidget {
                 child: Row(
                   children: [
                     IconButton(
+                      key: Key('setup_step_${step}_back_button'),
                       icon: const Icon(Icons.arrow_back),
                       onPressed:
                           onBack ?? () => Navigator.of(context).maybePop(),
@@ -79,6 +80,7 @@ class SetupScaffold extends StatelessWidget {
                 ),
               ],
               FilledButton(
+                key: Key('setup_step_${step}_primary_button'),
                 onPressed: (primaryEnabled && !primaryLoading)
                     ? onPrimary
                     : null,
