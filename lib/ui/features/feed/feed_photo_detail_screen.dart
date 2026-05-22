@@ -67,12 +67,30 @@ class _View extends StatelessWidget {
             key: const Key('feed_photo_menu'),
             icon: const Icon(Icons.more_vert, color: NinhoColors.primary),
             onSelected: (action) => _handleMenu(context, action),
-            itemBuilder: (_) => const [
-              PopupMenuItem(
-                value: _PhotoMenuAction.report,
-                child: Text('Denunciar'),
-              ),
-            ],
+            itemBuilder: (_) {
+              final detail = ctrl.detail;
+              return [
+                const PopupMenuItem(
+                  value: _PhotoMenuAction.report,
+                  child: Text('Denunciar'),
+                ),
+                if (detail?.canDeletePhoto ?? false)
+                  const PopupMenuItem(
+                    value: _PhotoMenuAction.deletePhoto,
+                    child: Text('Remover minha foto'),
+                  ),
+                if (detail?.canModerate ?? false)
+                  const PopupMenuItem(
+                    value: _PhotoMenuAction.hide,
+                    child: Text('Ocultar do mural'),
+                  ),
+                if (detail?.canModerate ?? false)
+                  const PopupMenuItem(
+                    value: _PhotoMenuAction.delete,
+                    child: Text('Deletar item'),
+                  ),
+              ];
+            },
           ),
         ],
       ),
@@ -83,17 +101,106 @@ class _View extends StatelessWidget {
     );
   }
 
-  void _handleMenu(BuildContext context, _PhotoMenuAction action) {
+  Future<void> _handleMenu(
+    BuildContext context,
+    _PhotoMenuAction action,
+  ) async {
+    final ctrl = context.read<FeedPhotoDetailController>();
     switch (action) {
       case _PhotoMenuAction.report:
-        ScaffoldMessenger.of(
+        final ok = await ctrl.report();
+        if (!context.mounted) return;
+        _showSnack(
           context,
-        ).showSnackBar(const SnackBar(content: Text('Sinal registrado.')));
+          ok
+              ? 'Sinal registrado.'
+              : ctrl.error ?? 'Não foi possível denunciar.',
+        );
+      case _PhotoMenuAction.deletePhoto:
+        final confirmed = await _confirm(
+          context,
+          title: 'Remover foto?',
+          body: 'A foto sai do mural para todos os moradores.',
+          confirmLabel: 'Remover',
+        );
+        if (!confirmed || !context.mounted) return;
+        final ok = await ctrl.deleteOwnPhoto();
+        if (!context.mounted) return;
+        if (ok) {
+          _showSnack(context, 'Foto removida do mural.');
+          context.go(NinhoRoutes.feed);
+        } else {
+          _showSnack(context, ctrl.error ?? 'Não foi possível remover.');
+        }
+      case _PhotoMenuAction.hide:
+        final confirmed = await _confirm(
+          context,
+          title: 'Ocultar item?',
+          body: 'O item deixa de aparecer no mural dos moradores.',
+          confirmLabel: 'Ocultar',
+        );
+        if (!confirmed || !context.mounted) return;
+        final ok = await ctrl.hide();
+        if (!context.mounted) return;
+        if (ok) {
+          _showSnack(context, 'Item ocultado do mural.');
+          context.go(NinhoRoutes.feed);
+        } else {
+          _showSnack(context, ctrl.error ?? 'Não foi possível ocultar.');
+        }
+      case _PhotoMenuAction.delete:
+        final confirmed = await _confirm(
+          context,
+          title: 'Deletar item?',
+          body: 'Esta ação remove o item do mural.',
+          confirmLabel: 'Deletar',
+        );
+        if (!confirmed || !context.mounted) return;
+        final ok = await ctrl.delete();
+        if (!context.mounted) return;
+        if (ok) {
+          _showSnack(context, 'Item deletado do mural.');
+          context.go(NinhoRoutes.feed);
+        } else {
+          _showSnack(context, ctrl.error ?? 'Não foi possível deletar.');
+        }
     }
+  }
+
+  Future<bool> _confirm(
+    BuildContext context, {
+    required String title,
+    required String body,
+    required String confirmLabel,
+  }) async {
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(title),
+        content: Text(body),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: const Text('Cancelar'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: Text(confirmLabel),
+          ),
+        ],
+      ),
+    );
+    return result ?? false;
+  }
+
+  void _showSnack(BuildContext context, String message) {
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message)));
   }
 }
 
-enum _PhotoMenuAction { report }
+enum _PhotoMenuAction { report, deletePhoto, hide, delete }
 
 class _Body extends StatelessWidget {
   const _Body({required this.controller});

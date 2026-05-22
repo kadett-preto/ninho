@@ -13,15 +13,39 @@ class _FakeFeedRepo extends FeedRepository {
 
   final FeedPhotoDetail? detail;
   final Object? error;
+  int reportCalls = 0;
+  final List<FeedModerationAction> moderationCalls = [];
 
   @override
   Future<FeedPhotoDetail> fetchPhotoDetail({required String eventId}) async {
     if (error != null) throw error!;
     return detail!;
   }
+
+  @override
+  Future<void> reportFeedEvent({
+    required String eventId,
+    String reason = 'inappropriate',
+    String? details,
+  }) async {
+    reportCalls += 1;
+  }
+
+  @override
+  Future<void> moderateFeedEvent({
+    required String eventId,
+    required FeedModerationAction action,
+    String? reason,
+  }) async {
+    moderationCalls.add(action);
+  }
 }
 
-FeedPhotoDetail _detail() {
+FeedPhotoDetail _detail({
+  bool canReport = true,
+  bool canDeletePhoto = false,
+  bool canModerate = false,
+}) {
   return FeedPhotoDetail(
     eventId: 'event-1',
     taskId: 'task-1',
@@ -36,6 +60,9 @@ FeedPhotoDetail _detail() {
     difficulty: TaskDifficulty.treta,
     heartCount: 12,
     celebrationCount: 5,
+    canReport: canReport,
+    canDeletePhoto: canDeletePhoto,
+    canModerate: canModerate,
     comments: [
       FeedComment(
         authorLabel: 'Lucas',
@@ -68,6 +95,10 @@ Widget _wrap(FeedRepository repo) {
         path: '/home',
         builder: (_, _) => const Scaffold(body: Text('HOME')),
       ),
+      GoRoute(
+        path: '/feed',
+        builder: (_, _) => const Scaffold(body: Text('FEED')),
+      ),
     ],
   );
   return MaterialApp.router(theme: NinhoTheme.light(), routerConfig: router);
@@ -94,7 +125,8 @@ void main() {
 
   testWidgets('menu permite sinalizar denúncia', (tester) async {
     _setMobile(tester);
-    await tester.pumpWidget(_wrap(_FakeFeedRepo(detail: _detail())));
+    final repo = _FakeFeedRepo(detail: _detail());
+    await tester.pumpWidget(_wrap(repo));
     await tester.pumpAndSettle();
 
     await tester.tap(find.byKey(const Key('feed_photo_menu')));
@@ -103,6 +135,41 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Sinal registrado.'), findsOneWidget);
+    expect(repo.reportCalls, 1);
+  });
+
+  testWidgets('autor consegue remover a própria foto', (tester) async {
+    _setMobile(tester);
+    final repo = _FakeFeedRepo(detail: _detail(canDeletePhoto: true));
+    await tester.pumpWidget(_wrap(repo));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(const Key('feed_photo_menu')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Remover minha foto'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Remover'));
+    await tester.pumpAndSettle();
+
+    expect(repo.moderationCalls, [FeedModerationAction.deletePhoto]);
+    expect(find.text('FEED'), findsOneWidget);
+  });
+
+  testWidgets('owner consegue ocultar item do mural', (tester) async {
+    _setMobile(tester);
+    final repo = _FakeFeedRepo(detail: _detail(canModerate: true));
+    await tester.pumpWidget(_wrap(repo));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(const Key('feed_photo_menu')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Ocultar do mural'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Ocultar'));
+    await tester.pumpAndSettle();
+
+    expect(repo.moderationCalls, [FeedModerationAction.hide]);
+    expect(find.text('FEED'), findsOneWidget);
   });
 
   testWidgets('erro de load mostra mensagem humana', (tester) async {

@@ -28,6 +28,7 @@ class FeedRepository {
         .from('feed_events')
         .select('id, actor_id, event_type, payload, created_at')
         .eq('environment_id', environmentId)
+        .filter('hidden_at', 'is', null)
         .order('created_at', ascending: false)
         .limit(limit);
 
@@ -89,7 +90,9 @@ class FeedRepository {
     final client = SupabaseService.client;
     final rows = await client
         .from('feed_events')
-        .select('id, environment_id, actor_id, event_type, payload, created_at')
+        .select(
+          'id, environment_id, actor_id, event_type, payload, hidden_at, created_at',
+        )
         .eq('id', eventId)
         .limit(1);
     final list = rows as List<dynamic>;
@@ -125,6 +128,13 @@ class FeedRepository {
     final actorId =
         event['actor_id'] as String? ?? completion['completed_by'] as String?;
     final actorLabel = _actorLabel(actorId);
+    final currentUserId = AuthService.currentUser?.id;
+    final isOwner = await _isEnvironmentOwner(
+      client,
+      environmentId: event['environment_id'] as String,
+      userId: currentUserId,
+    );
+    final isActor = currentUserId != null && actorId == currentUserId;
 
     final rooms = task['rooms'];
     final roomName = rooms is Map<String, dynamic>
@@ -156,7 +166,53 @@ class FeedRepository {
       heartCount: (payload['heart_count'] as num?)?.toInt() ?? 0,
       celebrationCount: (payload['celebration_count'] as num?)?.toInt() ?? 0,
       comments: _commentsFromPayload(payload['comments']),
+      canReport: currentUserId != null,
+      canDeletePhoto: isActor && photoPath != null && photoPath.isNotEmpty,
+      canModerate: isOwner,
     );
+  }
+
+  Future<void> reportFeedEvent({
+    required String eventId,
+    String reason = 'inappropriate',
+    String? details,
+  }) async {
+    await SupabaseService.client.rpc(
+      'report_feed_event',
+      params: {'p_event_id': eventId, 'p_reason': reason, 'p_details': details},
+    );
+  }
+
+  Future<void> moderateFeedEvent({
+    required String eventId,
+    required FeedModerationAction action,
+    String? reason,
+  }) async {
+    await SupabaseService.client.rpc(
+      'moderate_feed_event',
+      params: {
+        'p_event_id': eventId,
+        'p_action': action.rpcValue,
+        'p_reason': reason,
+      },
+    );
+  }
+
+  Future<bool> _isEnvironmentOwner(
+    SupabaseClient client, {
+    required String environmentId,
+    required String? userId,
+  }) async {
+    if (userId == null) return false;
+    final rows = await client
+        .from('environment_members')
+        .select('role')
+        .eq('environment_id', environmentId)
+        .eq('user_id', userId)
+        .filter('left_at', 'is', null)
+        .limit(1);
+    if (rows.isEmpty) return false;
+    return rows.first['role'] == 'owner';
   }
 
   Future<String?> _signedPhotoUrl(SupabaseClient client, String? path) async {
@@ -166,6 +222,15 @@ class FeedRepository {
         .from(_taskCompletionPhotosBucket)
         .createSignedUrl(path, 60 * 60);
   }
+}
+
+enum FeedModerationAction {
+  deletePhoto('delete_photo'),
+  hide('hide'),
+  delete('delete');
+
+  const FeedModerationAction(this.rpcValue);
+  final String rpcValue;
 }
 
 class FeedTimelineItem {
@@ -224,6 +289,9 @@ class FeedPhotoDetail {
     required this.heartCount,
     required this.celebrationCount,
     required this.comments,
+    this.canReport = false,
+    this.canDeletePhoto = false,
+    this.canModerate = false,
   });
 
   final String eventId;
@@ -240,6 +308,9 @@ class FeedPhotoDetail {
   final int heartCount;
   final int celebrationCount;
   final List<FeedComment> comments;
+  final bool canReport;
+  final bool canDeletePhoto;
+  final bool canModerate;
 }
 
 class FeedComment {
