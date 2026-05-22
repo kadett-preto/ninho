@@ -7,6 +7,7 @@ import '../features/home/home_screen.dart';
 import '../features/invite/accept_invite_screen.dart';
 import '../features/invite/invite_screen.dart';
 import '../features/notifications/notification_settings_screen.dart';
+import '../features/shop/shop_screen.dart';
 import '../features/onboarding/onboarding_screen.dart';
 import '../features/onboarding/splash_screen.dart';
 import '../features/setup/setup_controller.dart';
@@ -37,6 +38,7 @@ class NinhoRoutes {
   static const tasks = '/tasks';
   static const taskDetail = '/tasks';
   static const notificationSettings = '/settings/notifications';
+  static const shop = '/shop';
 }
 
 typedef SetupControllerFactory = SetupController Function();
@@ -96,14 +98,17 @@ GoRouter createNinhoRouter({
         builder: (context, state) => const NotificationSettingsScreen(),
       ),
       GoRoute(
+        path: NinhoRoutes.shop,
+        builder: (context, state) => const ShopScreen(),
+      ),
+      GoRoute(
         path: '${NinhoRoutes.tasks}/new',
         builder: (context, state) => const TaskFormScreen(),
       ),
       GoRoute(
         path: '${NinhoRoutes.taskDetail}/:taskId/edit',
-        builder: (context, state) => TaskFormScreen(
-          taskId: state.pathParameters['taskId'],
-        ),
+        builder: (context, state) =>
+            TaskFormScreen(taskId: state.pathParameters['taskId']),
       ),
       GoRoute(
         path: '${NinhoRoutes.taskDetail}/:taskId',

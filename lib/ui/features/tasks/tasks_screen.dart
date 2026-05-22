@@ -3,7 +3,8 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../../../data/repositories/environments_repository.dart';
-import '../../../data/repositories/suggestions_repository.dart' show TaskDifficulty;
+import '../../../data/repositories/suggestions_repository.dart'
+    show TaskDifficulty;
 import '../../../data/repositories/tasks_repository.dart';
 import '../../core/colors.dart';
 import '../../core/routes.dart';
@@ -61,16 +62,15 @@ class _TasksView extends StatelessWidget {
           ),
         ),
       ),
-      bottomNavigationBar: _TasksBottomNav(
-        onTap: (i) => _onTabTap(context, i),
-      ),
+      bottomNavigationBar: _TasksBottomNav(onTap: (i) => _onTabTap(context, i)),
     );
   }
 
   void _onTabTap(BuildContext context, int index) {
     if (index == 1) return;
     if (index == 0) context.go(NinhoRoutes.home);
-    // Demais abas (Mural/Loja/Perfil) ainda não têm rota dedicada.
+    if (index == 3) context.go(NinhoRoutes.shop);
+    // Mural/Perfil ainda não têm rota dedicada.
   }
 }
 
@@ -260,17 +260,14 @@ class _Chip extends StatelessWidget {
             borderRadius: BorderRadius.circular(NinhoRadii.lg),
           ),
           child: Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 16,
-              vertical: 8,
-            ),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             child: Text(
               label.toUpperCase(),
               style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                    color: fg,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: 1,
-                  ),
+                color: fg,
+                fontWeight: FontWeight.w700,
+                letterSpacing: 1,
+              ),
             ),
           ),
         ),
@@ -340,9 +337,7 @@ class _PeriodButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: selected
-          ? NinhoColors.surfaceContainerLowest
-          : Colors.transparent,
+      color: selected ? NinhoColors.surfaceContainerLowest : Colors.transparent,
       borderRadius: BorderRadius.circular(NinhoRadii.md),
       child: InkWell(
         borderRadius: BorderRadius.circular(NinhoRadii.md),
@@ -353,12 +348,12 @@ class _PeriodButton extends StatelessWidget {
             label.toUpperCase(),
             textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                  color: selected
-                      ? NinhoColors.onSurface
-                      : NinhoColors.onSurfaceVariant,
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: 1,
-                ),
+              color: selected
+                  ? NinhoColors.onSurface
+                  : NinhoColors.onSurfaceVariant,
+              fontWeight: FontWeight.w700,
+              letterSpacing: 1,
+            ),
           ),
         ),
       ),
@@ -379,9 +374,7 @@ class _Body extends StatelessWidget {
           child: CircularProgressIndicator(color: NinhoColors.primary),
         );
       case TasksScreenStatus.error:
-        return _ErrorView(
-          message: controller.error ?? 'Erro desconhecido',
-        );
+        return _ErrorView(message: controller.error ?? 'Erro desconhecido');
       case TasksScreenStatus.ready:
         final filtered = controller.filteredItems();
         if (filtered.isEmpty) {
@@ -396,13 +389,10 @@ class _Body extends StatelessWidget {
             120,
           ),
           itemCount: filtered.length,
-          separatorBuilder: (_, _) => const SizedBox(
-            height: NinhoSpacing.stackMd,
-          ),
-          itemBuilder: (_, i) => _TaskCard(
-            task: filtered[i],
-            controller: controller,
-          ),
+          separatorBuilder: (_, _) =>
+              const SizedBox(height: NinhoSpacing.stackMd),
+          itemBuilder: (_, i) =>
+              _TaskCard(task: filtered[i], controller: controller),
         );
     }
   }
@@ -468,9 +458,9 @@ class _ErrorView extends StatelessWidget {
           message,
           key: const Key('tasks_error'),
           textAlign: TextAlign.center,
-          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                color: NinhoColors.error,
-              ),
+          style: Theme.of(
+            context,
+          ).textTheme.bodyLarge?.copyWith(color: NinhoColors.error),
         ),
       ),
     );
@@ -487,8 +477,8 @@ class _TaskCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final completed = controller.completedInCurrentPeriod(task);
-    final isMine = task.assigneeId != null &&
-        task.assigneeId == controller.currentUserId;
+    final isMine =
+        task.assigneeId != null && task.assigneeId == controller.currentUserId;
 
     return Material(
       color: Colors.transparent,
@@ -516,8 +506,8 @@ class _TaskCard extends StatelessWidget {
                     onTap: completed
                         ? null
                         : () => context.go(
-                              '${NinhoRoutes.taskDetail}/${task.id}/complete',
-                            ),
+                            '${NinhoRoutes.taskDetail}/${task.id}/complete',
+                          ),
                     keyValue: 'task_check_${task.id}',
                   ),
                   const SizedBox(width: NinhoSpacing.stackMd),
@@ -650,26 +640,26 @@ class _DifficultyBadge extends StatelessWidget {
     }
     final (bg, fg) = switch (difficulty) {
       TaskDifficulty.mamao => (
-          NinhoColors.secondaryFixed,
-          NinhoColors.onSecondaryFixedVariant,
-        ),
+        NinhoColors.secondaryFixed,
+        NinhoColors.onSecondaryFixedVariant,
+      ),
       TaskDifficulty.embacada => (
-          NinhoColors.tertiaryFixed,
-          NinhoColors.onTertiaryFixedVariant,
-        ),
+        NinhoColors.tertiaryFixed,
+        NinhoColors.onTertiaryFixedVariant,
+      ),
       TaskDifficulty.treta => (
-          NinhoColors.primaryFixed,
-          NinhoColors.onPrimaryFixedVariant,
-        ),
+        NinhoColors.primaryFixed,
+        NinhoColors.onPrimaryFixedVariant,
+      ),
     };
     return _BadgePill(label: _label(difficulty), bg: bg, fg: fg);
   }
 
   String _label(TaskDifficulty d) => switch (d) {
-        TaskDifficulty.mamao => 'Mamão 🥭',
-        TaskDifficulty.embacada => 'Embaçada 😅',
-        TaskDifficulty.treta => 'Treta 😤',
-      };
+    TaskDifficulty.mamao => 'Mamão 🥭',
+    TaskDifficulty.embacada => 'Embaçada 😅',
+    TaskDifficulty.treta => 'Treta 😤',
+  };
 }
 
 class _BadgePill extends StatelessWidget {
@@ -690,10 +680,10 @@ class _BadgePill extends StatelessWidget {
         child: Text(
           label,
           style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                color: fg,
-                fontWeight: FontWeight.w700,
-                letterSpacing: 1,
-              ),
+            color: fg,
+            fontWeight: FontWeight.w700,
+            letterSpacing: 1,
+          ),
         ),
       ),
     );
@@ -721,11 +711,11 @@ class _MiniAvatar extends StatelessWidget {
       child: Text(
         label,
         style: Theme.of(context).textTheme.labelSmall?.copyWith(
-              color: highlighted
-                  ? NinhoColors.onPrimaryFixedVariant
-                  : NinhoColors.onSurfaceVariant,
-              fontWeight: FontWeight.w700,
-            ),
+          color: highlighted
+              ? NinhoColors.onPrimaryFixedVariant
+              : NinhoColors.onSurfaceVariant,
+          fontWeight: FontWeight.w700,
+        ),
       ),
     );
   }
@@ -829,10 +819,9 @@ class _NavItem extends StatelessWidget {
                 fit: BoxFit.scaleDown,
                 child: Text(
                   label,
-                  style: Theme.of(context)
-                      .textTheme
-                      .labelSmall
-                      ?.copyWith(color: color),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.labelSmall?.copyWith(color: color),
                 ),
               ),
             ],

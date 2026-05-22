@@ -28,15 +28,21 @@ class _LoginScreenState extends State<LoginScreen> {
     super.initState();
     // Mobile: deep link do OAuth callback dispara onAuthStateChange.
     // Web: signInWithOAuth força full-page redirect — listener nem chega.
-    _authSub = AuthService.onAuthStateChange.listen((event) {
-      if (!mounted) return;
-      if (event.event == AuthChangeEvent.signedIn ||
-          event.event == AuthChangeEvent.initialSession) {
-        if (AuthService.currentSession != null) {
-          context.go(NinhoRoutes.splash);
+    // Em widget tests sem Supabase inicializado, o subscribe explode —
+    // ignoramos silenciosamente.
+    try {
+      _authSub = AuthService.onAuthStateChange.listen((event) {
+        if (!mounted) return;
+        if (event.event == AuthChangeEvent.signedIn ||
+            event.event == AuthChangeEvent.initialSession) {
+          if (AuthService.currentSession != null) {
+            context.go(NinhoRoutes.splash);
+          }
         }
-      }
-    });
+      });
+    } catch (_) {
+      _authSub = null;
+    }
   }
 
   @override
