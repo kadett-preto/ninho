@@ -450,3 +450,10 @@ enabled = true
 verify_jwt = false
 import_map = "./functions/notify-trigger/deno.json"
 entrypoint = "./functions/notify-trigger/index.ts"
+
+[functions.weekly-summary]
+enabled = true
+# Chamado por cron com service_role no header. Handler valida o token.
+verify_jwt = false
+import_map = "./functions/weekly-summary/deno.json"
+entrypoint = "./functions/weekly-summary/index.ts"
