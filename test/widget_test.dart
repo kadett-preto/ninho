@@ -34,13 +34,6 @@ Widget _wrapSetup(SetupController controller, Widget child) {
   );
 }
 
-Widget _wrapRouter(String initialLocation) {
-  return MaterialApp.router(
-    theme: NinhoTheme.light(),
-    routerConfig: createNinhoRouter(initialLocation: initialLocation),
-  );
-}
-
 Widget _wrapCompletionWithRepo(
   TasksRepository repo, {
   RoomPhotoService? photoService,

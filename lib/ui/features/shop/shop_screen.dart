@@ -138,6 +138,18 @@ class _Layout extends StatelessWidget {
             ),
             children: [
               _BalanceCard(balance: controller.balance),
+              const SizedBox(height: NinhoSpacing.stackSm),
+              Center(
+                child: TextButton.icon(
+                  key: const Key('shop_history_button'),
+                  onPressed: () => context.go(NinhoRoutes.shopHistory),
+                  icon: const Icon(Icons.history, size: 18),
+                  label: const Text('Ver histórico'),
+                  style: TextButton.styleFrom(
+                    foregroundColor: NinhoColors.primary,
+                  ),
+                ),
+              ),
               const SizedBox(height: NinhoSpacing.stackLg),
               _SectionTitle('Itens'),
               const SizedBox(height: NinhoSpacing.stackMd),

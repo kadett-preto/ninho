@@ -98,6 +98,10 @@ Widget _wrap(ShopScreen screen) {
         path: '/home',
         builder: (_, _) => const Scaffold(body: Text('HOME')),
       ),
+      GoRoute(
+        path: '/shop/history',
+        builder: (_, _) => const Scaffold(body: Text('HISTORY')),
+      ),
     ],
   );
   return MaterialApp.router(theme: NinhoTheme.light(), routerConfig: router);
@@ -130,6 +134,27 @@ void main() {
     expect(find.text('45'), findsOneWidget);
     expect(find.text('Transferência de Tarefa'), findsOneWidget);
     expect(find.text('Comprar'), findsOneWidget);
+    expect(find.byKey(const Key('shop_history_button')), findsOneWidget);
+  });
+
+  testWidgets('CTA Ver histórico navega pra /shop/history', (tester) async {
+    _setMobile(tester);
+    await tester.pumpWidget(
+      _wrap(
+        ShopScreen(
+          environmentsRepository: _FakeEnvRepo(),
+          shopRepository: _FakeShopRepo(balance: 10),
+          tasksRepository: _FakeTasksRepo(),
+          currentUserId: 'me',
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(const Key('shop_history_button')));
+    await tester.pumpAndSettle();
+
+    expect(find.text('HISTORY'), findsOneWidget);
   });
 
   testWidgets('saldo curto desabilita CTA', (tester) async {

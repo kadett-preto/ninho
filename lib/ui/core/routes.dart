@@ -12,6 +12,7 @@ import '../features/invite/qr_scan_screen.dart';
 import '../features/invite/tour_screen.dart';
 import '../features/notifications/notification_settings_screen.dart';
 import '../features/shop/shop_screen.dart';
+import '../features/shop/transfer_history_screen.dart';
 import '../features/onboarding/onboarding_screen.dart';
 import '../features/onboarding/splash_screen.dart';
 import '../features/setup/setup_controller.dart';
@@ -46,6 +47,7 @@ class NinhoRoutes {
   static const taskDetail = '/tasks';
   static const notificationSettings = '/settings/notifications';
   static const shop = '/shop';
+  static const shopHistory = '/shop/history';
 }
 
 typedef SetupControllerFactory = SetupController Function();
@@ -128,6 +130,10 @@ GoRouter createNinhoRouter({
       GoRoute(
         path: NinhoRoutes.shop,
         builder: (context, state) => const ShopScreen(),
+      ),
+      GoRoute(
+        path: NinhoRoutes.shopHistory,
+        builder: (context, state) => const TransferHistoryScreen(),
       ),
       GoRoute(
         path: '${NinhoRoutes.tasks}/new',
