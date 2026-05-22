@@ -9,7 +9,6 @@ import '../../../data/repositories/suggestions_repository.dart'
     show TaskDifficulty;
 import '../../../data/repositories/tasks_repository.dart';
 import '../../../data/services/auth_service.dart';
-import '../../../data/services/posthog_service.dart';
 import '../../core/colors.dart';
 import '../../core/routes.dart';
 import '../../core/spacing.dart';
@@ -58,81 +57,6 @@ class _HomeView extends StatefulWidget {
 }
 
 class _HomeViewState extends State<_HomeView> {
-  bool _signingOut = false;
-
-  Future<void> _signOut() async {
-    if (_signingOut) return;
-    setState(() => _signingOut = true);
-    try {
-      await PosthogService.optOutAndReset();
-      await AuthService.signOut();
-      if (!mounted) return;
-      context.go(NinhoRoutes.splash);
-    } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Falha ao sair: $e')));
-      setState(() => _signingOut = false);
-    }
-  }
-
-  void _showProfileSheet() {
-    final email = AuthService.currentUser?.email ?? 'Sessão local';
-    showModalBottomSheet<void>(
-      context: context,
-      backgroundColor: NinhoColors.surfaceContainerLowest,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      builder: (sheetCtx) {
-        final theme = Theme.of(sheetCtx);
-        return SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.all(NinhoSpacing.marginMobile),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Text(
-                  'Perfil',
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    color: NinhoColors.onSurface,
-                  ),
-                ),
-                const SizedBox(height: NinhoSpacing.stackSm),
-                Text(
-                  email,
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: NinhoColors.onSurfaceVariant,
-                  ),
-                ),
-                const SizedBox(height: NinhoSpacing.stackLg),
-                OutlinedButton.icon(
-                  key: const Key('home_logout_button'),
-                  onPressed: _signingOut ? null : _signOut,
-                  icon: _signingOut
-                      ? const SizedBox(
-                          width: 18,
-                          height: 18,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : const Icon(Icons.logout),
-                  label: const Text('Sair do ninho'),
-                  style: OutlinedButton.styleFrom(
-                    minimumSize: const Size.fromHeight(52),
-                    foregroundColor: NinhoColors.primary,
-                    side: const BorderSide(color: NinhoColors.outlineVariant),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
-
   void _handleTab(int index) {
     if (index == 0) return;
     if (index == 1) {
@@ -148,7 +72,7 @@ class _HomeViewState extends State<_HomeView> {
       return;
     }
     if (index == 4) {
-      _showProfileSheet();
+      context.go(NinhoRoutes.profile);
     }
   }
 

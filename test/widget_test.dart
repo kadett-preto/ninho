@@ -171,20 +171,6 @@ void main() {
     expect(metrics.value, isFalse);
   });
 
-  testWidgets('home profile tab keeps logout reachable', (tester) async {
-    _setMobile(tester);
-    // HomeScreen agora exige repos. Como o test só valida bottom sheet de
-    // perfil, qualquer estado renderizado (incluindo erro) já expõe a tab.
-    await tester.pumpWidget(_wrap(const HomeScreen()));
-    await tester.pumpAndSettle();
-    await tester.tap(find.byKey(const Key('home_profile_tab')));
-    await tester.pumpAndSettle();
-
-    expect(find.text('Perfil'), findsWidgets);
-    expect(find.text('Sair do ninho'), findsOneWidget);
-    expect(find.byIcon(Icons.logout), findsOneWidget);
-  });
-
   testWidgets('task detail screen renders Stitch content', (tester) async {
     _setMobile(tester);
     await tester.pumpWidget(_wrap(const TaskDetailScreen(taskId: 'dishes')));

@@ -46,7 +46,9 @@ class _FakeStreaksRepo extends StreaksRepository {
     return summary ??
         const StreakSummary(
           userCount: 0,
+          userBest: 0,
           environmentCount: 0,
+          environmentBest: 0,
           freezesLeftMonth: 2,
         );
   }
@@ -190,7 +192,9 @@ void main() {
         streaks: const _FakeStreaksRepo(
           summary: StreakSummary(
             userCount: 7,
+            userBest: 14,
             environmentCount: 12,
+            environmentBest: 21,
             freezesLeftMonth: 2,
           ),
         ),

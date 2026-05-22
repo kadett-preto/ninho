@@ -69,6 +69,7 @@ class _View extends StatelessWidget {
     if (index == 0) context.go(NinhoRoutes.home);
     if (index == 1) context.go(NinhoRoutes.tasks);
     if (index == 3) context.go(NinhoRoutes.shop);
+    if (index == 4) context.go(NinhoRoutes.profile);
   }
 }
 

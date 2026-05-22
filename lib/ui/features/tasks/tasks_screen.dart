@@ -71,7 +71,7 @@ class _TasksView extends StatelessWidget {
     if (index == 0) context.go(NinhoRoutes.home);
     if (index == 2) context.go(NinhoRoutes.feed);
     if (index == 3) context.go(NinhoRoutes.shop);
-    // Perfil ainda não tem rota dedicada.
+    if (index == 4) context.go(NinhoRoutes.profile);
   }
 }
 

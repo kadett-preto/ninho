@@ -14,6 +14,7 @@ import '../features/notifications/notification_settings_screen.dart';
 import '../features/shop/shop_screen.dart';
 import '../features/shop/transfer_history_screen.dart';
 import '../features/onboarding/onboarding_screen.dart';
+import '../features/profile/profile_screen.dart';
 import '../features/onboarding/splash_screen.dart';
 import '../features/setup/setup_controller.dart';
 import '../features/setup/step1_name_screen.dart';
@@ -48,6 +49,7 @@ class NinhoRoutes {
   static const notificationSettings = '/settings/notifications';
   static const shop = '/shop';
   static const shopHistory = '/shop/history';
+  static const profile = '/profile';
 }
 
 typedef SetupControllerFactory = SetupController Function();
@@ -134,6 +136,10 @@ GoRouter createNinhoRouter({
       GoRoute(
         path: NinhoRoutes.shopHistory,
         builder: (context, state) => const TransferHistoryScreen(),
+      ),
+      GoRoute(
+        path: NinhoRoutes.profile,
+        builder: (context, state) => const ProfileScreen(),
       ),
       GoRoute(
         path: '${NinhoRoutes.tasks}/new',

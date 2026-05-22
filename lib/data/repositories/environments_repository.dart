@@ -133,6 +133,59 @@ class EnvironmentsRepository {
     if (rows.isEmpty) return null;
     return rows.first['environment_id'] as String;
   }
+
+  // Sumário do ninho corrente + papel do caller. RLS:
+  // environments_select_member já bloqueia ninhos fora.
+  Future<EnvironmentSummary?> fetchEnvironmentSummary({
+    required String environmentId,
+  }) async {
+    final client = SupabaseService.client;
+    final userId = client.auth.currentUser?.id;
+    final envRow = await client
+        .from('environments')
+        .select('id, name, owner_id, created_at')
+        .eq('id', environmentId)
+        .maybeSingle();
+    if (envRow == null) return null;
+    String? role;
+    if (userId != null) {
+      final memberRow = await client
+          .from('environment_members')
+          .select('role, joined_at')
+          .eq('environment_id', environmentId)
+          .eq('user_id', userId)
+          .filter('left_at', 'is', null)
+          .maybeSingle();
+      role = memberRow?['role'] as String?;
+    }
+    return EnvironmentSummary(
+      id: envRow['id'] as String,
+      name: envRow['name'] as String,
+      ownerId: envRow['owner_id'] as String,
+      role: role ?? 'member',
+      createdAt:
+          DateTime.tryParse(envRow['created_at'] as String? ?? '') ??
+          DateTime.now(),
+    );
+  }
+}
+
+class EnvironmentSummary {
+  const EnvironmentSummary({
+    required this.id,
+    required this.name,
+    required this.ownerId,
+    required this.role,
+    required this.createdAt,
+  });
+
+  final String id;
+  final String name;
+  final String ownerId;
+  final String role; // 'owner' | 'member'
+  final DateTime createdAt;
+
+  bool get isOwner => role == 'owner';
 }
 
 class RoomRow {
