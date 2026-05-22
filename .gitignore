@@ -76,6 +76,13 @@ lib/generated_plugin_registrant.dart
 *.key
 supabase/.temp/
 
+# Firebase — config files contain project identifiers + service account
+# private keys. Nunca commitar (§7.7).
+android/app/google-services.json
+ios/Runner/GoogleService-Info.plist
+**/firebase-adminsdk-*.json
+**/*service-account*.json
+
 # Agent / local
 .agents/cache/
 .claude/
