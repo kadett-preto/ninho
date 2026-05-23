@@ -1,0 +1,28 @@
+name: Edge Functions CI
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'supabase/functions/**'
+      - '.github/workflows/edge-ci.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'supabase/functions/**'
+      - '.github/workflows/edge-ci.yml'
+
+jobs:
+  deno-tests:
+    name: Deno shared helpers tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Deno
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
+      - name: Run shared helpers tests
+        run: deno test --allow-net=jsr.io supabase/functions/_shared/
