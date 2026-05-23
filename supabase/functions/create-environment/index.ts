@@ -24,15 +24,18 @@ const json = (body: unknown, status = 200) =>
   });
 
 Deno.serve(async (req) => {
-  if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
-  if (req.method !== "POST") return json({ error: "Método não permitido" }, 405);
+  if (req.method === "OPTIONS") {
+    return new Response("ok", { headers: corsHeaders });
+  }
+  if (req.method !== "POST") {
+    return json({ error: "Método não permitido" }, 405);
+  }
 
   const authHeader = req.headers.get("Authorization");
   if (!authHeader) return json({ error: "Sessão ausente" }, 401);
 
   const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
-  const supabaseKey =
-    Deno.env.get("SUPABASE_ANON_KEY") ??
+  const supabaseKey = Deno.env.get("SUPABASE_ANON_KEY") ??
     Deno.env.get("SUPABASE_PUBLISHABLE_KEY") ??
     "";
 
@@ -108,7 +111,9 @@ function parseRooms(
   for (const item of value as RoomInput[]) {
     const name = parseRequiredString(item.name, 80);
     const sizeRaw = item.sizeCategory ?? item.size_category;
-    const size = typeof sizeRaw === "string" ? sizeRaw.trim().toUpperCase() : "";
+    const size = typeof sizeRaw === "string"
+      ? sizeRaw.trim().toUpperCase()
+      : "";
 
     if (!name.ok) return { ok: false, error: "Nome de cômodo inválido" };
     if (!["P", "M", "G"].includes(size)) {

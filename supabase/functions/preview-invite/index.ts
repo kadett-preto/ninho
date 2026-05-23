@@ -41,15 +41,18 @@ const json = (body: unknown, status = 200) =>
   });
 
 Deno.serve(async (req) => {
-  if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
-  if (req.method !== "POST") return json({ error: "Método não permitido" }, 405);
+  if (req.method === "OPTIONS") {
+    return new Response("ok", { headers: corsHeaders });
+  }
+  if (req.method !== "POST") {
+    return json({ error: "Método não permitido" }, 405);
+  }
 
   const authHeader = req.headers.get("Authorization");
   if (!authHeader) return json({ error: "Sessão ausente" }, 401);
 
   const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
-  const supabaseKey =
-    Deno.env.get("SUPABASE_ANON_KEY") ??
+  const supabaseKey = Deno.env.get("SUPABASE_ANON_KEY") ??
     Deno.env.get("SUPABASE_PUBLISHABLE_KEY") ??
     "";
 
@@ -94,16 +97,15 @@ Deno.serve(async (req) => {
 
   if (error) {
     console.error("preview_invite failed", { code: error.code });
-    const status =
-      error.code === "28000"
-        ? 401
-        : error.code === "54000"
-        ? 429
-        : error.code === "42704"
-        ? 404
-        : error.code === "22023"
-        ? 400
-        : 500;
+    const status = error.code === "28000"
+      ? 401
+      : error.code === "54000"
+      ? 429
+      : error.code === "42704"
+      ? 404
+      : error.code === "22023"
+      ? 400
+      : 500;
     return json({ error: error.message, code: error.code }, status);
   }
 

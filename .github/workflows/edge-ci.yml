@@ -13,8 +13,8 @@ on:
       - '.github/workflows/edge-ci.yml'
 
 jobs:
-  deno-tests:
-    name: Deno shared helpers tests
+  deno:
+    name: Deno fmt + lint + tests + PII guard
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -24,5 +24,14 @@ jobs:
         with:
           deno-version: v2.x
 
-      - name: Run shared helpers tests
+      - name: Format check
+        run: deno fmt --check supabase/functions/
+
+      - name: Lint
+        run: deno lint supabase/functions/
+
+      - name: Shared helpers tests
         run: deno test --allow-net=jsr.io supabase/functions/_shared/
+
+      - name: PII guard (§7.5/§7.8)
+        run: bash scripts/check_pii_in_logs.sh

@@ -23,7 +23,7 @@ void main() {
     final source = tsFile.readAsStringSync();
     // Match único do template literal cru entre as crases.
     final match =
-        RegExp(r'const SYSTEM_PROMPT = `([\s\S]*?)`;').firstMatch(source);
+        RegExp(r'const SYSTEM_PROMPT =\s*`([\s\S]*?)`;').firstMatch(source);
     expect(match, isNotNull,
         reason: 'Falha extraindo SYSTEM_PROMPT do index.ts');
     final extracted = match!.group(1)!;

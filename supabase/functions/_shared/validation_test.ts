@@ -1,7 +1,7 @@
 // Ninho — Fase 11.10: testes negativos das validações comuns.
 // Rodar com:
 //   deno test supabase/functions/_shared/validation_test.ts
-import { assertEquals } from "jsr:@std/assert";
+import { assertEquals } from "jsr:@std/assert@^1.0.0";
 import {
   parseEnvironmentName,
   parseInviteToken,

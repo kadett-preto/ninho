@@ -288,9 +288,7 @@ async function sendCandidate(client: SupabaseClient, c: Candidate) {
       slot: c.slot,
       scheduled_for: new Date().toISOString(),
       sent_at: result.ok ? new Date().toISOString() : null,
-      suppressed_reason: result.ok
-        ? null
-        : `fcm_status_${result.status}`,
+      suppressed_reason: result.ok ? null : `fcm_status_${result.status}`,
       payload: { title: msg.title, body: msg.body },
     });
     if (result.invalidateToken) {
@@ -303,7 +301,9 @@ async function sendCandidate(client: SupabaseClient, c: Candidate) {
 }
 
 Deno.serve(async (req) => {
-  if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+  if (req.method === "OPTIONS") {
+    return new Response(null, { headers: corsHeaders });
+  }
   if (req.method !== "POST") return json({ error: "method_not_allowed" }, 405);
 
   // Cron path: precisa de service_role no header `x-ninho-cron-token` OU

@@ -1,5 +1,9 @@
 // Ninho — Fase 12.3: tests dos prompts por locale.
-import { assert, assertEquals, assertStringIncludes } from "jsr:@std/assert";
+import {
+  assert,
+  assertEquals,
+  assertStringIncludes,
+} from "jsr:@std/assert@^1.0.0";
 import {
   normalizeLocale,
   SUGGEST_TASKS_PROMPTS,

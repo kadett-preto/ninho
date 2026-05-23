@@ -89,7 +89,10 @@ async function getAccessToken(): Promise<string> {
   if (!resp.ok) {
     throw new Error(`Token FCM falhou: ${resp.status} ${await resp.text()}`);
   }
-  const body = await resp.json() as { access_token: string; expires_in: number };
+  const body = await resp.json() as {
+    access_token: string;
+    expires_in: number;
+  };
   cachedToken = {
     value: body.access_token,
     expiresAt: now + body.expires_in,

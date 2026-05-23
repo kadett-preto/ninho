@@ -1,14 +1,14 @@
 // Ninho — Fase 11.10: testes negativos dos helpers de auth.
 // Rodar com:
 //   deno test supabase/functions/_shared/auth_test.ts
-import { assertEquals } from "jsr:@std/assert";
+import { assertEquals } from "jsr:@std/assert@^1.0.0";
 import {
   jsonResponse,
   preflightOrMethodGuard,
   requireAuthHeader,
 } from "./auth.ts";
 
-Deno.test("preflightOrMethodGuard: OPTIONS retorna ok 200", async () => {
+Deno.test("preflightOrMethodGuard: OPTIONS retorna ok 200", () => {
   const r = new Request("https://x", { method: "OPTIONS" });
   const out = preflightOrMethodGuard(r)!;
   assertEquals(out.status, 200);
@@ -39,7 +39,7 @@ Deno.test("requireAuthHeader: ausente retorna 401", async () => {
   }
 });
 
-Deno.test("requireAuthHeader: vazio retorna 401", async () => {
+Deno.test("requireAuthHeader: vazio retorna 401", () => {
   const r = new Request("https://x", {
     method: "POST",
     headers: { Authorization: "   " },
