@@ -23,7 +23,7 @@ void main() {
     expect(find.text('Início'), findsOneWidget);
     expect(find.text('Perfil'), findsOneWidget);
 
-    await tester.tap(find.byKey(const Key('home_profile_tab')));
+    await tester.tap(find.byKey(const Key('nav_profile')));
     await tester.pumpAndSettle();
 
     // ProfileScreen sem sessão pode cair em error (auth ausente) ou
