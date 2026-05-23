@@ -10,6 +10,7 @@ import '../../../data/repositories/suggestions_repository.dart'
 import '../../../data/repositories/tasks_repository.dart';
 import '../../../data/services/auth_service.dart';
 import '../../core/colors.dart';
+import '../../core/widgets/ninho_bottom_nav.dart';
 import '../../core/routes.dart';
 import '../../core/spacing.dart';
 import 'home_controller.dart';
@@ -57,22 +58,18 @@ class _HomeView extends StatefulWidget {
 }
 
 class _HomeViewState extends State<_HomeView> {
-  void _handleTab(int index) {
-    if (index == 0) return;
-    if (index == 1) {
-      context.go(NinhoRoutes.tasks);
-      return;
-    }
-    if (index == 2) {
-      context.go(NinhoRoutes.feed);
-      return;
-    }
-    if (index == 3) {
-      context.go(NinhoRoutes.shop);
-      return;
-    }
-    if (index == 4) {
-      context.go(NinhoRoutes.profile);
+  void _handleTab(NinhoTab tab) {
+    switch (tab) {
+      case NinhoTab.home:
+        return;
+      case NinhoTab.tasks:
+        context.go(NinhoRoutes.tasks);
+      case NinhoTab.feed:
+        context.go(NinhoRoutes.feed);
+      case NinhoTab.shop:
+        context.go(NinhoRoutes.shop);
+      case NinhoTab.profile:
+        context.go(NinhoRoutes.profile);
     }
   }
 
@@ -90,7 +87,8 @@ class _HomeViewState extends State<_HomeView> {
           ),
         ),
       ),
-      bottomNavigationBar: _HomeBottomNav(onTap: _handleTab),
+      bottomNavigationBar:
+          NinhoBottomNav(active: NinhoTab.home, onTap: _handleTab),
     );
   }
 }
@@ -746,111 +744,8 @@ class _CalmFooter extends StatelessWidget {
   }
 }
 
-class _HomeBottomNav extends StatelessWidget {
-  const _HomeBottomNav({required this.onTap});
-
-  final ValueChanged<int> onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final bottom = MediaQuery.paddingOf(context).bottom;
-    return DecoratedBox(
-      decoration: const BoxDecoration(
-        color: NinhoColors.surface,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-        boxShadow: [
-          BoxShadow(
-            color: Color(0x14944931),
-            blurRadius: 16,
-            offset: Offset(0, -4),
-          ),
-        ],
-      ),
-      child: Padding(
-        padding: EdgeInsets.fromLTRB(16, 12, 16, bottom + 8),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            _NavItem(
-              icon: Icons.home,
-              label: 'Início',
-              selected: true,
-              onTap: () => onTap(0),
-            ),
-            _NavItem(
-              icon: Icons.checklist,
-              label: 'Tarefas',
-              onTap: () => onTap(1),
-            ),
-            _NavItem(
-              icon: Icons.grid_view,
-              label: 'Mural',
-              onTap: () => onTap(2),
-            ),
-            _NavItem(
-              icon: Icons.storefront_outlined,
-              label: 'Loja',
-              onTap: () => onTap(3),
-            ),
-            _NavItem(
-              key: const Key('home_profile_tab'),
-              icon: Icons.person_outline,
-              label: 'Perfil',
-              onTap: () => onTap(4),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _NavItem extends StatelessWidget {
-  const _NavItem({
-    super.key,
-    required this.icon,
-    required this.label,
-    required this.onTap,
-    this.selected = false,
-  });
-
-  final IconData icon;
-  final String label;
-  final VoidCallback onTap;
-  final bool selected;
-
-  @override
-  Widget build(BuildContext context) {
-    final color = selected
-        ? NinhoColors.primaryContainer
-        : NinhoColors.onSurfaceVariant;
-    return Expanded(
-      child: InkWell(
-        borderRadius: BorderRadius.circular(NinhoRadii.regular),
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 4),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(icon, color: color, fill: selected ? 1 : 0),
-              const SizedBox(height: 4),
-              FittedBox(
-                fit: BoxFit.scaleDown,
-                child: Text(
-                  label,
-                  style: Theme.of(
-                    context,
-                  ).textTheme.labelSmall?.copyWith(color: color),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
+// Bottom nav extraído para `lib/ui/core/widgets/ninho_bottom_nav.dart`
+// (Fase 12.2). HomeScreen passa o mapping de tab→rota aqui.
 
 class _AmbientShadow extends BoxShadow {
   const _AmbientShadow()

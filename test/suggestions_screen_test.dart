@@ -32,6 +32,7 @@ class _FakeSuggRepo extends SuggestionsRepository {
   @override
   Future<SuggestTasksResponse> fetchSuggestions({
     required String environmentId,
+    String? locale,
   }) async {
     if (error != null) throw error!;
     return SuggestTasksResponse(suggestions: suggestions);

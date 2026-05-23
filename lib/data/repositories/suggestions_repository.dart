@@ -13,11 +13,15 @@ class SuggestionsRepository {
 
   Future<SuggestTasksResponse> fetchSuggestions({
     required String environmentId,
+    String? locale,
   }) async {
     final client = SupabaseService.client;
     final response = await client.functions.invoke(
       'suggest-tasks',
-      body: {'environmentId': environmentId},
+      body: {
+        'environmentId': environmentId,
+        'locale': ?locale,
+      },
     );
     final data = response.data as Map<String, dynamic>;
     final raw = (data['suggestions'] as List<dynamic>? ?? const []);

@@ -9,6 +9,7 @@ import '../../../data/repositories/users_repository.dart';
 import '../../../data/services/auth_service.dart';
 import '../../../data/services/posthog_service.dart';
 import '../../core/colors.dart';
+import '../../core/widgets/ninho_bottom_nav.dart';
 import '../../core/routes.dart';
 import '../../core/spacing.dart';
 import 'profile_controller.dart';
@@ -128,22 +129,18 @@ class _ViewState extends State<_View> {
     return 'Não conseguimos sair do ninho. Tente outra vez.';
   }
 
-  void _handleTab(int index) {
-    if (index == 0) {
-      context.go(NinhoRoutes.home);
-      return;
-    }
-    if (index == 1) {
-      context.go(NinhoRoutes.tasks);
-      return;
-    }
-    if (index == 2) {
-      context.go(NinhoRoutes.feed);
-      return;
-    }
-    if (index == 3) {
-      context.go(NinhoRoutes.shop);
-      return;
+  void _handleTab(NinhoTab tab) {
+    switch (tab) {
+      case NinhoTab.profile:
+        return;
+      case NinhoTab.home:
+        context.go(NinhoRoutes.home);
+      case NinhoTab.tasks:
+        context.go(NinhoRoutes.tasks);
+      case NinhoTab.feed:
+        context.go(NinhoRoutes.feed);
+      case NinhoTab.shop:
+        context.go(NinhoRoutes.shop);
     }
   }
 
@@ -167,7 +164,8 @@ class _ViewState extends State<_View> {
           ),
         ),
       ),
-      bottomNavigationBar: _ProfileBottomNav(onTap: _handleTab),
+      bottomNavigationBar:
+          NinhoBottomNav(active: NinhoTab.profile, onTap: _handleTab),
     );
   }
 }
@@ -798,112 +796,5 @@ class _Chip extends StatelessWidget {
   }
 }
 
-class _ProfileBottomNav extends StatelessWidget {
-  const _ProfileBottomNav({required this.onTap});
-  final ValueChanged<int> onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final bottom = MediaQuery.paddingOf(context).bottom;
-    return DecoratedBox(
-      decoration: const BoxDecoration(
-        color: NinhoColors.surface,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-        boxShadow: [
-          BoxShadow(
-            color: Color(0x14944931),
-            blurRadius: 16,
-            offset: Offset(0, -4),
-          ),
-        ],
-      ),
-      child: Padding(
-        padding: EdgeInsets.fromLTRB(16, 12, 16, bottom + 8),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            _NavItem(
-              icon: Icons.home_outlined,
-              label: 'Início',
-              onTap: () => onTap(0),
-              keyValue: 'profile_nav_home',
-            ),
-            _NavItem(
-              icon: Icons.checklist,
-              label: 'Tarefas',
-              onTap: () => onTap(1),
-              keyValue: 'profile_nav_tasks',
-            ),
-            _NavItem(
-              icon: Icons.grid_view,
-              label: 'Mural',
-              onTap: () => onTap(2),
-              keyValue: 'profile_nav_feed',
-            ),
-            _NavItem(
-              icon: Icons.storefront_outlined,
-              label: 'Loja',
-              onTap: () => onTap(3),
-              keyValue: 'profile_nav_shop',
-            ),
-            _NavItem(
-              icon: Icons.person,
-              label: 'Perfil',
-              selected: true,
-              onTap: () => onTap(4),
-              keyValue: 'profile_nav_profile',
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _NavItem extends StatelessWidget {
-  const _NavItem({
-    required this.icon,
-    required this.label,
-    required this.onTap,
-    required this.keyValue,
-    this.selected = false,
-  });
-
-  final IconData icon;
-  final String label;
-  final VoidCallback onTap;
-  final String keyValue;
-  final bool selected;
-
-  @override
-  Widget build(BuildContext context) {
-    final color = selected ? NinhoColors.primary : NinhoColors.onSurfaceVariant;
-    return Expanded(
-      child: InkWell(
-        key: Key(keyValue),
-        borderRadius: BorderRadius.circular(NinhoRadii.regular),
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 4),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(icon, color: color, fill: selected ? 1 : 0),
-              const SizedBox(height: 4),
-              FittedBox(
-                fit: BoxFit.scaleDown,
-                child: Text(
-                  label,
-                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                    color: color,
-                    fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
+// Bottom nav extraído para `lib/ui/core/widgets/ninho_bottom_nav.dart`
+// (Fase 12.2).

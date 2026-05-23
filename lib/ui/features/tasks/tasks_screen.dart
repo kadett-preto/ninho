@@ -9,6 +9,7 @@ import '../../../data/repositories/tasks_repository.dart';
 import '../../core/colors.dart';
 import '../../core/routes.dart';
 import '../../core/spacing.dart';
+import '../../core/widgets/ninho_bottom_nav.dart';
 import 'tasks_controller.dart';
 
 // Stitch — "Gerenciamento de Tarefas" (55659509c4af477ea18567f8519ac5a5).
@@ -62,16 +63,26 @@ class _TasksView extends StatelessWidget {
           ),
         ),
       ),
-      bottomNavigationBar: _TasksBottomNav(onTap: (i) => _onTabTap(context, i)),
+      bottomNavigationBar: NinhoBottomNav(
+        active: NinhoTab.tasks,
+        onTap: (tab) => _onTabTap(context, tab),
+      ),
     );
   }
 
-  void _onTabTap(BuildContext context, int index) {
-    if (index == 1) return;
-    if (index == 0) context.go(NinhoRoutes.home);
-    if (index == 2) context.go(NinhoRoutes.feed);
-    if (index == 3) context.go(NinhoRoutes.shop);
-    if (index == 4) context.go(NinhoRoutes.profile);
+  void _onTabTap(BuildContext context, NinhoTab tab) {
+    switch (tab) {
+      case NinhoTab.tasks:
+        return;
+      case NinhoTab.home:
+        context.go(NinhoRoutes.home);
+      case NinhoTab.feed:
+        context.go(NinhoRoutes.feed);
+      case NinhoTab.shop:
+        context.go(NinhoRoutes.shop);
+      case NinhoTab.profile:
+        context.go(NinhoRoutes.profile);
+    }
   }
 }
 
@@ -722,116 +733,8 @@ class _MiniAvatar extends StatelessWidget {
   }
 }
 
-class _TasksBottomNav extends StatelessWidget {
-  const _TasksBottomNav({required this.onTap});
-  final ValueChanged<int> onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final bottom = MediaQuery.paddingOf(context).bottom;
-    return DecoratedBox(
-      decoration: const BoxDecoration(
-        color: NinhoColors.surface,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-        boxShadow: [
-          BoxShadow(
-            color: Color(0x14944931),
-            blurRadius: 16,
-            offset: Offset(0, -4),
-          ),
-        ],
-      ),
-      child: Padding(
-        padding: EdgeInsets.fromLTRB(16, 12, 16, bottom + 8),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            _NavItem(
-              icon: Icons.home_outlined,
-              label: 'Início',
-              onTap: () => onTap(0),
-              keyValue: 'tasks_nav_home',
-            ),
-            _NavItem(
-              icon: Icons.checklist,
-              label: 'Tarefas',
-              selected: true,
-              onTap: () => onTap(1),
-              keyValue: 'tasks_nav_tasks',
-            ),
-            _NavItem(
-              icon: Icons.grid_view,
-              label: 'Mural',
-              onTap: () => onTap(2),
-              keyValue: 'tasks_nav_feed',
-            ),
-            _NavItem(
-              icon: Icons.storefront_outlined,
-              label: 'Loja',
-              onTap: () => onTap(3),
-              keyValue: 'tasks_nav_shop',
-            ),
-            _NavItem(
-              icon: Icons.person_outline,
-              label: 'Perfil',
-              onTap: () => onTap(4),
-              keyValue: 'tasks_nav_profile',
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _NavItem extends StatelessWidget {
-  const _NavItem({
-    required this.icon,
-    required this.label,
-    required this.onTap,
-    required this.keyValue,
-    this.selected = false,
-  });
-
-  final IconData icon;
-  final String label;
-  final VoidCallback onTap;
-  final String keyValue;
-  final bool selected;
-
-  @override
-  Widget build(BuildContext context) {
-    final color = selected
-        ? NinhoColors.primaryContainer
-        : NinhoColors.onSurfaceVariant;
-    return Expanded(
-      child: InkWell(
-        key: Key(keyValue),
-        borderRadius: BorderRadius.circular(NinhoRadii.regular),
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 4),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(icon, color: color, fill: selected ? 1 : 0),
-              const SizedBox(height: 4),
-              FittedBox(
-                fit: BoxFit.scaleDown,
-                child: Text(
-                  label,
-                  style: Theme.of(
-                    context,
-                  ).textTheme.labelSmall?.copyWith(color: color),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
+// Bottom nav extraído para `lib/ui/core/widgets/ninho_bottom_nav.dart`
+// (Fase 12.2).
 
 class _WarmShadow extends BoxShadow {
   const _WarmShadow()

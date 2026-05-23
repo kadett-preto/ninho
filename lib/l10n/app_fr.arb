@@ -1,0 +1,39 @@
+{
+  "@@locale": "fr",
+  "appName": "Ninho",
+
+  "navHome": "Accueil",
+  "navTasks": "Tâches",
+  "navFeed": "Mur",
+  "navShop": "Boutique",
+  "navProfile": "Profil",
+
+  "commonCancel": "Annuler",
+  "commonSave": "Enregistrer",
+  "commonDelete": "Supprimer",
+  "commonRetry": "Réessayer",
+  "commonClose": "Fermer",
+  "commonContinue": "Continuer",
+  "commonSkip": "Passer",
+  "commonShare": "Partager",
+  "commonComingSoon": "Bientôt disponible.",
+
+  "splashTitle": "Bienvenue sur Ninho",
+  "splashSubtitle": "Partage des tâches qui prend soin du foyer.",
+
+  "loginGoogle": "Se connecter avec Google",
+  "loginApple": "Se connecter avec Apple",
+  "loginTermsAndPrivacy": "En vous connectant, vous acceptez nos conditions et notre politique de confidentialité.",
+
+  "difficultyEasy": "facile",
+  "difficultyMedium": "moyen",
+  "difficultyHard": "lourd",
+
+  "roomSizeSmall": "Petit",
+  "roomSizeMedium": "Moyen",
+  "roomSizeLarge": "Grand",
+
+  "errorSessionExpired": "Session expirée. Veuillez vous reconnecter.",
+  "errorNoPermission": "Permission refusée.",
+  "errorGeneric": "Impossible de terminer maintenant. Réessayez."
+}

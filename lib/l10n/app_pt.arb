@@ -1,0 +1,42 @@
+{
+  "@@locale": "pt",
+  "appName": "Ninho",
+  "@appName": {
+    "description": "Nome do produto. Sempre 'Ninho' em qualquer locale."
+  },
+
+  "navHome": "Início",
+  "navTasks": "Tarefas",
+  "navFeed": "Mural",
+  "navShop": "Loja",
+  "navProfile": "Perfil",
+
+  "commonCancel": "Cancelar",
+  "commonSave": "Salvar",
+  "commonDelete": "Excluir",
+  "commonRetry": "Tentar de novo",
+  "commonClose": "Fechar",
+  "commonContinue": "Continuar",
+  "commonSkip": "Pular",
+  "commonShare": "Compartilhar",
+  "commonComingSoon": "Em breve.",
+
+  "splashTitle": "Bem-vindo ao Ninho",
+  "splashSubtitle": "Divisão de tarefas que cuida do lar.",
+
+  "loginGoogle": "Entrar com Google",
+  "loginApple": "Entrar com Apple",
+  "loginTermsAndPrivacy": "Ao entrar você aceita nossos termos e a política de privacidade.",
+
+  "difficultyEasy": "mamão",
+  "difficultyMedium": "embaçada",
+  "difficultyHard": "treta",
+
+  "roomSizeSmall": "Pequeno",
+  "roomSizeMedium": "Médio",
+  "roomSizeLarge": "Grande",
+
+  "errorSessionExpired": "Sessão expirada. Faça login de novo.",
+  "errorNoPermission": "Sem permissão para essa ação.",
+  "errorGeneric": "Não conseguimos completar agora. Tente outra vez."
+}

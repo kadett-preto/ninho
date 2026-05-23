@@ -1,0 +1,39 @@
+{
+  "@@locale": "en",
+  "appName": "Ninho",
+
+  "navHome": "Home",
+  "navTasks": "Tasks",
+  "navFeed": "Wall",
+  "navShop": "Shop",
+  "navProfile": "Profile",
+
+  "commonCancel": "Cancel",
+  "commonSave": "Save",
+  "commonDelete": "Delete",
+  "commonRetry": "Try again",
+  "commonClose": "Close",
+  "commonContinue": "Continue",
+  "commonSkip": "Skip",
+  "commonShare": "Share",
+  "commonComingSoon": "Coming soon.",
+
+  "splashTitle": "Welcome to Ninho",
+  "splashSubtitle": "Chore sharing that takes care of your home.",
+
+  "loginGoogle": "Sign in with Google",
+  "loginApple": "Sign in with Apple",
+  "loginTermsAndPrivacy": "By signing in you accept our terms and privacy policy.",
+
+  "difficultyEasy": "easy",
+  "difficultyMedium": "tricky",
+  "difficultyHard": "heavy",
+
+  "roomSizeSmall": "Small",
+  "roomSizeMedium": "Medium",
+  "roomSizeLarge": "Large",
+
+  "errorSessionExpired": "Session expired. Please log in again.",
+  "errorNoPermission": "You don't have permission for that.",
+  "errorGeneric": "We couldn't finish that. Try again."
+}

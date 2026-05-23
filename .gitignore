@@ -7,6 +7,7 @@
 build/
 .fvm/
 pubspec.lock.bak
+test/failures/
 
 # IDE
 .idea/

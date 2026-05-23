@@ -49,7 +49,7 @@ class _FakeRepo extends EnvironmentsRepository {
   }) async {
     createCalls++;
     lastCreated = RoomRow(
-      id: 'r-${createCalls}',
+      id: 'r-$createCalls',
       name: name.trim(),
       sizeCategory: sizeCategory.toUpperCase(),
     );
