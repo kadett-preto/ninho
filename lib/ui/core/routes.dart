@@ -17,6 +17,7 @@ import '../features/onboarding/onboarding_screen.dart';
 import '../features/profile/delete_account_screen.dart';
 import '../features/profile/export_data_screen.dart';
 import '../features/profile/profile_screen.dart';
+import '../features/profile/transfer_ownership_screen.dart';
 import '../features/onboarding/splash_screen.dart';
 import '../features/setup/setup_controller.dart';
 import '../features/setup/step1_name_screen.dart';
@@ -54,6 +55,7 @@ class NinhoRoutes {
   static const profile = '/profile';
   static const profileExport = '/profile/export';
   static const profileDelete = '/profile/delete';
+  static const profileTransferOwnership = '/profile/transfer-ownership';
 }
 
 typedef SetupControllerFactory = SetupController Function();
@@ -152,6 +154,10 @@ GoRouter createNinhoRouter({
       GoRoute(
         path: NinhoRoutes.profileDelete,
         builder: (context, state) => const DeleteAccountScreen(),
+      ),
+      GoRoute(
+        path: NinhoRoutes.profileTransferOwnership,
+        builder: (context, state) => const TransferOwnershipScreen(),
       ),
       GoRoute(
         path: '${NinhoRoutes.tasks}/new',

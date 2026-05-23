@@ -134,6 +134,45 @@ class EnvironmentsRepository {
     return rows.first['environment_id'] as String;
   }
 
+  // Fase 11.6: lista membros ativos do ninho via RPC SECURITY DEFINER
+  // (caller precisa ser membro). Inclui display_name + role + joined_at.
+  Future<List<EnvironmentMember>> listMembers(String environmentId) async {
+    final rows = await SupabaseService.client.rpc(
+      'list_environment_members',
+      params: {'p_environment_id': environmentId},
+    );
+    if (rows == null) return const [];
+    if (rows is! List) return const [];
+    return [
+      for (final row in rows)
+        if (row is Map<String, dynamic>)
+          EnvironmentMember(
+            userId: row['user_id'] as String,
+            displayName: row['display_name'] as String?,
+            role: row['role'] as String? ?? 'member',
+            joinedAt:
+                DateTime.tryParse(row['joined_at'] as String? ?? '') ??
+                DateTime.now(),
+          ),
+    ];
+  }
+
+  // Fase 11.6 / IDEA.md §5.5: transferência manual de ownership.
+  // RPC SECURITY DEFINER owner-only. Caller passa a member; alvo
+  // (member ativo, ≠ caller) vira owner. Audit gravado.
+  Future<void> transferOwnership({
+    required String environmentId,
+    required String newOwnerId,
+  }) async {
+    await SupabaseService.client.rpc(
+      'transfer_ownership',
+      params: {
+        'p_environment_id': environmentId,
+        'p_new_owner_id': newOwnerId,
+      },
+    );
+  }
+
   // IDEA.md §5.5 / Fase 11.7: sair do ninho. RPC SECURITY DEFINER trata
   // owner único com membros (rejeita) e owner solo (arquiva env).
   Future<LeaveEnvironmentResult> leaveEnvironment(String environmentId) async {
@@ -184,6 +223,22 @@ class EnvironmentsRepository {
           DateTime.now(),
     );
   }
+}
+
+class EnvironmentMember {
+  const EnvironmentMember({
+    required this.userId,
+    required this.displayName,
+    required this.role,
+    required this.joinedAt,
+  });
+
+  final String userId;
+  final String? displayName;
+  final String role;
+  final DateTime joinedAt;
+
+  bool get isOwner => role == 'owner';
 }
 
 class LeaveEnvironmentResult {

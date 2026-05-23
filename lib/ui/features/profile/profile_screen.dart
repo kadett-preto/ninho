@@ -331,7 +331,11 @@ class _ReadyView extends StatelessWidget {
           const SizedBox(height: NinhoSpacing.stackLg),
           _StatsGrid(controller: controller),
           const SizedBox(height: NinhoSpacing.stackLg),
-          _MenuSection(onLeaveEnv: leaveEnv, leavingEnv: leavingEnv),
+          _MenuSection(
+            onLeaveEnv: leaveEnv,
+            leavingEnv: leavingEnv,
+            isOwner: controller.environment?.isOwner == true,
+          ),
           const SizedBox(height: NinhoSpacing.stackMd),
           _SignOutButton(onTap: signOut, busy: signingOut),
         ],
@@ -530,10 +534,15 @@ class _StatCard extends StatelessWidget {
 }
 
 class _MenuSection extends StatelessWidget {
-  const _MenuSection({required this.onLeaveEnv, required this.leavingEnv});
+  const _MenuSection({
+    required this.onLeaveEnv,
+    required this.leavingEnv,
+    required this.isOwner,
+  });
 
   final VoidCallback onLeaveEnv;
   final bool leavingEnv;
+  final bool isOwner;
 
   @override
   Widget build(BuildContext context) {
@@ -559,6 +568,15 @@ class _MenuSection extends StatelessWidget {
           label: 'Configurações do ninho',
           comingSoon: true,
         ),
+        if (isOwner) ...[
+          const SizedBox(height: NinhoSpacing.unit),
+          _MenuRow(
+            keyValue: 'profile_menu_transfer_owner',
+            icon: Icons.swap_horiz_outlined,
+            label: 'Transferir propriedade',
+            onTap: () => context.go(NinhoRoutes.profileTransferOwnership),
+          ),
+        ],
         const SizedBox(height: NinhoSpacing.unit),
         _MenuRow(
           keyValue: 'profile_menu_export',

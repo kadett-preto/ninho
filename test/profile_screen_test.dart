@@ -22,12 +22,10 @@ class _FakeEnvRepo extends EnvironmentsRepository {
     this.envId = 'env-1',
     this.summary,
     this.leaveError,
-    this.leaveResult,
   });
   final String? envId;
   final EnvironmentSummary? summary;
   final Object? leaveError;
-  final LeaveEnvironmentResult? leaveResult;
   int leaveCalls = 0;
 
   @override
@@ -51,8 +49,10 @@ class _FakeEnvRepo extends EnvironmentsRepository {
   Future<LeaveEnvironmentResult> leaveEnvironment(String environmentId) async {
     leaveCalls++;
     if (leaveError != null) throw leaveError!;
-    return leaveResult ??
-        const LeaveEnvironmentResult(alreadyLeft: false, envArchived: false);
+    return const LeaveEnvironmentResult(
+      alreadyLeft: false,
+      envArchived: false,
+    );
   }
 }
 
