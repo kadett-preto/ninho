@@ -33,6 +33,9 @@ jobs:
       - name: Run tests
         run: flutter test --coverage
 
+      - name: Check coverage thresholds
+        run: dart run scripts/check_flutter_coverage.dart
+
       - name: Upload coverage
         if: always()
         uses: actions/upload-artifact@v4

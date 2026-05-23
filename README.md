@@ -64,7 +64,9 @@ Adiado para pré-release (precisa Apple Developer $99/ano — task 2.5 em `TASKS
 ```bash
 flutter analyze                                                            # lint
 flutter test                                                               # unit + widget
+flutter test --coverage && dart run scripts/check_flutter_coverage.dart     # coverage gates
 supabase test db                                                           # pgTAP (RLS, RPCs, Storage)
+ENV_FILE=.env bash scripts/staging_smoke.sh                                # smoke remoto
 
 # integration test (device físico, ~4s no Galaxy S24):
 flutter drive \
@@ -73,7 +75,12 @@ flutter drive \
   -d RQCX9030HBH
 ```
 
-Padrão: cobertura ≥70% global, ≥90% módulos de segurança (auth/RLS/convites/ownership). Ver `IDEA.md` §8.
+Padrão: cobertura Dart ≥70% global, ≥90% na superfície mobile sensível
+(auth/convites/ownership/LGPD). RLS/RPC/Storage seguem cobertos por pgTAP em
+`supabase test db`. Ver `IDEA.md` §8.
+
+Deploy multiambiente (`staging` = `ninho-dev`, `production` = `ninho-prod`) fica
+em GitHub Actions. Runbook: [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md).
 
 ## Supabase
 

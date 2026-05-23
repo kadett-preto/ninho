@@ -213,21 +213,26 @@
 
 ## Fase 14 — Release MVP
 
-- [ ] **14.1.** Suíte integration tests cobrindo fluxos críticos (onboarding, conclusão com foto, transferência)
-- [ ] **14.2.** Cobertura ≥70% global / ≥90% módulos de segurança (§8.6)
-- [ ] **14.3.** Smoke test em staging
-- [ ] **14.4.** QA manual em device real iOS + Android (§8.7)
-- [ ] **14.5.** Paridade visual contra Stitch (§8.7)
-- [ ] **14.6.** Configurar RevenueCat (placeholder — se IAP entrar pré-lançamento)
-- [ ] **14.7.** Build release iOS (App Store Connect)
-- [ ] **14.8.** Build release Android (Play Console)
-- [ ] **14.9.** Política de privacidade + termos publicados
-- [ ] **14.10.** Publicação
+- [x] **14.1.** Suíte integration tests cobrindo fluxos críticos: onboarding/cadastro (`integration_test/setup_flow_test.dart`), conclusão com foto e transferência (`integration_test/release_critical_flows_test.dart`) com repositórios fake para não tocar Supabase remoto.
+- [x] **14.2.** Cobertura ≥70% global / ≥90% módulos de segurança (§8.6). `flutter test --coverage` mediu 75.02% global (5091/6786) e `scripts/check_flutter_coverage.dart` trava ≥90% na superfície mobile sensível (auth/convites/ownership/LGPD); RLS/RPC/Storage seguem cobertos por pgTAP.
+- [x] **14.3.** Smoke test em staging. `ninho-dev` tratado como staging do MVP: projeto ativo, migrations remotas até `20260523160000_audit_coverage`, 8 Edge Functions esperadas `ACTIVE`, e `scripts/staging_smoke.sh` validando Auth, PostgREST com RLS negando anon e CORS/OPTIONS das funções.
+- [~] **14.4.** Pipeline de deploy multiambiente via GitHub Actions: somente `ninho-dev` (staging) e `ninho-prod` (produção). Implementado: `.github/workflows/deploy-supabase.yml`, `scripts/deploy_supabase.sh`, smoke parametrizável e runbook `docs/DEPLOYMENT.md`. Pendente: criar/registrar projeto Supabase `ninho-prod`, configurar GitHub Environments `staging`/`production` com secrets separados (`SUPABASE_PROJECT_REF`, `SUPABASE_ACCESS_TOKEN`, `SUPABASE_DB_PASSWORD`, `SUPABASE_URL`, `SUPABASE_ANON_KEY`, Edge Function secrets como `ANTHROPIC_API_KEY`/FCM) e exigir reviewers em `production`. Custo previsto: staging atual tende a $0/mês; produção deve planejar Supabase pago (~US$25/mês + usage), GitHub Actions dentro da quota no início, Apple US$99/ano e Google Play US$25 único.
+- [ ] **14.5.** QA manual em device real iOS + Android (§8.7)
+- [ ] **14.6.** Paridade visual contra Stitch (§8.7)
+- [ ] **14.7.** Configurar RevenueCat (placeholder — se IAP entrar pré-lançamento)
+- [ ] **14.8.** Build release iOS (App Store Connect)
+- [ ] **14.9.** Build release Android (Play Console)
+- [ ] **14.10.** Política de privacidade + termos publicados
+- [ ] **14.11.** Publicação
 
 ---
 
 ## Histórico de Mudanças
 
+- **2026-05-23** — 14.1 ✓: suíte de release crítica ampliada. `integration_test/release_critical_flows_test.dart` cobre conclusão de task com foto (serviço de foto fake → upload → RPC fake → navegação home) e transferência de tarefa na Loja (saldo, sheet, confirmação, saldo atualizado). Onboarding/cadastro segue coberto por `integration_test/setup_flow_test.dart`. Testes usam fakes para manter determinismo e não depender de sessão Supabase remota.
+- **2026-05-23** — 14.2 ✓: coverage gate implementado. `flutter test --coverage` passou com 192 testes e 75.02% global (5091/6786). Novo `scripts/check_flutter_coverage.dart` valida `coverage/lcov.info` e falha se cobertura global <70% ou se a superfície mobile sensível (auth/login+LGPD, convites, perfil/ownership/delete/export) cair abaixo de 90%; backend security permanece validado por pgTAP/RLS no `supabase test db`. `.github/workflows/flutter-ci.yml` agora executa o check após os testes.
+- **2026-05-23** — 14.3 ✓: smoke staging executado contra Supabase `ninho-dev` (`uzvnvxbemaeoggypvocq`). Antes do smoke, o remoto estava sem `create-invite`, `accept-invite` e `preview-invite`; as 3 funções foram publicadas via `supabase functions deploy ... --use-api`. Confirmações: projeto `ACTIVE_HEALTHY`, migrations remotas até `20260523160000_audit_coverage`, 8 Edge Functions `ACTIVE`. Novo `scripts/staging_smoke.sh` passou: Auth settings 200, PostgREST responde e nega anon em `rooms` por RLS, OPTIONS/CORS de todas as funções ok.
+- **2026-05-23** — 14.4 [~]: pipeline Supabase multiambiente iniciado. Adicionados `.github/workflows/deploy-supabase.yml`, `scripts/deploy_supabase.sh`, `scripts/staging_smoke.sh` parametrizável sem `.env` obrigatório e `docs/DEPLOYMENT.md`. Workflow aceita `staging`/`production`, vincula GitHub Environment, sincroniza secrets de Edge Functions, aplica migrations, deploya Edge Functions e roda smoke. Pendente externo: criar `ninho-prod`, cadastrar secrets por ambiente e configurar required reviewers em `production`.
 - **2026-05-19** — arquivo criado, plano inicial derivado de `IDEA.md` (todas fases pendentes).
 - **2026-05-19** — Fase 0 parcialmente concluída: 0.1, 0.2, 0.5, 0.6, 0.9 ✓. 0.3, 0.4, 0.7, 0.8 bloqueadas aguardando contas externas. Commit inicial `36a190e`.
 - **2026-05-19** — Supabase dev criado, 0.3 e 0.4 ✓. Commit `20ba10d` (supabase_flutter + flutter_dotenv).

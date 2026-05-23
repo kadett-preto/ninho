@@ -1,0 +1,61 @@
+name: Deploy Supabase
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: Target environment
+        required: true
+        default: staging
+        type: choice
+        options:
+          - staging
+          - production
+      deploy_database:
+        description: Apply database migrations
+        required: true
+        default: true
+        type: boolean
+      deploy_functions:
+        description: Deploy Edge Functions
+        required: true
+        default: true
+        type: boolean
+      update_function_secrets:
+        description: Sync Edge Function secrets before deploy
+        required: true
+        default: true
+        type: boolean
+
+jobs:
+  deploy:
+    name: Deploy ${{ inputs.environment }}
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    concurrency:
+      group: supabase-${{ inputs.environment }}
+      cancel-in-progress: false
+    env:
+      TARGET_ENVIRONMENT: ${{ inputs.environment }}
+      DEPLOY_DATABASE: ${{ inputs.deploy_database }}
+      DEPLOY_FUNCTIONS: ${{ inputs.deploy_functions }}
+      UPDATE_FUNCTION_SECRETS: ${{ inputs.update_function_secrets }}
+      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+      SUPABASE_PROJECT_REF: ${{ secrets.SUPABASE_PROJECT_REF }}
+      SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+      SUPABASE_PUBLISHABLE: ${{ secrets.SUPABASE_PUBLISHABLE }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      FIREBASE_SERVICE_ACCOUNT_JSON: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON }}
+      USE_AI: ${{ vars.USE_AI }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: supabase/setup-cli@v1
+        with:
+          version: 2.100.1
+
+      - name: Deploy and smoke test
+        run: bash scripts/deploy_supabase.sh
