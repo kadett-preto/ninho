@@ -8,6 +8,7 @@ build/
 .fvm/
 pubspec.lock.bak
 test/failures/
+eval-results/
 
 # IDE
 .idea/
