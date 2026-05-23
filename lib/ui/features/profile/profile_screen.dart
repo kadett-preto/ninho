@@ -52,6 +52,7 @@ class _View extends StatefulWidget {
 
 class _ViewState extends State<_View> {
   bool _signingOut = false;
+  bool _leavingEnv = false;
 
   Future<void> _signOut() async {
     if (_signingOut) return;
@@ -68,6 +69,63 @@ class _ViewState extends State<_View> {
       );
       setState(() => _signingOut = false);
     }
+  }
+
+  Future<void> _leaveEnvironment(ProfileController ctrl) async {
+    if (_leavingEnv) return;
+    final env = ctrl.environment;
+    if (env == null) return;
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Sair do ninho?'),
+        content: Text(
+          env.isOwner
+              ? 'Você é owner. Se for o último morador, o ninho será arquivado.'
+              : 'Você deixa de ver tarefas, mural e poeira deste ninho.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: const Text('Cancelar'),
+          ),
+          FilledButton(
+            key: const Key('leave_env_confirm'),
+            style: FilledButton.styleFrom(backgroundColor: NinhoColors.error),
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: const Text('Sair'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true) return;
+
+    setState(() => _leavingEnv = true);
+    try {
+      await ctrl.leaveEnvironment();
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Você saiu do ninho.')),
+      );
+      context.go(NinhoRoutes.splash);
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(_humanizeLeave(e))),
+      );
+      setState(() => _leavingEnv = false);
+    }
+  }
+
+  String _humanizeLeave(Object e) {
+    final msg = e.toString();
+    if (msg.contains('22023')) {
+      return 'Transfira a propriedade antes de sair.';
+    }
+    if (msg.contains('42501')) return 'Sem permissão para sair deste ninho.';
+    if (msg.contains('28000')) return 'Sessão expirada. Faça login de novo.';
+    return 'Não conseguimos sair do ninho. Tente outra vez.';
   }
 
   void _handleTab(int index) {
@@ -99,7 +157,13 @@ class _ViewState extends State<_View> {
         child: Center(
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 520),
-            child: _Body(controller: ctrl, signOut: _signOut, signingOut: _signingOut),
+            child: _Body(
+              controller: ctrl,
+              signOut: _signOut,
+              signingOut: _signingOut,
+              leaveEnv: () => _leaveEnvironment(ctrl),
+              leavingEnv: _leavingEnv,
+            ),
           ),
         ),
       ),
@@ -113,11 +177,15 @@ class _Body extends StatelessWidget {
     required this.controller,
     required this.signOut,
     required this.signingOut,
+    required this.leaveEnv,
+    required this.leavingEnv,
   });
 
   final ProfileController controller;
   final VoidCallback signOut;
   final bool signingOut;
+  final VoidCallback leaveEnv;
+  final bool leavingEnv;
 
   @override
   Widget build(BuildContext context) {
@@ -139,6 +207,8 @@ class _Body extends StatelessWidget {
           controller: controller,
           signOut: signOut,
           signingOut: signingOut,
+          leaveEnv: leaveEnv,
+          leavingEnv: leavingEnv,
         );
     }
   }
@@ -234,11 +304,15 @@ class _ReadyView extends StatelessWidget {
     required this.controller,
     required this.signOut,
     required this.signingOut,
+    required this.leaveEnv,
+    required this.leavingEnv,
   });
 
   final ProfileController controller;
   final VoidCallback signOut;
   final bool signingOut;
+  final VoidCallback leaveEnv;
+  final bool leavingEnv;
 
   @override
   Widget build(BuildContext context) {
@@ -257,7 +331,7 @@ class _ReadyView extends StatelessWidget {
           const SizedBox(height: NinhoSpacing.stackLg),
           _StatsGrid(controller: controller),
           const SizedBox(height: NinhoSpacing.stackLg),
-          const _MenuSection(),
+          _MenuSection(onLeaveEnv: leaveEnv, leavingEnv: leavingEnv),
           const SizedBox(height: NinhoSpacing.stackMd),
           _SignOutButton(onTap: signOut, busy: signingOut),
         ],
@@ -456,7 +530,10 @@ class _StatCard extends StatelessWidget {
 }
 
 class _MenuSection extends StatelessWidget {
-  const _MenuSection();
+  const _MenuSection({required this.onLeaveEnv, required this.leavingEnv});
+
+  final VoidCallback onLeaveEnv;
+  final bool leavingEnv;
 
   @override
   Widget build(BuildContext context) {
@@ -495,6 +572,20 @@ class _MenuSection extends StatelessWidget {
           icon: Icons.help_outline,
           label: 'Ajuda',
           comingSoon: true,
+        ),
+        const SizedBox(height: NinhoSpacing.unit),
+        _MenuRow(
+          keyValue: 'profile_menu_leave_env',
+          icon: Icons.logout_outlined,
+          label: leavingEnv ? 'Saindo do ninho...' : 'Sair do ninho',
+          onTap: leavingEnv ? null : onLeaveEnv,
+        ),
+        const SizedBox(height: NinhoSpacing.unit),
+        _MenuRow(
+          keyValue: 'profile_menu_delete',
+          icon: Icons.delete_outline,
+          label: 'Excluir minha conta',
+          onTap: () => context.go(NinhoRoutes.profileDelete),
         ),
       ],
     );

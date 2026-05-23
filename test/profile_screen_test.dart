@@ -18,9 +18,17 @@ class _FakeUsersRepo extends UsersRepository {
 }
 
 class _FakeEnvRepo extends EnvironmentsRepository {
-  _FakeEnvRepo({this.envId = 'env-1', this.summary});
+  _FakeEnvRepo({
+    this.envId = 'env-1',
+    this.summary,
+    this.leaveError,
+    this.leaveResult,
+  });
   final String? envId;
   final EnvironmentSummary? summary;
+  final Object? leaveError;
+  final LeaveEnvironmentResult? leaveResult;
+  int leaveCalls = 0;
 
   @override
   Future<String?> fetchCurrentEnvironmentId() async => envId;
@@ -37,6 +45,14 @@ class _FakeEnvRepo extends EnvironmentsRepository {
           role: 'member',
           createdAt: DateTime(2026, 1, 1),
         );
+  }
+
+  @override
+  Future<LeaveEnvironmentResult> leaveEnvironment(String environmentId) async {
+    leaveCalls++;
+    if (leaveError != null) throw leaveError!;
+    return leaveResult ??
+        const LeaveEnvironmentResult(alreadyLeft: false, envArchived: false);
   }
 }
 
@@ -101,6 +117,10 @@ Widget _wrap({
       GoRoute(
         path: '/settings/notifications',
         builder: (_, _) => const Scaffold(body: Text('NOTIF')),
+      ),
+      GoRoute(
+        path: '/',
+        builder: (_, _) => const Scaffold(body: Text('SPLASH')),
       ),
     ],
   );
@@ -246,6 +266,89 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('NOTIF'), findsOneWidget);
+  });
+
+  testWidgets('sair do ninho confirma + chama RPC + vai pra splash', (
+    tester,
+  ) async {
+    _setMobile(tester);
+    final env = _FakeEnvRepo(
+      summary: EnvironmentSummary(
+        id: 'env-1',
+        name: 'Nosso apê',
+        ownerId: 'other',
+        role: 'member',
+        createdAt: DateTime(2026, 1, 1),
+      ),
+    );
+    await tester.pumpWidget(
+      _wrap(
+        users: _FakeUsersRepo(
+          snapshot: const UserProfileSnapshot(
+            id: 'u',
+            displayName: 'Marina',
+            email: 'marina@test.local',
+          ),
+        ),
+        env: env,
+        streaks: const _FakeStreaksRepo(),
+        shop: const _FakeShopRepo(),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.drag(find.byType(ListView), const Offset(0, -400));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('profile_menu_leave_env')));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Sair do ninho?'), findsOneWidget);
+
+    await tester.tap(find.byKey(const Key('leave_env_confirm')));
+    await tester.pumpAndSettle();
+
+    expect(env.leaveCalls, 1);
+    expect(find.text('SPLASH'), findsOneWidget);
+  });
+
+  testWidgets('owner com membros vê snackbar de transferir', (tester) async {
+    _setMobile(tester);
+    final env = _FakeEnvRepo(
+      summary: EnvironmentSummary(
+        id: 'env-1',
+        name: 'Nosso apê',
+        ownerId: 'u',
+        role: 'owner',
+        createdAt: DateTime(2026, 1, 1),
+      ),
+      leaveError: Exception('errcode 22023 — transfira'),
+    );
+    await tester.pumpWidget(
+      _wrap(
+        users: _FakeUsersRepo(
+          snapshot: const UserProfileSnapshot(
+            id: 'u',
+            displayName: 'Marina',
+            email: 'marina@test.local',
+          ),
+        ),
+        env: env,
+        streaks: const _FakeStreaksRepo(),
+        shop: const _FakeShopRepo(),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.drag(find.byType(ListView), const Offset(0, -400));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('profile_menu_leave_env')));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(const Key('leave_env_confirm')));
+    await tester.pumpAndSettle();
+
+    expect(env.leaveCalls, 1);
+    expect(find.textContaining('Transfira a propriedade'), findsOneWidget);
   });
 
   testWidgets('menu coming-soon abre snackbar Em breve', (tester) async {

@@ -91,6 +91,17 @@ class ProfileController extends ChangeNotifier {
     }
   }
 
+  // Fase 11.7: dispara RPC leave_environment do ninho corrente. Propaga
+  // erro pra UI mostrar mensagem humanizada (sole owner com membros vira
+  // 22023; rota recomendada é Transferir Propriedade).
+  Future<LeaveEnvironmentResult> leaveEnvironment() async {
+    final env = _environment;
+    if (env == null) {
+      throw StateError('Sem ninho carregado.');
+    }
+    return _envRepo.leaveEnvironment(env.id);
+  }
+
   String _humanize(Object e) {
     if (e is StateError) return e.message;
     final msg = e.toString();

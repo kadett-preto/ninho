@@ -41,6 +41,40 @@ class UsersRepository {
     return row != null && row['lgpd_consent_at'] != null;
   }
 
+  // LGPD §5.10: lista ninhos onde o caller é owner ativo. Usada pela
+  // tela de exclusão para mostrar o aviso de auto-promoção.
+  Future<List<OwnedEnvironment>> listOwnedEnvironments() async {
+    final rows = await SupabaseService.client.rpc('list_owned_environments');
+    if (rows == null) return const [];
+    if (rows is! List) return const [];
+    return [
+      for (final row in rows)
+        if (row is Map<String, dynamic>)
+          OwnedEnvironment(
+            environmentId: row['environment_id'] as String,
+            name: row['name'] as String,
+            otherMembersCount:
+                (row['other_members_count'] as num?)?.toInt() ?? 0,
+          ),
+    ];
+  }
+
+  // LGPD §5.10 + §5.5: soft-delete da conta. RPC trata auto-promoção
+  // de owner sem transferir e arquivamento de envs solo.
+  Future<AccountDeletionResult> requestAccountDeletion() async {
+    final response = await SupabaseService.client.rpc(
+      'request_account_deletion',
+    );
+    if (response is! Map) {
+      throw StateError('Resposta inesperada do servidor.');
+    }
+    return AccountDeletionResult(
+      alreadyDeleted: response['already_deleted'] as bool? ?? false,
+      envsPromoted: (response['envs_promoted'] as num?)?.toInt() ?? 0,
+      envsArchived: (response['envs_archived'] as num?)?.toInt() ?? 0,
+    );
+  }
+
   // LGPD §5.10: exporta dados pessoais via RPC SECURITY DEFINER.
   // RPC valida auth.uid() e filtra todas as queries pelo caller.
   // Retorna Map JSON-serializável; UI escreve em arquivo + share.
@@ -80,4 +114,30 @@ class UserProfileSnapshot {
   final String id;
   final String? displayName;
   final String? email;
+}
+
+class OwnedEnvironment {
+  const OwnedEnvironment({
+    required this.environmentId,
+    required this.name,
+    required this.otherMembersCount,
+  });
+
+  final String environmentId;
+  final String name;
+  final int otherMembersCount;
+
+  bool get isSolo => otherMembersCount == 0;
+}
+
+class AccountDeletionResult {
+  const AccountDeletionResult({
+    required this.alreadyDeleted,
+    required this.envsPromoted,
+    required this.envsArchived,
+  });
+
+  final bool alreadyDeleted;
+  final int envsPromoted;
+  final int envsArchived;
 }

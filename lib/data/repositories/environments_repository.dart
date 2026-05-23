@@ -134,6 +134,22 @@ class EnvironmentsRepository {
     return rows.first['environment_id'] as String;
   }
 
+  // IDEA.md §5.5 / Fase 11.7: sair do ninho. RPC SECURITY DEFINER trata
+  // owner único com membros (rejeita) e owner solo (arquiva env).
+  Future<LeaveEnvironmentResult> leaveEnvironment(String environmentId) async {
+    final response = await SupabaseService.client.rpc(
+      'leave_environment',
+      params: {'p_environment_id': environmentId},
+    );
+    if (response is! Map) {
+      throw StateError('Resposta inesperada do servidor.');
+    }
+    return LeaveEnvironmentResult(
+      alreadyLeft: response['already_left'] as bool? ?? false,
+      envArchived: response['env_archived'] as bool? ?? false,
+    );
+  }
+
   // Sumário do ninho corrente + papel do caller. RLS:
   // environments_select_member já bloqueia ninhos fora.
   Future<EnvironmentSummary?> fetchEnvironmentSummary({
@@ -168,6 +184,16 @@ class EnvironmentsRepository {
           DateTime.now(),
     );
   }
+}
+
+class LeaveEnvironmentResult {
+  const LeaveEnvironmentResult({
+    required this.alreadyLeft,
+    required this.envArchived,
+  });
+
+  final bool alreadyLeft;
+  final bool envArchived;
 }
 
 class EnvironmentSummary {
