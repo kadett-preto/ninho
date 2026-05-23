@@ -16,6 +16,9 @@ import '../features/shop/transfer_history_screen.dart';
 import '../features/onboarding/onboarding_screen.dart';
 import '../features/profile/delete_account_screen.dart';
 import '../features/profile/export_data_screen.dart';
+import '../features/profile/environment_settings_screen.dart';
+import '../features/profile/environment_members_screen.dart';
+import '../features/profile/environment_rooms_screen.dart';
 import '../features/profile/profile_screen.dart';
 import '../features/profile/transfer_ownership_screen.dart';
 import '../features/onboarding/splash_screen.dart';
@@ -56,6 +59,9 @@ class NinhoRoutes {
   static const profileExport = '/profile/export';
   static const profileDelete = '/profile/delete';
   static const profileTransferOwnership = '/profile/transfer-ownership';
+  static const environmentSettings = '/profile/environment';
+  static const environmentMembers = '/profile/environment/members';
+  static const environmentRooms = '/profile/environment/rooms';
 }
 
 typedef SetupControllerFactory = SetupController Function();
@@ -158,6 +164,18 @@ GoRouter createNinhoRouter({
       GoRoute(
         path: NinhoRoutes.profileTransferOwnership,
         builder: (context, state) => const TransferOwnershipScreen(),
+      ),
+      GoRoute(
+        path: NinhoRoutes.environmentSettings,
+        builder: (context, state) => const EnvironmentSettingsScreen(),
+      ),
+      GoRoute(
+        path: NinhoRoutes.environmentMembers,
+        builder: (context, state) => const EnvironmentMembersScreen(),
+      ),
+      GoRoute(
+        path: NinhoRoutes.environmentRooms,
+        builder: (context, state) => const EnvironmentRoomsScreen(),
       ),
       GoRoute(
         path: '${NinhoRoutes.tasks}/new',

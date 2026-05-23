@@ -566,7 +566,7 @@ class _MenuSection extends StatelessWidget {
           keyValue: 'profile_menu_environment',
           icon: Icons.home_repair_service_outlined,
           label: 'Configurações do ninho',
-          comingSoon: true,
+          onTap: () => context.go(NinhoRoutes.environmentSettings),
         ),
         if (isOwner) ...[
           const SizedBox(height: NinhoSpacing.unit),

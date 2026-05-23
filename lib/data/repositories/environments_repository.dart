@@ -134,6 +134,59 @@ class EnvironmentsRepository {
     return rows.first['environment_id'] as String;
   }
 
+  // Fase 11.8: renomeia o ninho (owner only, RPC SECURITY DEFINER).
+  Future<void> updateName({
+    required String environmentId,
+    required String name,
+  }) async {
+    await SupabaseService.client.rpc(
+      'update_environment_name',
+      params: {'p_environment_id': environmentId, 'p_name': name},
+    );
+  }
+
+  // Fase 11.8: remove um membro (owner only, RPC SECURITY DEFINER).
+  // Rejeita auto-remoção (caller deve usar leaveEnvironment) e outro
+  // owner ativo (precisa transferir primeiro).
+  Future<void> removeMember({
+    required String environmentId,
+    required String userId,
+  }) async {
+    await SupabaseService.client.rpc(
+      'remove_member',
+      params: {'p_environment_id': environmentId, 'p_user_id': userId},
+    );
+  }
+
+  // Fase 11.8: liga modo viagem (owner only, RPC SECURITY DEFINER).
+  Future<void> startVacation(String environmentId) async {
+    await SupabaseService.client.rpc(
+      'start_vacation',
+      params: {'p_environment_id': environmentId},
+    );
+  }
+
+  // Fase 11.8: desliga modo viagem (owner only, RPC SECURITY DEFINER).
+  Future<void> endVacation(String environmentId) async {
+    await SupabaseService.client.rpc(
+      'end_vacation',
+      params: {'p_environment_id': environmentId},
+    );
+  }
+
+  // Lê flags `transfer_item_enabled` e `vacation_mode` (RLS: membro do env).
+  Future<EnvironmentFlags> fetchFlags(String environmentId) async {
+    final row = await SupabaseService.client
+        .from('environments')
+        .select('transfer_item_enabled, vacation_mode')
+        .eq('id', environmentId)
+        .maybeSingle();
+    return EnvironmentFlags(
+      transferItemEnabled: row?['transfer_item_enabled'] as bool? ?? true,
+      vacationMode: row?['vacation_mode'] as bool? ?? false,
+    );
+  }
+
   // Fase 11.6: lista membros ativos do ninho via RPC SECURITY DEFINER
   // (caller precisa ser membro). Inclui display_name + role + joined_at.
   Future<List<EnvironmentMember>> listMembers(String environmentId) async {
@@ -223,6 +276,16 @@ class EnvironmentsRepository {
           DateTime.now(),
     );
   }
+}
+
+class EnvironmentFlags {
+  const EnvironmentFlags({
+    required this.transferItemEnabled,
+    required this.vacationMode,
+  });
+
+  final bool transferItemEnabled;
+  final bool vacationMode;
 }
 
 class EnvironmentMember {
