@@ -11,13 +11,11 @@ class _FakeRepo extends EnvironmentsRepository {
     this.envId = 'env-1',
     this.role = 'owner',
     this.members = const [],
-    this.removeError,
   });
 
   final String? envId;
   final String role;
   final List<EnvironmentMember> members;
-  final Object? removeError;
   String? lastRemovedId;
   int removeCalls = 0;
 
@@ -47,7 +45,6 @@ class _FakeRepo extends EnvironmentsRepository {
   }) async {
     removeCalls++;
     lastRemovedId = userId;
-    if (removeError != null) throw removeError!;
   }
 }
 

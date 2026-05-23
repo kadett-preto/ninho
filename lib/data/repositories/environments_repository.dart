@@ -98,6 +98,58 @@ class EnvironmentsRepository {
     return rows.isNotEmpty;
   }
 
+  // Fase 11.8 (sub-task) — CRUD direto via PostgREST. RLS:
+  //   * insert: membro do env.
+  //   * update/delete: owner.
+  Future<RoomRow> createRoom({
+    required String environmentId,
+    required String name,
+    required String sizeCategory,
+  }) async {
+    final clean = name.trim();
+    if (clean.isEmpty) {
+      throw StateError('Nome do cômodo obrigatório.');
+    }
+    final row = await SupabaseService.client
+        .from('rooms')
+        .insert({
+          'environment_id': environmentId,
+          'name': clean,
+          'size_category': sizeCategory.toUpperCase(),
+        })
+        .select('id, name, size_category')
+        .single();
+    return RoomRow(
+      id: row['id'] as String,
+      name: row['name'] as String,
+      sizeCategory: row['size_category'] as String,
+    );
+  }
+
+  Future<void> updateRoom({
+    required String roomId,
+    String? name,
+    String? sizeCategory,
+  }) async {
+    final patch = <String, dynamic>{};
+    if (name != null) {
+      final clean = name.trim();
+      if (clean.isEmpty) {
+        throw StateError('Nome do cômodo obrigatório.');
+      }
+      patch['name'] = clean;
+    }
+    if (sizeCategory != null) {
+      patch['size_category'] = sizeCategory.toUpperCase();
+    }
+    if (patch.isEmpty) return;
+    await SupabaseService.client.from('rooms').update(patch).eq('id', roomId);
+  }
+
+  Future<void> deleteRoom(String roomId) async {
+    await SupabaseService.client.from('rooms').delete().eq('id', roomId);
+  }
+
   // Lista cômodos de um ninho. RLS filtra automaticamente — usuário não-membro
   // recebe array vazio em vez de erro (vide policy `rooms_select_member`).
   Future<List<RoomRow>> fetchRooms(String environmentId) async {

@@ -11,23 +11,18 @@ class _FakeEnvRepo extends EnvironmentsRepository {
   _FakeEnvRepo({
     this.envId = 'env-1',
     this.role = 'owner',
-    this.flags = const EnvironmentFlags(
-      transferItemEnabled: true,
-      vacationMode: false,
-    ),
     this.rooms = const [],
     this.members = const [],
-    this.renameError,
-    this.vacationError,
   });
 
   final String? envId;
   final String role;
-  EnvironmentFlags flags;
+  final EnvironmentFlags flags = const EnvironmentFlags(
+    transferItemEnabled: true,
+    vacationMode: false,
+  );
   final List<RoomRow> rooms;
   final List<EnvironmentMember> members;
-  final Object? renameError;
-  final Object? vacationError;
 
   String? lastName;
   bool? lastVacation;
@@ -63,33 +58,29 @@ class _FakeEnvRepo extends EnvironmentsRepository {
     required String environmentId,
     required String name,
   }) async {
-    if (renameError != null) throw renameError!;
     lastName = name;
   }
 
   @override
   Future<void> startVacation(String environmentId) async {
-    if (vacationError != null) throw vacationError!;
     lastVacation = true;
   }
 
   @override
   Future<void> endVacation(String environmentId) async {
-    if (vacationError != null) throw vacationError!;
     lastVacation = false;
   }
 }
 
 class _FakeShopRepo extends ShopRepository {
-  const _FakeShopRepo({this.toggleResult = true});
-  final bool toggleResult;
+  const _FakeShopRepo();
 
   @override
   Future<bool> setTransferItemEnabled({
     required String environmentId,
     required bool enabled,
   }) async {
-    return toggleResult;
+    return true;
   }
 }
 

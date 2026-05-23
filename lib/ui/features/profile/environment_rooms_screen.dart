@@ -8,8 +8,9 @@ import '../../core/routes.dart';
 import '../../core/spacing.dart';
 
 // Stitch — "Gerenciar Cômodos - Harmonia Lar" (85eaccfb).
-// Fase 11.8: lista cômodos do ninho corrente. CRUD completo (add/edit/
-// delete) fica para sub-task; por ora a tela é read-only mas funcional.
+// Fase 11.8 (CRUD sub-task): lista cômodos + add/edit/delete. RLS já
+// restringe insert a member e update/delete a owner; UI mostra ação só
+// pra owner.
 enum RoomsStatus { idle, loading, ready, error }
 
 class EnvironmentRoomsController extends ChangeNotifier {
@@ -27,8 +28,13 @@ class EnvironmentRoomsController extends ChangeNotifier {
   String? _envId;
   String? get environmentId => _envId;
 
+  EnvironmentSummary? _summary;
+  EnvironmentSummary? get summary => _summary;
+
   List<RoomRow> _rooms = const [];
   List<RoomRow> get rooms => _rooms;
+
+  bool get isOwner => _summary?.isOwner == true;
 
   Future<void> load() async {
     _status = RoomsStatus.loading;
@@ -42,7 +48,12 @@ class EnvironmentRoomsController extends ChangeNotifier {
         notifyListeners();
         return;
       }
-      _rooms = await _repo.fetchRooms(_envId!);
+      final results = await Future.wait<Object?>([
+        _repo.fetchEnvironmentSummary(environmentId: _envId!),
+        _repo.fetchRooms(_envId!),
+      ]);
+      _summary = results[0] as EnvironmentSummary?;
+      _rooms = results[1] as List<RoomRow>;
       _status = RoomsStatus.ready;
     } catch (e) {
       _status = RoomsStatus.error;
@@ -50,6 +61,75 @@ class EnvironmentRoomsController extends ChangeNotifier {
     } finally {
       notifyListeners();
     }
+  }
+
+  Future<bool> createRoom({
+    required String name,
+    required String sizeCategory,
+  }) async {
+    final id = _envId;
+    if (id == null) return false;
+    try {
+      final created = await _repo.createRoom(
+        environmentId: id,
+        name: name,
+        sizeCategory: sizeCategory,
+      );
+      _rooms = [..._rooms, created];
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _error = _humanize(e);
+      notifyListeners();
+      return false;
+    }
+  }
+
+  Future<bool> updateRoom({
+    required String roomId,
+    required String name,
+    required String sizeCategory,
+  }) async {
+    try {
+      await _repo.updateRoom(
+        roomId: roomId,
+        name: name,
+        sizeCategory: sizeCategory,
+      );
+      _rooms = [
+        for (final r in _rooms)
+          if (r.id == roomId)
+            RoomRow(id: r.id, name: name.trim(), sizeCategory: sizeCategory.toUpperCase())
+          else
+            r,
+      ];
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _error = _humanize(e);
+      notifyListeners();
+      return false;
+    }
+  }
+
+  Future<bool> deleteRoom(String roomId) async {
+    try {
+      await _repo.deleteRoom(roomId);
+      _rooms = [for (final r in _rooms) if (r.id != roomId) r];
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _error = _humanize(e);
+      notifyListeners();
+      return false;
+    }
+  }
+
+  String _humanize(Object e) {
+    if (e is StateError) return e.message;
+    final msg = e.toString();
+    if (msg.contains('42501')) return 'Apenas o owner pode mudar cômodos.';
+    return 'Não conseguimos completar agora. Tente outra vez.';
   }
 }
 
@@ -163,10 +243,15 @@ class _RoomsError extends StatelessWidget {
   }
 }
 
-class _ReadyView extends StatelessWidget {
+class _ReadyView extends StatefulWidget {
   const _ReadyView({required this.controller});
   final EnvironmentRoomsController controller;
 
+  @override
+  State<_ReadyView> createState() => _ReadyViewState();
+}
+
+class _ReadyViewState extends State<_ReadyView> {
   static const Map<String, IconData> _icons = {
     'cozinha': Icons.kitchen_outlined,
     'sala': Icons.living_outlined,
@@ -184,8 +269,77 @@ class _ReadyView extends StatelessWidget {
     return _icons[key] ?? Icons.dashboard_outlined;
   }
 
+  Future<void> _openSheet({RoomRow? existing}) async {
+    final ctrl = widget.controller;
+    final result = await showModalBottomSheet<_SheetResult>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: NinhoColors.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (_) => Padding(
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.viewInsetsOf(context).bottom,
+        ),
+        child: _RoomFormSheet(existing: existing),
+      ),
+    );
+    if (result == null) return;
+    if (result.delete && existing != null) {
+      final confirmed = await _confirmDelete(existing);
+      if (confirmed != true) return;
+      final ok = await ctrl.deleteRoom(existing.id);
+      if (!mounted) return;
+      if (!ok) _snack(ctrl.error ?? 'Erro ao excluir.');
+      return;
+    }
+    final ok = existing == null
+        ? await ctrl.createRoom(
+            name: result.name,
+            sizeCategory: result.sizeCategory,
+          )
+        : await ctrl.updateRoom(
+            roomId: existing.id,
+            name: result.name,
+            sizeCategory: result.sizeCategory,
+          );
+    if (!mounted) return;
+    if (!ok) _snack(ctrl.error ?? 'Erro ao salvar.');
+  }
+
+  Future<bool?> _confirmDelete(RoomRow room) async {
+    return showDialog<bool>(
+      context: context,
+      builder: (dialogCtx) => AlertDialog(
+        title: const Text('Excluir cômodo?'),
+        content: Text(
+          'Tarefas associadas a "${room.name}" continuarão existindo, '
+          'mas sem cômodo. Quer mesmo excluir?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogCtx).pop(false),
+            child: const Text('Cancelar'),
+          ),
+          FilledButton(
+            key: const Key('room_delete_confirm'),
+            style: FilledButton.styleFrom(backgroundColor: NinhoColors.error),
+            onPressed: () => Navigator.of(dialogCtx).pop(true),
+            child: const Text('Excluir'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _snack(String msg) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+  }
+
   @override
   Widget build(BuildContext context) {
+    final controller = widget.controller;
     return RefreshIndicator(
       onRefresh: controller.load,
       color: NinhoColors.primary,
@@ -218,26 +372,26 @@ class _ReadyView extends StatelessWidget {
                 child: _RoomTile(
                   room: room,
                   icon: _iconFor(room.name),
+                  onTap: controller.isOwner
+                      ? () => _openSheet(existing: room)
+                      : null,
                 ),
               ),
           const SizedBox(height: NinhoSpacing.stackMd),
-          OutlinedButton.icon(
-            key: const Key('rooms_add'),
-            onPressed: () => ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Em breve — adicionar cômodo.'),
+          if (controller.isOwner)
+            OutlinedButton.icon(
+              key: const Key('rooms_add'),
+              onPressed: () => _openSheet(),
+              icon: const Icon(Icons.add),
+              label: const Text('Adicionar cômodo'),
+              style: OutlinedButton.styleFrom(
+                minimumSize: const Size.fromHeight(48),
+                foregroundColor: NinhoColors.primary,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(NinhoRadii.lg),
+                ),
               ),
             ),
-            icon: const Icon(Icons.add),
-            label: const Text('Adicionar cômodo'),
-            style: OutlinedButton.styleFrom(
-              minimumSize: const Size.fromHeight(48),
-              foregroundColor: NinhoColors.primary,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(NinhoRadii.lg),
-              ),
-            ),
-          ),
         ],
       ),
     );
@@ -245,9 +399,10 @@ class _ReadyView extends StatelessWidget {
 }
 
 class _RoomTile extends StatelessWidget {
-  const _RoomTile({required this.room, required this.icon});
+  const _RoomTile({required this.room, required this.icon, this.onTap});
   final RoomRow room;
   final IconData icon;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -258,9 +413,7 @@ class _RoomTile extends StatelessWidget {
       child: InkWell(
         key: Key('room_${room.id}'),
         borderRadius: BorderRadius.circular(NinhoRadii.lg),
-        onTap: () => ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Em breve — detalhe do cômodo.')),
-        ),
+        onTap: onTap,
         child: Padding(
           padding: const EdgeInsets.all(NinhoSpacing.stackMd),
           child: Row(
@@ -295,24 +448,163 @@ class _RoomTile extends StatelessWidget {
                   ],
                 ),
               ),
-              const Icon(Icons.chevron_right, color: NinhoColors.outline),
+              if (onTap != null)
+                const Icon(Icons.chevron_right, color: NinhoColors.outline),
             ],
           ),
         ),
       ),
     );
   }
+}
 
-  String _sizeLabel(String size) {
-    switch (size.toUpperCase()) {
-      case 'P':
-        return 'Pequeno';
-      case 'M':
-        return 'Médio';
-      case 'G':
-        return 'Grande';
-      default:
-        return size;
-    }
+String _sizeLabel(String size) {
+  switch (size.toUpperCase()) {
+    case 'P':
+      return 'Pequeno';
+    case 'M':
+      return 'Médio';
+    case 'G':
+      return 'Grande';
+    default:
+      return size;
+  }
+}
+
+class _SheetResult {
+  const _SheetResult({
+    required this.name,
+    required this.sizeCategory,
+    this.delete = false,
+  });
+  final String name;
+  final String sizeCategory;
+  final bool delete;
+}
+
+class _RoomFormSheet extends StatefulWidget {
+  const _RoomFormSheet({this.existing});
+  final RoomRow? existing;
+
+  @override
+  State<_RoomFormSheet> createState() => _RoomFormSheetState();
+}
+
+class _RoomFormSheetState extends State<_RoomFormSheet> {
+  late final TextEditingController _name;
+  late String _size;
+
+  @override
+  void initState() {
+    super.initState();
+    _name = TextEditingController(text: widget.existing?.name ?? '');
+    _size = (widget.existing?.sizeCategory ?? 'M').toUpperCase();
+  }
+
+  @override
+  void dispose() {
+    _name.dispose();
+    super.dispose();
+  }
+
+  bool get _valid => _name.text.trim().isNotEmpty;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isEdit = widget.existing != null;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(
+        NinhoSpacing.marginMobile,
+        NinhoSpacing.stackLg,
+        NinhoSpacing.marginMobile,
+        NinhoSpacing.stackLg,
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            isEdit ? 'Editar cômodo' : 'Novo cômodo',
+            style: theme.textTheme.titleMedium?.copyWith(
+              color: NinhoColors.onSurface,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          const SizedBox(height: NinhoSpacing.stackMd),
+          TextField(
+            key: const Key('room_form_name'),
+            controller: _name,
+            autofocus: true,
+            decoration: const InputDecoration(
+              labelText: 'Nome',
+              hintText: 'Ex: Cozinha',
+            ),
+            onChanged: (_) => setState(() {}),
+          ),
+          const SizedBox(height: NinhoSpacing.stackMd),
+          Text(
+            'Tamanho',
+            style: theme.textTheme.labelLarge?.copyWith(
+              color: NinhoColors.onSurfaceVariant,
+            ),
+          ),
+          const SizedBox(height: NinhoSpacing.stackSm),
+          Wrap(
+            spacing: 8,
+            children: [
+              for (final size in const ['P', 'M', 'G'])
+                ChoiceChip(
+                  key: Key('room_size_$size'),
+                  label: Text(_sizeLabel(size)),
+                  selected: _size == size,
+                  onSelected: (_) => setState(() => _size = size),
+                ),
+            ],
+          ),
+          const SizedBox(height: NinhoSpacing.stackLg),
+          Wrap(
+            alignment: WrapAlignment.end,
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              if (isEdit)
+                TextButton.icon(
+                  key: const Key('room_form_delete'),
+                  onPressed: () => Navigator.of(context).pop(
+                    _SheetResult(
+                      name: _name.text,
+                      sizeCategory: _size,
+                      delete: true,
+                    ),
+                  ),
+                  icon: const Icon(Icons.delete_outline,
+                      color: NinhoColors.error),
+                  label: const Text(
+                    'Excluir',
+                    style: TextStyle(color: NinhoColors.error),
+                  ),
+                ),
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text('Cancelar'),
+              ),
+              FilledButton(
+                key: const Key('room_form_save'),
+                onPressed: _valid
+                    ? () => Navigator.of(context).pop(
+                          _SheetResult(
+                            name: _name.text,
+                            sizeCategory: _size,
+                          ),
+                        )
+                    : null,
+                child: Text(isEdit ? 'Salvar' : 'Adicionar'),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
   }
 }
