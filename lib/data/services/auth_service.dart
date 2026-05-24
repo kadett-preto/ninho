@@ -10,7 +10,7 @@ import 'supabase_client.dart';
 //   - stream de mudanças de auth (usado pelo GoRouter para gates)
 //
 // Para clientes mobile (iOS/Android), o redirect usa o scheme custom
-// `io.supabase.ninho://login-callback`. No web, redireciona p/ localhost.
+// `io.supabase.ninho://login-callback`. No web, preserva o path base atual.
 class AuthService {
   AuthService._();
 
@@ -40,12 +40,21 @@ class AuthService {
 
   static String _redirectTo() {
     if (kIsWeb) {
-      // Em dev usamos localhost:5454; em prod o Site URL configurado no
-      // Supabase já assume a URL correta. Passando null deixa o SDK usar
-      // a URL atual da página, que é exatamente o que queremos.
-      return Uri.base.origin;
+      // Preserva o path base do deploy web. Em GitHub Pages o app roda em
+      // /ninho/, então usar só origin redirecionaria para a raiz do usuário.
+      return webRedirectToFor(Uri.base);
     }
     return 'io.supabase.ninho://login-callback/';
+  }
+
+  @visibleForTesting
+  static String webRedirectToFor(Uri uri) {
+    final path = uri.path.isEmpty
+        ? '/'
+        : uri.path.endsWith('/')
+        ? uri.path
+        : '${uri.path}/';
+    return '${uri.scheme}://${uri.authority}$path';
   }
 
   static Future<bool> signInWithGoogle() async {

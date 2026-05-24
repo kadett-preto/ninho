@@ -40,6 +40,23 @@ flutter run -d chrome --web-port=5454
 
 Abre em `http://localhost:5454/`. O callback OAuth do Google está configurado pra `http://localhost:5454/` no Supabase dev.
 
+### Web/PWA publicado
+
+O deploy web roda via GitHub Pages em `https://kadett-preto.github.io/ninho/`
+usando `.github/workflows/deploy-web.yml`.
+
+Configure os secrets no Environment `github-pages` antes de rodar o workflow:
+
+- `SUPABASE_URL`
+- `SUPABASE_ANON_KEY`
+- `SENTRY_DSN` (opcional)
+- `POSTHOG_API_KEY` (opcional)
+
+No Supabase Auth, adicione `https://kadett-preto.github.io/ninho/` em
+**URL Configuration → Redirect URLs** para o login Google voltar ao path correto.
+No iOS, abra essa URL no Safari e use **Compartilhar → Adicionar à Tela de
+Início** para rodar como PWA.
+
 ### Android físico
 
 Device homologado durante desenvolvimento: **Galaxy S24 (SM S928B)** — ID `RQCX9030HBH`, Android 16 (API 36).
@@ -81,6 +98,7 @@ Padrão: cobertura Dart ≥70% global, ≥90% na superfície mobile sensível
 
 Deploy multiambiente (`staging` = `ninho-dev`, `production` = `ninho-prod`) fica
 em GitHub Actions. Runbook: [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md).
+Checklist de QA/paridade visual de release: [`docs/RELEASE_QA.md`](docs/RELEASE_QA.md).
 
 ## Supabase
 
