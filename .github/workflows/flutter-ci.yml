@@ -21,6 +21,12 @@ jobs:
       - name: Flutter version
         run: flutter --version
 
+      - name: Create placeholder .env
+        # pubspec lista `.env` como asset; sem o arquivo, `flutter analyze`
+        # quebra com asset_does_not_exist. Em CI não precisamos de valores
+        # reais — testes usam fakes/SupabaseService só inicializa em runtime.
+        run: touch .env
+
       - name: Install dependencies
         run: flutter pub get
 
