@@ -1,6 +1,8 @@
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
+import '../features/account/account_settings_screen.dart';
+import '../features/account/edit_profile_screen.dart';
 import '../features/auth/lgpd_consent_screen.dart';
 import '../features/auth/login_screen.dart';
 import '../features/feed/feed_photo_detail_screen.dart';
@@ -56,6 +58,8 @@ class NinhoRoutes {
   static const shop = '/shop';
   static const shopHistory = '/shop/history';
   static const profile = '/profile';
+  static const accountSettings = '/profile/account';
+  static const accountEditProfile = '/profile/account/edit';
   static const profileExport = '/profile/export';
   static const profileDelete = '/profile/delete';
   static const profileTransferOwnership = '/profile/transfer-ownership';
@@ -152,6 +156,14 @@ GoRouter createNinhoRouter({
       GoRoute(
         path: NinhoRoutes.profile,
         builder: (context, state) => const ProfileScreen(),
+      ),
+      GoRoute(
+        path: NinhoRoutes.accountSettings,
+        builder: (context, state) => const AccountSettingsScreen(),
+      ),
+      GoRoute(
+        path: NinhoRoutes.accountEditProfile,
+        builder: (context, state) => const EditProfileScreen(),
       ),
       GoRoute(
         path: NinhoRoutes.profileExport,

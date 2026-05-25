@@ -137,6 +137,8 @@ void main() {
             id: 'u',
             displayName: 'Marina',
             email: 'marina@test.local',
+            locale: 'pt-BR',
+            avatarPath: null,
           ),
         ),
         env: _FakeEnvRepo(
@@ -187,6 +189,8 @@ void main() {
             id: 'u',
             displayName: null,
             email: 'bob@test.local',
+            locale: 'pt-BR',
+            avatarPath: null,
           ),
         ),
         env: _FakeEnvRepo(),
@@ -209,6 +213,8 @@ void main() {
             id: 'u',
             displayName: 'Marina',
             email: 'marina@test.local',
+            locale: 'pt-BR',
+            avatarPath: null,
           ),
         ),
         env: _FakeEnvRepo(envId: null),
@@ -231,6 +237,8 @@ void main() {
             id: 'u',
             displayName: 'Marina',
             email: 'marina@test.local',
+            locale: 'pt-BR',
+            avatarPath: null,
           ),
         ),
         env: env,
@@ -253,6 +261,8 @@ void main() {
             id: 'u',
             displayName: 'Marina',
             email: 'marina@test.local',
+            locale: 'pt-BR',
+            avatarPath: null,
           ),
         ),
         env: _FakeEnvRepo(),
@@ -288,6 +298,8 @@ void main() {
             id: 'u',
             displayName: 'Marina',
             email: 'marina@test.local',
+            locale: 'pt-BR',
+            avatarPath: null,
           ),
         ),
         env: env,
@@ -330,6 +342,8 @@ void main() {
             id: 'u',
             displayName: 'Marina',
             email: 'marina@test.local',
+            locale: 'pt-BR',
+            avatarPath: null,
           ),
         ),
         env: env,
@@ -360,6 +374,8 @@ void main() {
             id: 'u',
             displayName: 'Marina',
             email: 'marina@test.local',
+            locale: 'pt-BR',
+            avatarPath: null,
           ),
         ),
         env: _FakeEnvRepo(),
@@ -369,7 +385,9 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    await tester.tap(find.byKey(const Key('profile_menu_account')));
+    await tester.ensureVisible(find.byKey(const Key('profile_menu_help')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('profile_menu_help')));
     await tester.pump();
 
     expect(find.text('Em breve.'), findsOneWidget);

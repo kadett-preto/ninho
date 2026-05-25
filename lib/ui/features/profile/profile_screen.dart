@@ -557,7 +557,7 @@ class _MenuSection extends StatelessWidget {
           keyValue: 'profile_menu_account',
           icon: Icons.manage_accounts_outlined,
           label: 'Configurações da conta',
-          comingSoon: true,
+          onTap: () => context.go(NinhoRoutes.accountSettings),
         ),
         const SizedBox(height: NinhoSpacing.unit),
         _MenuRow(

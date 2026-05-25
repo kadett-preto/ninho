@@ -1,3 +1,7 @@
+import 'dart:typed_data';
+
+import 'package:supabase_flutter/supabase_flutter.dart';
+
 import '../services/supabase_client.dart';
 
 // Acesso à tabela public.users (IDEA.md §5.10).
@@ -93,14 +97,96 @@ class UsersRepository {
     if (user == null) return null;
     final row = await client
         .from(tableName)
-        .select('id, display_name')
+        .select('id, display_name, locale, avatar_path')
         .eq('id', user.id)
         .maybeSingle();
     return UserProfileSnapshot(
       id: user.id,
       displayName: row?['display_name'] as String?,
       email: user.email,
+      locale: row?['locale'] as String? ?? 'pt-BR',
+      avatarPath: row?['avatar_path'] as String?,
     );
+  }
+
+  // Atualiza display_name e/ou locale do próprio perfil. RLS já restringe
+  // ao caller; aqui só validamos formato superficial p/ falhar cedo.
+  Future<void> updateProfile({String? displayName, String? locale}) async {
+    final userId = SupabaseService.client.auth.currentUser?.id;
+    if (userId == null) throw StateError('Sem sessão Supabase ativa');
+    final patch = <String, dynamic>{};
+    if (displayName != null) {
+      final trimmed = displayName.trim();
+      if (trimmed.isEmpty || trimmed.length > 80) {
+        throw ArgumentError('display_name deve ter 1–80 caracteres');
+      }
+      patch['display_name'] = trimmed;
+    }
+    if (locale != null) {
+      if (!const {'pt-BR', 'en', 'es', 'fr'}.contains(locale)) {
+        throw ArgumentError('locale não suportado');
+      }
+      patch['locale'] = locale;
+    }
+    if (patch.isEmpty) return;
+    await SupabaseService.client
+        .from(tableName)
+        .update(patch)
+        .eq('id', userId);
+  }
+
+  // Upload de avatar JPEG já tratado pelo cliente (EXIF strip + resize).
+  // Path canônico `<userId>/avatar.jpg` (RLS exige). Upsert sobrescreve
+  // versão anterior; atualiza users.avatar_path com cache-buster (?v=...).
+  Future<String> uploadAvatar(Uint8List jpegBytes) async {
+    final client = SupabaseService.client;
+    final userId = client.auth.currentUser?.id;
+    if (userId == null) throw StateError('Sem sessão Supabase ativa');
+    final path = '$userId/avatar.jpg';
+    await client.storage.from('user-avatars').uploadBinary(
+          path,
+          jpegBytes,
+          fileOptions: const FileOptions(
+            contentType: 'image/jpeg',
+            upsert: true,
+            cacheControl: '3600',
+          ),
+        );
+    final versioned = '$path?v=${DateTime.now().millisecondsSinceEpoch}';
+    await client
+        .from(tableName)
+        .update({'avatar_path': versioned})
+        .eq('id', userId);
+    return versioned;
+  }
+
+  // Remove o objeto + zera users.avatar_path. Idempotente.
+  Future<void> removeAvatar() async {
+    final client = SupabaseService.client;
+    final userId = client.auth.currentUser?.id;
+    if (userId == null) throw StateError('Sem sessão Supabase ativa');
+    final path = '$userId/avatar.jpg';
+    try {
+      await client.storage.from('user-avatars').remove([path]);
+    } catch (_) {
+      // Objeto pode não existir; segue zerando a coluna.
+    }
+    await client
+        .from(tableName)
+        .update({'avatar_path': null})
+        .eq('id', userId);
+  }
+
+  // Signed URL p/ exibir avatar (bucket é privado). TTL curto §7.4.
+  Future<String?> signedAvatarUrl(String avatarPath) async {
+    final cleanPath = avatarPath.split('?').first;
+    try {
+      return await SupabaseService.client.storage
+          .from('user-avatars')
+          .createSignedUrl(cleanPath, 60 * 30);
+    } catch (_) {
+      return null;
+    }
   }
 }
 
@@ -109,11 +195,15 @@ class UserProfileSnapshot {
     required this.id,
     required this.displayName,
     required this.email,
+    required this.locale,
+    required this.avatarPath,
   });
 
   final String id;
   final String? displayName;
   final String? email;
+  final String locale;
+  final String? avatarPath;
 }
 
 class OwnedEnvironment {
