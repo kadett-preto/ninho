@@ -57,6 +57,23 @@ jobs:
       - name: Run pgTAP tests
         run: supabase test db
 
+      - name: Dump Postgres logs on failure
+        if: failure()
+        run: |
+          echo "=== docker stats ==="
+          docker stats --no-stream --format 'table {{.Name}}\t{{.MemUsage}}\t{{.MemPerc}}' || true
+          echo
+          echo "=== free -h ==="
+          free -h
+          echo
+          echo "=== dmesg | tail (OOM kills) ==="
+          sudo dmesg | tail -30 || true
+          echo
+          echo "=== Postgres container logs (last 200 lines) ==="
+          DB_CT=$(docker ps -a --format '{{.Names}}' | grep -i supabase_db | head -1)
+          echo "container: $DB_CT"
+          docker logs --tail 200 "$DB_CT" 2>&1 || true
+
       - name: Stop local Supabase
         if: always()
         run: supabase stop --no-backup
