@@ -86,8 +86,10 @@ class InvitesRepository {
     if (uri == null) return null;
     final fragment = uri.fragment;
     if (fragment.isNotEmpty) {
-      final segs =
-          fragment.split('/').where((s) => s.isNotEmpty).toList(growable: false);
+      final segs = fragment
+          .split('/')
+          .where((s) => s.isNotEmpty)
+          .toList(growable: false);
       final idx = segs.indexOf('i');
       if (idx >= 0 && idx + 1 < segs.length) {
         final tok = segs[idx + 1];
@@ -152,8 +154,9 @@ class Invite {
   // Token vai no path do fragment, não em query, p/ evitar logs intermediários
   // (§7.3). Mobile com universal link continua casando via tokenFromLink.
   String linkFor(String baseUrl) {
-    final base =
-        baseUrl.endsWith('/') ? baseUrl.substring(0, baseUrl.length - 1) : baseUrl;
+    final base = baseUrl.endsWith('/')
+        ? baseUrl.substring(0, baseUrl.length - 1)
+        : baseUrl;
     return '$base/#/i/$token';
   }
 }

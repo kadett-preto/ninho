@@ -50,7 +50,9 @@ class _SuggestionsView extends StatelessWidget {
             child: Column(
               children: [
                 _Header(),
-                Expanded(child: _Body(controller: ctrl, theme: theme)),
+                Expanded(
+                  child: _Body(controller: ctrl, theme: theme),
+                ),
                 _Footer(controller: ctrl),
               ],
             ),
@@ -156,9 +158,9 @@ class _ErrorView extends StatelessWidget {
           message,
           key: const Key('suggestions_error'),
           textAlign: TextAlign.center,
-          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                color: NinhoColors.error,
-              ),
+          style: Theme.of(
+            context,
+          ).textTheme.bodyLarge?.copyWith(color: NinhoColors.error),
         ),
       ),
     );
@@ -219,11 +221,7 @@ class _RoomHeader extends StatelessWidget {
     final theme = Theme.of(context);
     return Row(
       children: [
-        Icon(
-          _iconFor(room),
-          color: NinhoColors.primary,
-          size: 22,
-        ),
+        Icon(_iconFor(room), color: NinhoColors.primary, size: 22),
         const SizedBox(width: 8),
         Expanded(
           child: Text(
@@ -374,23 +372,23 @@ class _DifficultyBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     final (bg, fg, emoji, label) = switch (difficulty) {
       TaskDifficulty.mamao => (
-          NinhoColors.secondaryContainer,
-          NinhoColors.onSecondaryContainer,
-          '🥭',
-          'Mamão',
-        ),
+        NinhoColors.secondaryContainer,
+        NinhoColors.onSecondaryContainer,
+        '🥭',
+        'Mamão',
+      ),
       TaskDifficulty.embacada => (
-          NinhoColors.tertiaryFixed,
-          NinhoColors.onTertiaryContainer,
-          '😅',
-          'Embaçada',
-        ),
+        NinhoColors.tertiaryFixed,
+        NinhoColors.onTertiaryContainer,
+        '😅',
+        'Embaçada',
+      ),
       TaskDifficulty.treta => (
-          NinhoColors.primaryFixed,
-          NinhoColors.onPrimaryContainer,
-          '😤',
-          'Treta',
-        ),
+        NinhoColors.primaryFixed,
+        NinhoColors.onPrimaryContainer,
+        '😤',
+        'Treta',
+      ),
     };
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
@@ -420,9 +418,9 @@ class _IntervalBadge extends StatelessWidget {
       ),
       child: Text(
         _intervalLabel(intervalDays),
-        style: Theme.of(context).textTheme.labelSmall?.copyWith(
-              color: NinhoColors.onSurfaceVariant,
-            ),
+        style: Theme.of(
+          context,
+        ).textTheme.labelSmall?.copyWith(color: NinhoColors.onSurfaceVariant),
       ),
     );
   }
@@ -446,7 +444,8 @@ class _Footer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final hasItems = controller.items.isNotEmpty;
-    final canSubmit = controller.selectedCount > 0 &&
+    final canSubmit =
+        controller.selectedCount > 0 &&
         controller.status != SuggestionsStatus.submitting;
     return Container(
       padding: const EdgeInsets.all(NinhoSpacing.marginMobile),
@@ -505,7 +504,9 @@ class _Footer extends StatelessWidget {
     if (result == null) {
       final msg = controller.error;
       if (msg != null) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(msg)));
       }
       return;
     }

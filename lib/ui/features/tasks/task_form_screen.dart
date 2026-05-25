@@ -3,7 +3,8 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../../../data/repositories/environments_repository.dart';
-import '../../../data/repositories/suggestions_repository.dart' show TaskDifficulty;
+import '../../../data/repositories/suggestions_repository.dart'
+    show TaskDifficulty;
 import '../../../data/repositories/tasks_repository.dart';
 import '../../core/colors.dart';
 import '../../core/routes.dart';
@@ -66,9 +67,9 @@ class _TaskFormView extends StatelessWidget {
         title: Text(
           ctrl.isEditing ? 'Editar tarefa' : 'Nova tarefa',
           style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                color: NinhoColors.primary,
-                fontWeight: FontWeight.w700,
-              ),
+            color: NinhoColors.primary,
+            fontWeight: FontWeight.w700,
+          ),
         ),
       ),
       body: SafeArea(
@@ -118,9 +119,9 @@ class _ErrorView extends StatelessWidget {
           message,
           key: const Key('task_form_error'),
           textAlign: TextAlign.center,
-          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                color: NinhoColors.error,
-              ),
+          style: Theme.of(
+            context,
+          ).textTheme.bodyLarge?.copyWith(color: NinhoColors.error),
         ),
       ),
     );
@@ -225,9 +226,7 @@ class _FormState extends State<_Form> {
                 )
               : const Icon(Icons.check),
           label: Text(ctrl.isEditing ? 'Salvar alterações' : 'Salvar tarefa'),
-          style: FilledButton.styleFrom(
-            minimumSize: const Size.fromHeight(56),
-          ),
+          style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(56)),
         ),
         if (ctrl.isEditing) ...[
           const SizedBox(height: NinhoSpacing.stackMd),
@@ -251,9 +250,9 @@ class _FormState extends State<_Form> {
             ctrl.error!,
             key: const Key('task_form_inline_error'),
             textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: NinhoColors.error,
-                ),
+            style: Theme.of(
+              context,
+            ).textTheme.bodySmall?.copyWith(color: NinhoColors.error),
           ),
         ],
       ],
@@ -275,33 +274,27 @@ class _FormState extends State<_Form> {
     );
   }
 
-  Future<void> _onSubmit(
-    BuildContext context,
-    TaskFormController ctrl,
-  ) async {
+  Future<void> _onSubmit(BuildContext context, TaskFormController ctrl) async {
     final result = await ctrl.submit();
     if (!context.mounted) return;
     if (result == null) {
       final msg = ctrl.error;
       if (msg != null) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(msg)));
       }
       return;
     }
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(
-          result.created ? 'Tarefa criada.' : 'Tarefa atualizada.',
-        ),
+        content: Text(result.created ? 'Tarefa criada.' : 'Tarefa atualizada.'),
       ),
     );
     context.go(NinhoRoutes.tasks);
   }
 
-  Future<void> _onArchive(
-    BuildContext context,
-    TaskFormController ctrl,
-  ) async {
+  Future<void> _onArchive(BuildContext context, TaskFormController ctrl) async {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (ctx) {
@@ -319,9 +312,7 @@ class _FormState extends State<_Form> {
             FilledButton(
               key: const Key('task_form_archive_confirm'),
               onPressed: () => Navigator.of(ctx).pop(true),
-              style: FilledButton.styleFrom(
-                backgroundColor: NinhoColors.error,
-              ),
+              style: FilledButton.styleFrom(backgroundColor: NinhoColors.error),
               child: const Text('Arquivar'),
             ),
           ],
@@ -334,7 +325,9 @@ class _FormState extends State<_Form> {
     if (!ok) {
       final msg = ctrl.error;
       if (msg != null) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(msg)));
       }
       return;
     }
@@ -351,10 +344,10 @@ class _Label extends StatelessWidget {
     return Text(
       text.toUpperCase(),
       style: Theme.of(context).textTheme.labelSmall?.copyWith(
-            color: NinhoColors.onSurfaceVariant,
-            fontWeight: FontWeight.w700,
-            letterSpacing: 1,
-          ),
+        color: NinhoColors.onSurfaceVariant,
+        fontWeight: FontWeight.w700,
+        letterSpacing: 1,
+      ),
     );
   }
 }
@@ -521,10 +514,7 @@ class _RoomDropdown extends StatelessWidget {
                 child: Text('Sem cômodo'),
               ),
               for (final r in items)
-                DropdownMenuItem<String?>(
-                  value: r.id,
-                  child: Text(r.name),
-                ),
+                DropdownMenuItem<String?>(value: r.id, child: Text(r.name)),
             ],
             onChanged: controller.setRoom,
           ),
@@ -541,7 +531,8 @@ class _AssigneeRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final assigned = controller.assigneeId != null &&
+    final assigned =
+        controller.assigneeId != null &&
         controller.assigneeId == controller.currentUserId;
     final label = assigned ? 'Eu' : 'Sem responsável';
     return Container(
@@ -652,17 +643,17 @@ class _DifficultyButton extends StatelessWidget {
     final selected = controller.difficulty == value;
     final (bg, fg) = switch (value) {
       TaskDifficulty.mamao => (
-          NinhoColors.secondaryFixedDim,
-          NinhoColors.onSecondaryFixedVariant,
-        ),
+        NinhoColors.secondaryFixedDim,
+        NinhoColors.onSecondaryFixedVariant,
+      ),
       TaskDifficulty.embacada => (
-          NinhoColors.tertiaryFixedDim,
-          NinhoColors.onTertiaryFixedVariant,
-        ),
+        NinhoColors.tertiaryFixedDim,
+        NinhoColors.onTertiaryFixedVariant,
+      ),
       TaskDifficulty.treta => (
-          NinhoColors.primaryFixedDim,
-          NinhoColors.onPrimaryFixedVariant,
-        ),
+        NinhoColors.primaryFixedDim,
+        NinhoColors.onPrimaryFixedVariant,
+      ),
     };
     return Material(
       color: Colors.transparent,
@@ -684,9 +675,9 @@ class _DifficultyButton extends StatelessWidget {
               label,
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: selected ? fg : NinhoColors.onSurfaceVariant,
-                    fontWeight: FontWeight.w700,
-                  ),
+                color: selected ? fg : NinhoColors.onSurfaceVariant,
+                fontWeight: FontWeight.w700,
+              ),
             ),
           ),
         ),
@@ -732,9 +723,9 @@ class _DateField extends StatelessWidget {
             Expanded(
               child: Text(
                 label,
-                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      color: NinhoColors.onSurface,
-                    ),
+                style: Theme.of(
+                  context,
+                ).textTheme.bodyLarge?.copyWith(color: NinhoColors.onSurface),
               ),
             ),
             const Icon(
@@ -760,11 +751,7 @@ class _RecurrenceChips extends StatelessWidget {
       runSpacing: 8,
       children: [
         for (final r in TaskRecurrence.values)
-          _RecurrenceChip(
-            value: r,
-            label: r.label,
-            controller: controller,
-          ),
+          _RecurrenceChip(value: r, label: r.label, controller: controller),
       ],
     );
   }
@@ -805,11 +792,11 @@ class _RecurrenceChip extends StatelessWidget {
             child: Text(
               label,
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: selected
-                        ? NinhoColors.onPrimaryContainer
-                        : NinhoColors.onSurfaceVariant,
-                    fontWeight: FontWeight.w600,
-                  ),
+                color: selected
+                    ? NinhoColors.onPrimaryContainer
+                    : NinhoColors.onSurfaceVariant,
+                fontWeight: FontWeight.w600,
+              ),
             ),
           ),
         ),

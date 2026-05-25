@@ -6,7 +6,7 @@ enum NotifSettingsStatus { idle, loading, ready, saving, error }
 
 class NotificationSettingsController extends ChangeNotifier {
   NotificationSettingsController({NotificationsRepository? repository})
-      : _repo = repository ?? const NotificationsRepository();
+    : _repo = repository ?? const NotificationsRepository();
 
   final NotificationsRepository _repo;
 
@@ -73,15 +73,16 @@ class NotificationSettingsController extends ChangeNotifier {
     bool? streakRisk,
     bool? streakBroken,
     bool? shopPurchase,
-  }) =>
-      _patch((p) => p.copyWith(
-            eventTaskTransferred: taskTransferred,
-            eventNewMember: newMember,
-            eventFeedPhoto: feedPhoto,
-            eventStreakRisk: streakRisk,
-            eventStreakBroken: streakBroken,
-            eventShopPurchase: shopPurchase,
-          ));
+  }) => _patch(
+    (p) => p.copyWith(
+      eventTaskTransferred: taskTransferred,
+      eventNewMember: newMember,
+      eventFeedPhoto: feedPhoto,
+      eventStreakRisk: streakRisk,
+      eventStreakBroken: streakBroken,
+      eventShopPurchase: shopPurchase,
+    ),
+  );
 
   String _humanize(Object e) {
     if (e is StateError) return e.message;

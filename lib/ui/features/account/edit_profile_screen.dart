@@ -12,11 +12,7 @@ import 'account_settings_controller.dart';
 // Visual segue tokens canônicos (DESIGN.md). Cobre avatar (JPG, EXIF strip
 // via ImagePickerRoomPhotoService) + display_name.
 class EditProfileScreen extends StatelessWidget {
-  const EditProfileScreen({
-    super.key,
-    this.usersRepository,
-    this.photoService,
-  });
+  const EditProfileScreen({super.key, this.usersRepository, this.photoService});
 
   final UsersRepository? usersRepository;
   final RoomPhotoService? photoService;
@@ -78,15 +74,15 @@ class _ViewState extends State<_View> {
       final ok = await ctrl.uploadAvatar(draft.bytes);
       if (!context.mounted) return;
       if (!ok && ctrl.error != null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(ctrl.error!)),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(ctrl.error!)));
       }
     } on RoomPhotoValidationException catch (e) {
       if (!context.mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(e.message)),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(e.message)));
     } catch (_) {
       if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -107,9 +103,9 @@ class _ViewState extends State<_View> {
     if (mounted) setState(() => _uploadingAvatar = false);
     if (!context.mounted) return;
     if (!ok && ctrl.error != null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(ctrl.error!)),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(ctrl.error!)));
     }
   }
 
@@ -119,9 +115,9 @@ class _ViewState extends State<_View> {
   ) async {
     final text = _nameController.text.trim();
     if (text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Digite seu nome.')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Digite seu nome.')));
       return;
     }
     setState(() => _savingName = true);
@@ -129,21 +125,18 @@ class _ViewState extends State<_View> {
     if (mounted) setState(() => _savingName = false);
     if (!context.mounted) return;
     if (ok) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Perfil atualizado.')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Perfil atualizado.')));
       context.pop();
     } else if (ctrl.error != null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(ctrl.error!)),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(ctrl.error!)));
     }
   }
 
-  void _openSourceSheet(
-    BuildContext context,
-    AccountSettingsController ctrl,
-  ) {
+  void _openSourceSheet(BuildContext context, AccountSettingsController ctrl) {
     showModalBottomSheet(
       context: context,
       backgroundColor: NinhoColors.surfaceContainerLowest,
@@ -175,7 +168,10 @@ class _ViewState extends State<_View> {
             if (ctrl.profile?.avatarPath != null)
               ListTile(
                 key: const Key('avatar_remove'),
-                leading: const Icon(Icons.delete_outline, color: NinhoColors.error),
+                leading: const Icon(
+                  Icons.delete_outline,
+                  color: NinhoColors.error,
+                ),
                 title: const Text(
                   'Remover foto',
                   style: TextStyle(color: NinhoColors.error),
@@ -204,7 +200,8 @@ class _ViewState extends State<_View> {
         leading: IconButton(
           key: const Key('edit_profile_back'),
           icon: const Icon(Icons.arrow_back, color: NinhoColors.onSurface),
-          onPressed: () => context.canPop() ? context.pop() : context.go('/profile/account'),
+          onPressed: () =>
+              context.canPop() ? context.pop() : context.go('/profile/account'),
         ),
         centerTitle: true,
         title: Text(
@@ -251,7 +248,9 @@ class _ViewState extends State<_View> {
                   const SizedBox(height: NinhoSpacing.stackLg),
                   FilledButton(
                     key: const Key('edit_profile_save'),
-                    onPressed: _savingName ? null : () => _saveName(context, ctrl),
+                    onPressed: _savingName
+                        ? null
+                        : () => _saveName(context, ctrl),
                     style: FilledButton.styleFrom(
                       minimumSize: const Size.fromHeight(48),
                     ),

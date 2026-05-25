@@ -65,9 +65,9 @@ class _ViewState extends State<_View> {
       context.go(NinhoRoutes.splash);
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Falha ao sair: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Falha ao sair: $e')));
       setState(() => _signingOut = false);
     }
   }
@@ -106,15 +106,15 @@ class _ViewState extends State<_View> {
     try {
       await ctrl.leaveEnvironment();
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Você saiu do ninho.')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Você saiu do ninho.')));
       context.go(NinhoRoutes.splash);
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(_humanizeLeave(e))),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(_humanizeLeave(e))));
       setState(() => _leavingEnv = false);
     }
   }
@@ -164,8 +164,10 @@ class _ViewState extends State<_View> {
           ),
         ),
       ),
-      bottomNavigationBar:
-          NinhoBottomNav(active: NinhoTab.profile, onTap: _handleTab),
+      bottomNavigationBar: NinhoBottomNav(
+        active: NinhoTab.profile,
+        onTap: _handleTab,
+      ),
     );
   }
 }
@@ -199,7 +201,11 @@ class _Body extends StatelessWidget {
           onRetry: controller.load,
         );
       case ProfileStatus.noEnvironment:
-        return _NoEnvView(name: controller.displayName, signOut: signOut, signingOut: signingOut);
+        return _NoEnvView(
+          name: controller.displayName,
+          signOut: signOut,
+          signingOut: signingOut,
+        );
       case ProfileStatus.ready:
         return _ReadyView(
           controller: controller,
@@ -229,9 +235,9 @@ class _ErrorView extends StatelessWidget {
               message,
               key: const Key('profile_error'),
               textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                color: NinhoColors.error,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyLarge?.copyWith(color: NinhoColors.error),
             ),
             const SizedBox(height: NinhoSpacing.stackMd),
             FilledButton.tonal(
@@ -635,9 +641,9 @@ class _MenuRow extends StatelessWidget {
         borderRadius: BorderRadius.circular(NinhoRadii.lg),
         onTap: enabled
             ? onTap
-            : () => ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Em breve.')),
-              ),
+            : () => ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(const SnackBar(content: Text('Em breve.'))),
         child: Padding(
           padding: const EdgeInsets.all(NinhoSpacing.stackMd),
           child: Row(
@@ -675,10 +681,7 @@ class _MenuRow extends StatelessWidget {
                     ),
                   ),
                 ),
-              const Icon(
-                Icons.chevron_right,
-                color: NinhoColors.outline,
-              ),
+              const Icon(Icons.chevron_right, color: NinhoColors.outline),
             ],
           ),
         ),
@@ -719,9 +722,7 @@ class _Avatar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final initial = label.isEmpty
-        ? '?'
-        : label.characters.first.toUpperCase();
+    final initial = label.isEmpty ? '?' : label.characters.first.toUpperCase();
     return Container(
       width: radius * 2,
       height: radius * 2,
@@ -729,10 +730,7 @@ class _Avatar extends StatelessWidget {
       decoration: BoxDecoration(
         color: NinhoColors.primaryFixed,
         shape: BoxShape.circle,
-        border: Border.all(
-          color: NinhoColors.surfaceContainerHigh,
-          width: 4,
-        ),
+        border: Border.all(color: NinhoColors.surfaceContainerHigh, width: 4),
         boxShadow: const [
           BoxShadow(
             color: Color(0x14944931),

@@ -87,8 +87,10 @@ class _HomeViewState extends State<_HomeView> {
           ),
         ),
       ),
-      bottomNavigationBar:
-          NinhoBottomNav(active: NinhoTab.home, onTap: _handleTab),
+      bottomNavigationBar: NinhoBottomNav(
+        active: NinhoTab.home,
+        onTap: _handleTab,
+      ),
     );
   }
 }
@@ -259,8 +261,7 @@ class _HomeTopBar extends StatelessWidget {
             ),
             child: IconButton(
               key: const Key('home_notifications_button'),
-              onPressed: () =>
-                  context.go(NinhoRoutes.notificationSettings),
+              onPressed: () => context.go(NinhoRoutes.notificationSettings),
               color: NinhoColors.primary,
               icon: const Icon(Icons.notifications_none),
             ),

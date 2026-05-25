@@ -18,8 +18,8 @@ class DeleteAccountController extends ChangeNotifier {
   DeleteAccountController({
     UsersRepository? usersRepository,
     Future<void> Function()? signOutFn,
-  })  : _usersRepo = usersRepository ?? UsersRepository(),
-        _signOutFn = signOutFn ?? AuthService.signOut;
+  }) : _usersRepo = usersRepository ?? UsersRepository(),
+       _signOutFn = signOutFn ?? AuthService.signOut;
 
   final UsersRepository _usersRepo;
   final Future<void> Function() _signOutFn;
@@ -85,11 +85,7 @@ class DeleteAccountController extends ChangeNotifier {
 }
 
 class DeleteAccountScreen extends StatelessWidget {
-  const DeleteAccountScreen({
-    super.key,
-    this.usersRepository,
-    this.signOutFn,
-  });
+  const DeleteAccountScreen({super.key, this.usersRepository, this.signOutFn});
 
   final UsersRepository? usersRepository;
   final Future<void> Function()? signOutFn;
@@ -245,7 +241,9 @@ class _Body extends StatelessWidget {
         ),
         const SizedBox(height: NinhoSpacing.stackLg),
         if (controller.status == DeleteStatus.loadingPreview)
-          const Center(child: CircularProgressIndicator(color: NinhoColors.primary))
+          const Center(
+            child: CircularProgressIndicator(color: NinhoColors.primary),
+          )
         else ...[
           if (controller.ownedEnvs.isNotEmpty)
             _OwnerWarning(envs: controller.ownedEnvs),

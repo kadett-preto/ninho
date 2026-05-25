@@ -82,7 +82,9 @@ TransferHistoryEntry _entry({
 void main() {
   testWidgets('empty state quando sem transferências', (tester) async {
     _setMobile(tester);
-    await tester.pumpWidget(_wrap(env: _FakeEnvRepo(), shop: const _FakeShopRepo()));
+    await tester.pumpWidget(
+      _wrap(env: _FakeEnvRepo(), shop: const _FakeShopRepo()),
+    );
     await tester.pumpAndSettle();
 
     expect(find.byKey(const Key('transfer_history_empty')), findsOneWidget);
@@ -98,11 +100,17 @@ void main() {
       _entry(id: 'b', from: 'someone', to: 'me-id', cost: 30),
     ];
     await tester.pumpWidget(
-      _wrap(env: _FakeEnvRepo(), shop: _FakeShopRepo(entries: entries)),
+      _wrap(
+        env: _FakeEnvRepo(),
+        shop: _FakeShopRepo(entries: entries),
+      ),
     );
     await tester.pumpAndSettle();
 
-    expect(find.textContaining('Você passou pra morador #other'), findsOneWidget);
+    expect(
+      find.textContaining('Você passou pra morador #other'),
+      findsOneWidget,
+    );
     expect(find.textContaining('passou pra você'), findsOneWidget);
     expect(find.textContaining('30'), findsAtLeastNWidgets(2));
   });
@@ -110,10 +118,7 @@ void main() {
   testWidgets('erro mostra mensagem + retry', (tester) async {
     _setMobile(tester);
     await tester.pumpWidget(
-      _wrap(
-        env: _FakeEnvRepo(),
-        shop: const _FakeShopRepo(),
-      ),
+      _wrap(env: _FakeEnvRepo(), shop: const _FakeShopRepo()),
     );
     // Re-render with error case.
     await tester.pumpWidget(

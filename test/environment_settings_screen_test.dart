@@ -130,20 +130,22 @@ void main() {
   testWidgets('ready: mostra nome, sub-telas, toggles', (tester) async {
     _setMobile(tester);
     await tester.pumpWidget(
-      _wrap(EnvironmentSettingsScreen(
-        environmentsRepository: _FakeEnvRepo(
-          rooms: _rooms,
-          members: [
-            EnvironmentMember(
-              userId: 'u1',
-              displayName: 'Marina',
-              role: 'owner',
-              joinedAt: DateTime(2026, 1, 1),
-            ),
-          ],
+      _wrap(
+        EnvironmentSettingsScreen(
+          environmentsRepository: _FakeEnvRepo(
+            rooms: _rooms,
+            members: [
+              EnvironmentMember(
+                userId: 'u1',
+                displayName: 'Marina',
+                role: 'owner',
+                joinedAt: DateTime(2026, 1, 1),
+              ),
+            ],
+          ),
+          shopRepository: const _FakeShopRepo(),
         ),
-        shopRepository: const _FakeShopRepo(),
-      )),
+      ),
     );
     await tester.pumpAndSettle();
 
@@ -160,10 +162,12 @@ void main() {
   ) async {
     _setMobile(tester);
     await tester.pumpWidget(
-      _wrap(EnvironmentSettingsScreen(
-        environmentsRepository: _FakeEnvRepo(role: 'member', rooms: _rooms),
-        shopRepository: const _FakeShopRepo(),
-      )),
+      _wrap(
+        EnvironmentSettingsScreen(
+          environmentsRepository: _FakeEnvRepo(role: 'member', rooms: _rooms),
+          shopRepository: const _FakeShopRepo(),
+        ),
+      ),
     );
     await tester.pumpAndSettle();
 
@@ -180,10 +184,12 @@ void main() {
     _setMobile(tester);
     final env = _FakeEnvRepo(rooms: _rooms);
     await tester.pumpWidget(
-      _wrap(EnvironmentSettingsScreen(
-        environmentsRepository: env,
-        shopRepository: const _FakeShopRepo(),
-      )),
+      _wrap(
+        EnvironmentSettingsScreen(
+          environmentsRepository: env,
+          shopRepository: const _FakeShopRepo(),
+        ),
+      ),
     );
     await tester.pumpAndSettle();
 
@@ -202,10 +208,12 @@ void main() {
     _setMobile(tester);
     final env = _FakeEnvRepo(rooms: _rooms);
     await tester.pumpWidget(
-      _wrap(EnvironmentSettingsScreen(
-        environmentsRepository: env,
-        shopRepository: const _FakeShopRepo(),
-      )),
+      _wrap(
+        EnvironmentSettingsScreen(
+          environmentsRepository: env,
+          shopRepository: const _FakeShopRepo(),
+        ),
+      ),
     );
     await tester.pumpAndSettle();
 
@@ -226,10 +234,12 @@ void main() {
   testWidgets('link rooms navega pra /environment/rooms', (tester) async {
     _setMobile(tester);
     await tester.pumpWidget(
-      _wrap(EnvironmentSettingsScreen(
-        environmentsRepository: _FakeEnvRepo(rooms: _rooms),
-        shopRepository: const _FakeShopRepo(),
-      )),
+      _wrap(
+        EnvironmentSettingsScreen(
+          environmentsRepository: _FakeEnvRepo(rooms: _rooms),
+          shopRepository: const _FakeShopRepo(),
+        ),
+      ),
     );
     await tester.pumpAndSettle();
 
@@ -247,10 +257,12 @@ void main() {
   testWidgets('sem ninho mostra retry', (tester) async {
     _setMobile(tester);
     await tester.pumpWidget(
-      _wrap(EnvironmentSettingsScreen(
-        environmentsRepository: _FakeEnvRepo(envId: null),
-        shopRepository: const _FakeShopRepo(),
-      )),
+      _wrap(
+        EnvironmentSettingsScreen(
+          environmentsRepository: _FakeEnvRepo(envId: null),
+          shopRepository: const _FakeShopRepo(),
+        ),
+      ),
     );
     await tester.pumpAndSettle();
 

@@ -92,10 +92,11 @@ class NotificationPreferences {
     return NotificationPreferences(
       pushEnabled: json['push_enabled'] as bool? ?? true,
       morningTime: _parseTime(json['morning_time'] as String? ?? '09:00:00'),
-      afternoonTime: _parseTime(json['afternoon_time'] as String? ?? '15:00:00'),
+      afternoonTime: _parseTime(
+        json['afternoon_time'] as String? ?? '15:00:00',
+      ),
       eveningTime: _parseTime(json['evening_time'] as String? ?? '20:00:00'),
-      eventTaskTransferred:
-          json['event_task_transferred'] as bool? ?? true,
+      eventTaskTransferred: json['event_task_transferred'] as bool? ?? true,
       eventNewMember: json['event_new_member'] as bool? ?? true,
       eventFeedPhoto: json['event_feed_photo'] as bool? ?? true,
       eventStreakRisk: json['event_streak_risk'] as bool? ?? true,

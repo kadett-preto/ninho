@@ -18,9 +18,9 @@ class TransferHistoryController extends ChangeNotifier {
     EnvironmentsRepository? environmentsRepository,
     ShopRepository? shopRepository,
     String? currentUserId,
-  })  : _envRepo = environmentsRepository ?? EnvironmentsRepository(),
-        _shopRepo = shopRepository ?? const ShopRepository(),
-        _explicitUserId = currentUserId;
+  }) : _envRepo = environmentsRepository ?? EnvironmentsRepository(),
+       _shopRepo = shopRepository ?? const ShopRepository(),
+       _explicitUserId = currentUserId;
 
   final EnvironmentsRepository _envRepo;
   final ShopRepository _shopRepo;
@@ -35,8 +35,7 @@ class TransferHistoryController extends ChangeNotifier {
   List<TransferHistoryEntry> _entries = const [];
   List<TransferHistoryEntry> get entries => _entries;
 
-  String? get currentUserId =>
-      _explicitUserId ?? AuthService.currentUser?.id;
+  String? get currentUserId => _explicitUserId ?? AuthService.currentUser?.id;
 
   Future<void> load() async {
     _status = TransferHistoryStatus.loading;
@@ -250,9 +249,7 @@ class _HistoryCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isMine = entry.fromUserId == currentUserId;
-    final fromLabel = isMine
-        ? 'Você'
-        : 'Morador #${_short(entry.fromUserId)}';
+    final fromLabel = isMine ? 'Você' : 'Morador #${_short(entry.fromUserId)}';
     final toLabel = entry.toUserId == currentUserId
         ? 'você'
         : 'morador #${_short(entry.toUserId)}';

@@ -16,17 +16,17 @@ class _FakeRepo extends NotificationsRepository {
   Future<NotificationPreferences> fetchPreferences() async {
     if (loadError != null) throw loadError!;
     return NotificationPreferences.fromJson({
-          'push_enabled': true,
-          'morning_time': '09:00:00',
-          'afternoon_time': '15:00:00',
-          'evening_time': '20:00:00',
-          'event_task_transferred': true,
-          'event_new_member': true,
-          'event_feed_photo': true,
-          'event_streak_risk': true,
-          'event_streak_broken': true,
-          'event_shop_purchase': true,
-        });
+      'push_enabled': true,
+      'morning_time': '09:00:00',
+      'afternoon_time': '15:00:00',
+      'evening_time': '20:00:00',
+      'event_task_transferred': true,
+      'event_new_member': true,
+      'event_feed_photo': true,
+      'event_streak_risk': true,
+      'event_streak_broken': true,
+      'event_shop_purchase': true,
+    });
   }
 
   @override
@@ -46,9 +46,7 @@ void _setMobile(WidgetTester tester) {
 Widget _wrap(NotificationSettingsScreen screen) {
   final router = GoRouter(
     initialLocation: '/test',
-    routes: [
-      GoRoute(path: '/test', builder: (_, _) => screen),
-    ],
+    routes: [GoRoute(path: '/test', builder: (_, _) => screen)],
   );
   return MaterialApp.router(theme: NinhoTheme.light(), routerConfig: router);
 }
@@ -67,7 +65,9 @@ void main() {
     expect(find.text('20:00'), findsOneWidget);
   });
 
-  testWidgets('master toggle desativa tudo e desabilita eventos', (tester) async {
+  testWidgets('master toggle desativa tudo e desabilita eventos', (
+    tester,
+  ) async {
     _setMobile(tester);
     final repo = _FakeRepo();
     await tester.pumpWidget(

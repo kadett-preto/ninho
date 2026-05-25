@@ -14,8 +14,8 @@ class SuggestionsController extends ChangeNotifier {
   SuggestionsController({
     EnvironmentsRepository? environmentsRepository,
     SuggestionsRepository? suggestionsRepository,
-  })  : _envRepo = environmentsRepository ?? EnvironmentsRepository(),
-        _suggRepo = suggestionsRepository ?? SuggestionsRepository();
+  }) : _envRepo = environmentsRepository ?? EnvironmentsRepository(),
+       _suggRepo = suggestionsRepository ?? SuggestionsRepository();
 
   final EnvironmentsRepository _envRepo;
   final SuggestionsRepository _suggRepo;
@@ -39,8 +39,7 @@ class SuggestionsController extends ChangeNotifier {
   List<SuggestionItem> get items => _items;
 
   int get selectedCount => _items.where((i) => i.selected).length;
-  bool get allSelected =>
-      _items.isNotEmpty && _items.every((i) => i.selected);
+  bool get allSelected => _items.isNotEmpty && _items.every((i) => i.selected);
 
   Future<void> load() async {
     _status = SuggestionsStatus.loading;

@@ -111,10 +111,9 @@ class _ErrorView extends StatelessWidget {
               message,
               key: const Key('account_error'),
               textAlign: TextAlign.center,
-              style: Theme.of(context)
-                  .textTheme
-                  .bodyLarge
-                  ?.copyWith(color: NinhoColors.error),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyLarge?.copyWith(color: NinhoColors.error),
             ),
             const SizedBox(height: NinhoSpacing.stackMd),
             FilledButton.tonal(
@@ -157,8 +156,8 @@ class _Ready extends StatelessWidget {
                     'Idioma',
                     textAlign: TextAlign.center,
                     style: Theme.of(sheetCtx).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.w700,
-                        ),
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
                 ),
                 for (final entry in _localeChoices.entries)
@@ -179,12 +178,14 @@ class _Ready extends StatelessWidget {
     if (!context.mounted) return;
     if (ok) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Idioma salvo. Reabra o app pra aplicar.')),
+        const SnackBar(
+          content: Text('Idioma salvo. Reabra o app pra aplicar.'),
+        ),
       );
     } else if (controller.error != null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(controller.error!)),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(controller.error!)));
     }
   }
 
@@ -196,9 +197,9 @@ class _Ready extends StatelessWidget {
       context.go(NinhoRoutes.splash);
     } catch (e) {
       if (!context.mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Falha ao sair: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Falha ao sair: $e')));
     }
   }
 
@@ -206,7 +207,8 @@ class _Ready extends StatelessWidget {
   Widget build(BuildContext context) {
     final profile = controller.profile;
     final email = profile?.email ?? '—';
-    final localeLabel = _localeChoices[profile?.locale ?? 'pt-BR'] ?? 'Português (BR)';
+    final localeLabel =
+        _localeChoices[profile?.locale ?? 'pt-BR'] ?? 'Português (BR)';
     return RefreshIndicator(
       onRefresh: controller.load,
       color: NinhoColors.primary,
@@ -312,10 +314,10 @@ class _SectionLabel extends StatelessWidget {
       child: Text(
         label.toUpperCase(),
         style: Theme.of(context).textTheme.labelSmall?.copyWith(
-              color: NinhoColors.onSurfaceVariant,
-              letterSpacing: 1.1,
-              fontWeight: FontWeight.w700,
-            ),
+          color: NinhoColors.onSurfaceVariant,
+          letterSpacing: 1.1,
+          fontWeight: FontWeight.w700,
+        ),
       ),
     );
   }
@@ -352,9 +354,9 @@ class _Row extends StatelessWidget {
           key: Key(keyValue),
           borderRadius: BorderRadius.circular(NinhoRadii.lg),
           onTap: comingSoon
-              ? () => ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Em breve.')),
-                  )
+              ? () => ScaffoldMessenger.of(
+                  context,
+                ).showSnackBar(const SnackBar(content: Text('Em breve.')))
               : onTap,
           child: Padding(
             padding: const EdgeInsets.all(NinhoSpacing.stackMd),

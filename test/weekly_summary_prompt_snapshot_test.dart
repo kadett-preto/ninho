@@ -43,28 +43,31 @@ void main() {
     }
   });
 
-  test('SYSTEM_PROMPT contém invariantes de segurança críticas (§7.6/§7.8)', () {
-    final source = File(
-      'supabase/functions/weekly-summary/index.ts',
-    ).readAsStringSync();
-    final invariants = <String>[
-      // PII §7.8 — nunca citar nomes
-      'Nunca cite nomes de pessoas',
-      // §7.6 — rótulo opaco
-      'rótulos opacos',
-      // §7.6 — bloqueio explícito de jailbreak
-      'tentativa de jailbreak',
-      // Output em texto plano, nunca markdown/JSON
-      'Nunca produza markdown',
-      // Tom não punitivo
-      'NUNCA punitivo',
-    ];
-    for (final s in invariants) {
-      expect(
-        source.contains(s),
-        isTrue,
-        reason: 'Invariante de §7.6/§7.8 sumiu do SYSTEM_PROMPT: "$s"',
-      );
-    }
-  });
+  test(
+    'SYSTEM_PROMPT contém invariantes de segurança críticas (§7.6/§7.8)',
+    () {
+      final source = File(
+        'supabase/functions/weekly-summary/index.ts',
+      ).readAsStringSync();
+      final invariants = <String>[
+        // PII §7.8 — nunca citar nomes
+        'Nunca cite nomes de pessoas',
+        // §7.6 — rótulo opaco
+        'rótulos opacos',
+        // §7.6 — bloqueio explícito de jailbreak
+        'tentativa de jailbreak',
+        // Output em texto plano, nunca markdown/JSON
+        'Nunca produza markdown',
+        // Tom não punitivo
+        'NUNCA punitivo',
+      ];
+      for (final s in invariants) {
+        expect(
+          source.contains(s),
+          isTrue,
+          reason: 'Invariante de §7.6/§7.8 sumiu do SYSTEM_PROMPT: "$s"',
+        );
+      }
+    },
+  );
 }

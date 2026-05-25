@@ -3,7 +3,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:ninho/data/repositories/environments_repository.dart';
-import 'package:ninho/data/repositories/suggestions_repository.dart' show TaskDifficulty;
+import 'package:ninho/data/repositories/suggestions_repository.dart'
+    show TaskDifficulty;
 import 'package:ninho/data/repositories/tasks_repository.dart';
 import 'package:ninho/ui/core/theme.dart';
 import 'package:ninho/ui/features/tasks/tasks_screen.dart';
@@ -25,7 +26,9 @@ class _FakeTasksRepo extends TasksRepository {
   final List<TaskListItem> tasks;
 
   @override
-  Future<List<TaskListItem>> fetchTaskList({required String environmentId}) async {
+  Future<List<TaskListItem>> fetchTaskList({
+    required String environmentId,
+  }) async {
     return tasks;
   }
 }
@@ -48,15 +51,13 @@ Widget _wrap(TasksScreen screen) {
       ),
       GoRoute(
         path: '/tasks/:taskId',
-        builder: (_, state) => Scaffold(
-          body: Text('DETAIL ${state.pathParameters['taskId']}'),
-        ),
+        builder: (_, state) =>
+            Scaffold(body: Text('DETAIL ${state.pathParameters['taskId']}')),
       ),
       GoRoute(
         path: '/tasks/:taskId/complete',
-        builder: (_, state) => Scaffold(
-          body: Text('COMPLETE ${state.pathParameters['taskId']}'),
-        ),
+        builder: (_, state) =>
+            Scaffold(body: Text('COMPLETE ${state.pathParameters['taskId']}')),
       ),
       GoRoute(
         path: '/suggestions',
@@ -90,7 +91,9 @@ TaskListItem _mkTask({
 }
 
 void main() {
-  testWidgets('lista todas tasks com nome + cômodo + dificuldade', (tester) async {
+  testWidgets('lista todas tasks com nome + cômodo + dificuldade', (
+    tester,
+  ) async {
     _setMobile(tester);
     await tester.pumpWidget(
       _wrap(
@@ -161,7 +164,9 @@ void main() {
     expect(find.text('Do outro'), findsNothing);
   });
 
-  testWidgets('filtro Concluídas mostra tasks com completion hoje', (tester) async {
+  testWidgets('filtro Concluídas mostra tasks com completion hoje', (
+    tester,
+  ) async {
     _setMobile(tester);
     final now = DateTime.now();
     final todayCompletion = TaskCompletionRef(
@@ -202,16 +207,16 @@ void main() {
     expect(find.text('Pendente'), findsNothing);
   });
 
-  testWidgets('empty state aparece quando filtro deixa lista vazia', (tester) async {
+  testWidgets('empty state aparece quando filtro deixa lista vazia', (
+    tester,
+  ) async {
     _setMobile(tester);
     await tester.pumpWidget(
       _wrap(
         TasksScreen(
           environmentsRepository: _FakeEnvRepo(),
           tasksRepository: _FakeTasksRepo(
-            tasks: [
-              _mkTask(id: 't1', title: 'Do outro', assigneeId: 'other'),
-            ],
+            tasks: [_mkTask(id: 't1', title: 'Do outro', assigneeId: 'other')],
           ),
           currentUserId: 'me',
         ),
@@ -265,7 +270,9 @@ void main() {
     expect(find.text('DETAIL abc'), findsOneWidget);
   });
 
-  testWidgets('filtro Por cômodo mantém só do cômodo escolhido', (tester) async {
+  testWidgets('filtro Por cômodo mantém só do cômodo escolhido', (
+    tester,
+  ) async {
     _setMobile(tester);
     await tester.pumpWidget(
       _wrap(

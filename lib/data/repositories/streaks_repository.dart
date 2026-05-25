@@ -13,9 +13,7 @@ class StreaksRepository {
     final userId = AuthService.currentUser?.id;
     final rows = await client
         .from('streaks')
-        .select(
-          'kind, user_id, current_count, best_count, freezes_left_month',
-        )
+        .select('kind, user_id, current_count, best_count, freezes_left_month')
         .eq('environment_id', environmentId);
 
     int? userStreak;

@@ -8,10 +8,7 @@ import 'package:ninho/ui/core/theme.dart';
 import 'package:ninho/ui/features/suggestions/suggestions_screen.dart';
 
 class _FakeEnvRepo extends EnvironmentsRepository {
-  _FakeEnvRepo({
-    this.envId = 'env-1',
-    this.rooms = const [],
-  });
+  _FakeEnvRepo({this.envId = 'env-1', this.rooms = const []});
   final String? envId;
   final List<RoomRow> rooms;
 
@@ -176,9 +173,7 @@ void main() {
       _wrap(
         SuggestionsScreen(
           environmentsRepository: _FakeEnvRepo(
-            rooms: const [
-              RoomRow(id: 'r-x', name: 'Sala', sizeCategory: 'M'),
-            ],
+            rooms: const [RoomRow(id: 'r-x', name: 'Sala', sizeCategory: 'M')],
           ),
           suggestionsRepository: _FakeSuggRepo(
             suggestions: const [
@@ -268,10 +263,7 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(
-      find.textContaining('Você já pediu sugestões hoje'),
-      findsOneWidget,
-    );
+    expect(find.textContaining('Você já pediu sugestões hoje'), findsOneWidget);
   });
 
   testWidgets('sem ninho cadastrado mostra erro', (tester) async {
@@ -334,9 +326,7 @@ void main() {
       _wrap(
         SuggestionsScreen(
           environmentsRepository: _FakeEnvRepo(
-            rooms: const [
-              RoomRow(id: 'r-x', name: 'Sala', sizeCategory: 'M'),
-            ],
+            rooms: const [RoomRow(id: 'r-x', name: 'Sala', sizeCategory: 'M')],
           ),
           suggestionsRepository: _FakeSuggRepo(
             suggestions: const [

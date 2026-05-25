@@ -24,8 +24,8 @@ class EnvironmentSettingsController extends ChangeNotifier {
   EnvironmentSettingsController({
     EnvironmentsRepository? environmentsRepository,
     ShopRepository? shopRepository,
-  })  : _envRepo = environmentsRepository ?? EnvironmentsRepository(),
-        _shopRepo = shopRepository ?? const ShopRepository();
+  }) : _envRepo = environmentsRepository ?? EnvironmentsRepository(),
+       _shopRepo = shopRepository ?? const ShopRepository();
 
   final EnvironmentsRepository _envRepo;
   final ShopRepository _shopRepo;
@@ -173,7 +173,9 @@ class EnvironmentSettingsController extends ChangeNotifier {
     if (msg.contains('42501')) return 'Apenas o owner pode mudar isso.';
     if (msg.contains('22023')) {
       if (msg.contains('viagem')) return 'Modo viagem já está como está.';
-      if (msg.contains('14')) return 'Limite anual de 14 dias de viagem atingido.';
+      if (msg.contains('14')) {
+        return 'Limite anual de 14 dias de viagem atingido.';
+      }
       return 'Operação inválida.';
     }
     if (msg.contains('28000')) return 'Sessão expirada. Faça login de novo.';
@@ -280,9 +282,9 @@ class _ErrorView extends StatelessWidget {
               message,
               key: const Key('env_settings_error'),
               textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                color: NinhoColors.error,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyLarge?.copyWith(color: NinhoColors.error),
             ),
             const SizedBox(height: NinhoSpacing.stackMd),
             FilledButton.tonal(
@@ -312,9 +314,7 @@ class _ReadyView extends StatelessWidget {
           key: const Key('env_rename_input'),
           controller: input,
           autofocus: true,
-          decoration: const InputDecoration(
-            hintText: 'Nome do ninho',
-          ),
+          decoration: const InputDecoration(hintText: 'Nome do ninho'),
         ),
         actions: [
           TextButton(
@@ -333,9 +333,9 @@ class _ReadyView extends StatelessWidget {
     final ok = await controller.renameEnvironment(result);
     if (!context.mounted) return;
     if (!ok && controller.error != null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(controller.error!)),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(controller.error!)));
     }
   }
 
@@ -385,8 +385,7 @@ class _ReadyView extends StatelessWidget {
             title: 'Transferência de Tarefa',
             subtitle: 'Permitir trocar responsabilidades.',
             value: flags.transferItemEnabled,
-            enabled: isOwner &&
-                controller.pendingAction != 'transfer_item',
+            enabled: isOwner && controller.pendingAction != 'transfer_item',
             onChanged: (v) async {
               final ok = await controller.setTransferItemEnabled(v);
               if (!context.mounted) return;
@@ -516,9 +515,9 @@ class _Row extends StatelessWidget {
           key: Key(keyValue),
           borderRadius: BorderRadius.circular(NinhoRadii.lg),
           onTap: comingSoon
-              ? () => ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Em breve.')),
-                )
+              ? () => ScaffoldMessenger.of(
+                  context,
+                ).showSnackBar(const SnackBar(content: Text('Em breve.')))
               : onTap,
           child: Padding(
             padding: const EdgeInsets.all(NinhoSpacing.stackMd),

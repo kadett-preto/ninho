@@ -76,9 +76,15 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Convide quem mora com você'), findsOneWidget);
-    expect(find.text('No plano gratuito o ninho é pra 2 pessoas.'), findsOneWidget);
+    expect(
+      find.text('No plano gratuito o ninho é pra 2 pessoas.'),
+      findsOneWidget,
+    );
     expect(find.byKey(const Key('invite_qr')), findsOneWidget);
-    expect(find.textContaining('https://ninho.test/#/i/tok-abc'), findsOneWidget);
+    expect(
+      find.textContaining('https://ninho.test/#/i/tok-abc'),
+      findsOneWidget,
+    );
     expect(find.byKey(const Key('invite_copy_button')), findsOneWidget);
     // fromSetup=true → mostra "Pular" + "Concluir configuração".
     expect(find.byKey(const Key('invite_skip_button')), findsOneWidget);

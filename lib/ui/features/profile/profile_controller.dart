@@ -18,10 +18,10 @@ class ProfileController extends ChangeNotifier {
     EnvironmentsRepository? environmentsRepository,
     StreaksRepository? streaksRepository,
     ShopRepository? shopRepository,
-  })  : _usersRepo = usersRepository ?? UsersRepository(),
-        _envRepo = environmentsRepository ?? EnvironmentsRepository(),
-        _streaksRepo = streaksRepository ?? const StreaksRepository(),
-        _shopRepo = shopRepository ?? const ShopRepository();
+  }) : _usersRepo = usersRepository ?? UsersRepository(),
+       _envRepo = environmentsRepository ?? EnvironmentsRepository(),
+       _streaksRepo = streaksRepository ?? const StreaksRepository(),
+       _shopRepo = shopRepository ?? const ShopRepository();
 
   final UsersRepository _usersRepo;
   final EnvironmentsRepository _envRepo;

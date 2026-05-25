@@ -249,13 +249,15 @@ class _PreviewBody extends StatelessWidget {
                 _InfoCard(
                   icon: Icons.grid_view_rounded,
                   label: 'Cômodos',
-                  value: '${preview.roomCount} ${preview.roomCount == 1 ? "cômodo" : "cômodos"}',
+                  value:
+                      '${preview.roomCount} ${preview.roomCount == 1 ? "cômodo" : "cômodos"}',
                 ),
                 const SizedBox(height: NinhoSpacing.stackSm),
                 _InfoCard(
                   icon: Icons.local_fire_department_outlined,
                   label: 'Streak do ninho',
-                  value: '${preview.environmentStreak} ${preview.environmentStreak == 1 ? "dia" : "dias"}',
+                  value:
+                      '${preview.environmentStreak} ${preview.environmentStreak == 1 ? "dia" : "dias"}',
                 ),
                 const SizedBox(height: NinhoSpacing.stackSm),
                 _InfoCard(
@@ -375,7 +377,11 @@ class _InfoCard extends StatelessWidget {
               color: NinhoColors.secondaryContainer,
               shape: BoxShape.circle,
             ),
-            child: Icon(icon, color: NinhoColors.onSecondaryContainer, size: 20),
+            child: Icon(
+              icon,
+              color: NinhoColors.onSecondaryContainer,
+              size: 20,
+            ),
           ),
           const SizedBox(width: NinhoSpacing.gutterMobile),
           Expanded(

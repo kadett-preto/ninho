@@ -28,10 +28,15 @@ void main() {
 
     // ProfileScreen sem sessão pode cair em error (auth ausente) ou
     // noEnvironment. Aceitamos qualquer estado pós-navegação.
-    final reached = find.byKey(const Key('profile_error')).evaluate().isNotEmpty
-        || find.byKey(const Key('profile_name')).evaluate().isNotEmpty
-        || find.byKey(const Key('profile_signout_button')).evaluate().isNotEmpty;
-    expect(reached, isTrue, reason: 'ProfileScreen não renderizou nenhum estado conhecido');
+    final reached =
+        find.byKey(const Key('profile_error')).evaluate().isNotEmpty ||
+        find.byKey(const Key('profile_name')).evaluate().isNotEmpty ||
+        find.byKey(const Key('profile_signout_button')).evaluate().isNotEmpty;
+    expect(
+      reached,
+      isTrue,
+      reason: 'ProfileScreen não renderizou nenhum estado conhecido',
+    );
   });
 
   testWidgets('task detail renders demo content on device', (tester) async {
@@ -82,10 +87,7 @@ void main() {
 
     // TasksScreen sem sessão Supabase cai no fluxo de erro humano —
     // valida que a tela montou e exibiu mensagem amigável.
-    expect(
-      find.byKey(const Key('tasks_error')),
-      findsOneWidget,
-    );
+    expect(find.byKey(const Key('tasks_error')), findsOneWidget);
   });
 
   testWidgets('task form (new) renders on device', (tester) async {
@@ -99,9 +101,6 @@ void main() {
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
     // Sem sessão, controller cai no estado de erro humanizado.
-    expect(
-      find.byKey(const Key('task_form_error')),
-      findsOneWidget,
-    );
+    expect(find.byKey(const Key('task_form_error')), findsOneWidget);
   });
 }

@@ -16,8 +16,8 @@ class NotificationSettingsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider<NotificationSettingsController>(
-      create: (_) => NotificationSettingsController(repository: repository)
-        ..load(),
+      create: (_) =>
+          NotificationSettingsController(repository: repository)..load(),
       child: const _View(),
     );
   }
@@ -43,9 +43,9 @@ class _View extends StatelessWidget {
         title: Text(
           'Notificações',
           style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                color: NinhoColors.primary,
-                fontWeight: FontWeight.w700,
-              ),
+            color: NinhoColors.primary,
+            fontWeight: FontWeight.w700,
+          ),
         ),
       ),
       body: _Body(controller: ctrl),
@@ -90,9 +90,9 @@ class _ErrorView extends StatelessWidget {
           message,
           key: const Key('notif_settings_error'),
           textAlign: TextAlign.center,
-          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                color: NinhoColors.error,
-              ),
+          style: Theme.of(
+            context,
+          ).textTheme.bodyLarge?.copyWith(color: NinhoColors.error),
         ),
       ),
     );
@@ -169,8 +169,7 @@ class _Form extends StatelessWidget {
                     title: 'Tarefa transferida pra você',
                     value: p.eventTaskTransferred,
                     onChanged: p.pushEnabled
-                        ? (v) =>
-                            controller.toggleEvent(taskTransferred: v)
+                        ? (v) => controller.toggleEvent(taskTransferred: v)
                         : null,
                   ),
                   _SwitchTile(
@@ -221,9 +220,9 @@ class _Form extends StatelessWidget {
                 Text(
                   controller.error!,
                   textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: NinhoColors.error,
-                      ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodySmall?.copyWith(color: NinhoColors.error),
                 ),
               ],
             ],
@@ -249,9 +248,9 @@ class _Section extends StatelessWidget {
           child: Text(
             title,
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  color: NinhoColors.onSurface,
-                  fontWeight: FontWeight.w700,
-                ),
+              color: NinhoColors.onSurface,
+              fontWeight: FontWeight.w700,
+            ),
           ),
         ),
         DecoratedBox(
@@ -304,18 +303,18 @@ class _SwitchTile extends StatelessWidget {
                 Text(
                   title,
                   style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                        color: disabled
-                            ? NinhoColors.onSurfaceVariant
-                            : NinhoColors.onSurface,
-                      ),
+                    color: disabled
+                        ? NinhoColors.onSurfaceVariant
+                        : NinhoColors.onSurface,
+                  ),
                 ),
                 if (subtitle != null) ...[
                   const SizedBox(height: 4),
                   Text(
                     subtitle!,
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: NinhoColors.onSurfaceVariant,
-                        ),
+                      color: NinhoColors.onSurfaceVariant,
+                    ),
                   ),
                 ],
               ],
@@ -366,20 +365,20 @@ class _TimeTile extends StatelessWidget {
               child: Text(
                 label,
                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      color: enabled
-                          ? NinhoColors.onSurface
-                          : NinhoColors.onSurfaceVariant,
-                    ),
+                  color: enabled
+                      ? NinhoColors.onSurface
+                      : NinhoColors.onSurfaceVariant,
+                ),
               ),
             ),
             Text(
               formatted,
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    color: enabled
-                        ? NinhoColors.primary
-                        : NinhoColors.onSurfaceVariant,
-                    fontWeight: FontWeight.w600,
-                  ),
+                color: enabled
+                    ? NinhoColors.primary
+                    : NinhoColors.onSurfaceVariant,
+                fontWeight: FontWeight.w600,
+              ),
             ),
             const SizedBox(width: 8),
             Icon(

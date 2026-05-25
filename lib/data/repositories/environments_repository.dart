@@ -271,10 +271,7 @@ class EnvironmentsRepository {
   }) async {
     await SupabaseService.client.rpc(
       'transfer_ownership',
-      params: {
-        'p_environment_id': environmentId,
-        'p_new_owner_id': newOwnerId,
-      },
+      params: {'p_environment_id': environmentId, 'p_new_owner_id': newOwnerId},
     );
   }
 

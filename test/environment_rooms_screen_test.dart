@@ -7,11 +7,7 @@ import 'package:ninho/ui/core/theme.dart';
 import 'package:ninho/ui/features/profile/environment_rooms_screen.dart';
 
 class _FakeRepo extends EnvironmentsRepository {
-  _FakeRepo({
-    this.envId = 'env-1',
-    this.role = 'owner',
-    this.rooms = const [],
-  });
+  _FakeRepo({this.envId = 'env-1', this.role = 'owner', this.rooms = const []});
   final String? envId;
   final String role;
   final List<RoomRow> rooms;
@@ -29,14 +25,13 @@ class _FakeRepo extends EnvironmentsRepository {
   @override
   Future<EnvironmentSummary?> fetchEnvironmentSummary({
     required String environmentId,
-  }) async =>
-      EnvironmentSummary(
-        id: environmentId,
-        name: 'Lar',
-        ownerId: role == 'owner' ? 'me' : 'other',
-        role: role,
-        createdAt: DateTime(2026, 1, 1),
-      );
+  }) async => EnvironmentSummary(
+    id: environmentId,
+    name: 'Lar',
+    ownerId: role == 'owner' ? 'me' : 'other',
+    role: role,
+    createdAt: DateTime(2026, 1, 1),
+  );
 
   @override
   Future<List<RoomRow>> fetchRooms(String environmentId) async => rooms;
@@ -84,10 +79,7 @@ Widget _wrap(EnvironmentRoomsScreen screen) {
   final router = GoRouter(
     initialLocation: '/profile/environment/rooms',
     routes: [
-      GoRoute(
-        path: '/profile/environment/rooms',
-        builder: (_, _) => screen,
-      ),
+      GoRoute(path: '/profile/environment/rooms', builder: (_, _) => screen),
       GoRoute(
         path: '/profile/environment',
         builder: (_, _) => const Scaffold(body: Text('SETTINGS')),
@@ -101,12 +93,16 @@ void main() {
   testWidgets('ready: lista cômodos', (tester) async {
     _setMobile(tester);
     await tester.pumpWidget(
-      _wrap(EnvironmentRoomsScreen(
-        environmentsRepository: _FakeRepo(rooms: const [
-          RoomRow(id: 'r1', name: 'Cozinha', sizeCategory: 'M'),
-          RoomRow(id: 'r2', name: 'Sala', sizeCategory: 'G'),
-        ]),
-      )),
+      _wrap(
+        EnvironmentRoomsScreen(
+          environmentsRepository: _FakeRepo(
+            rooms: const [
+              RoomRow(id: 'r1', name: 'Cozinha', sizeCategory: 'M'),
+              RoomRow(id: 'r2', name: 'Sala', sizeCategory: 'G'),
+            ],
+          ),
+        ),
+      ),
     );
     await tester.pumpAndSettle();
 
@@ -129,9 +125,11 @@ void main() {
   testWidgets('member regular não vê CTA adicionar', (tester) async {
     _setMobile(tester);
     await tester.pumpWidget(
-      _wrap(EnvironmentRoomsScreen(
-        environmentsRepository: _FakeRepo(role: 'member'),
-      )),
+      _wrap(
+        EnvironmentRoomsScreen(
+          environmentsRepository: _FakeRepo(role: 'member'),
+        ),
+      ),
     );
     await tester.pumpAndSettle();
 
@@ -167,9 +165,9 @@ void main() {
 
   testWidgets('owner edita cômodo (tap row → sheet edit)', (tester) async {
     _setMobile(tester);
-    final repo = _FakeRepo(rooms: const [
-      RoomRow(id: 'r1', name: 'Cozinha', sizeCategory: 'M'),
-    ]);
+    final repo = _FakeRepo(
+      rooms: const [RoomRow(id: 'r1', name: 'Cozinha', sizeCategory: 'M')],
+    );
     await tester.pumpWidget(
       _wrap(EnvironmentRoomsScreen(environmentsRepository: repo)),
     );
@@ -193,9 +191,9 @@ void main() {
 
   testWidgets('owner deleta cômodo via sheet + confirm', (tester) async {
     _setMobile(tester);
-    final repo = _FakeRepo(rooms: const [
-      RoomRow(id: 'r1', name: 'Cozinha', sizeCategory: 'M'),
-    ]);
+    final repo = _FakeRepo(
+      rooms: const [RoomRow(id: 'r1', name: 'Cozinha', sizeCategory: 'M')],
+    );
     await tester.pumpWidget(
       _wrap(EnvironmentRoomsScreen(environmentsRepository: repo)),
     );
@@ -218,9 +216,9 @@ void main() {
   testWidgets('sem ninho mostra retry', (tester) async {
     _setMobile(tester);
     await tester.pumpWidget(
-      _wrap(EnvironmentRoomsScreen(
-        environmentsRepository: _FakeRepo(envId: null),
-      )),
+      _wrap(
+        EnvironmentRoomsScreen(environmentsRepository: _FakeRepo(envId: null)),
+      ),
     );
     await tester.pumpAndSettle();
 

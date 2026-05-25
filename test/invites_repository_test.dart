@@ -45,17 +45,11 @@ void main() {
     });
 
     test('ignora links sem segmento /i/', () {
-      expect(
-        InvitesRepository.tokenFromLink('https://ninho.app/home'),
-        isNull,
-      );
+      expect(InvitesRepository.tokenFromLink('https://ninho.app/home'), isNull);
     });
 
     test('ignora links com /i/ vazio', () {
-      expect(
-        InvitesRepository.tokenFromLink('https://ninho.app/i/'),
-        isNull,
-      );
+      expect(InvitesRepository.tokenFromLink('https://ninho.app/i/'), isNull);
     });
 
     test('retorna null para link malformado', () {

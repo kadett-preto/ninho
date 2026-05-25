@@ -31,14 +31,13 @@ void main() {
     tester,
   ) async {
     _setMobile(tester);
-    await tester.pumpWidget(_wrap(const TourScreen(environmentName: 'Nosso apê')));
+    await tester.pumpWidget(
+      _wrap(const TourScreen(environmentName: 'Nosso apê')),
+    );
     await tester.pumpAndSettle();
 
     expect(find.text('Bem-vindo ao ninho Nosso apê'), findsOneWidget);
-    expect(
-      find.widgetWithText(FilledButton, 'Próximo'),
-      findsOneWidget,
-    );
+    expect(find.widgetWithText(FilledButton, 'Próximo'), findsOneWidget);
   });
 
   testWidgets('avança até último card e CTA vira "Bora cuidar juntos"', (

@@ -11,11 +11,7 @@ import '../spacing.dart';
 enum NinhoTab { home, tasks, feed, shop, profile }
 
 class NinhoBottomNav extends StatelessWidget {
-  const NinhoBottomNav({
-    super.key,
-    required this.active,
-    required this.onTap,
-  });
+  const NinhoBottomNav({super.key, required this.active, required this.onTap});
 
   final NinhoTab active;
   final ValueChanged<NinhoTab> onTap;
@@ -122,8 +118,7 @@ class _NavItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color =
-        selected ? NinhoColors.primary : NinhoColors.onSurfaceVariant;
+    final color = selected ? NinhoColors.primary : NinhoColors.onSurfaceVariant;
     return Expanded(
       child: InkWell(
         key: Key(item.keyValue),
@@ -142,8 +137,7 @@ class _NavItem extends StatelessWidget {
                   item.label,
                   style: Theme.of(context).textTheme.labelSmall?.copyWith(
                     color: color,
-                    fontWeight:
-                        selected ? FontWeight.w700 : FontWeight.w500,
+                    fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
                   ),
                 ),
               ),

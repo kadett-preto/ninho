@@ -21,12 +21,12 @@ class HomeController extends ChangeNotifier {
     ShopRepository? shopRepository,
     String? currentUserId,
     DateTime Function()? now,
-  })  : _envRepo = environmentsRepository ?? EnvironmentsRepository(),
-        _tasksRepo = tasksRepository ?? const TasksRepository(),
-        _streaksRepo = streaksRepository ?? const StreaksRepository(),
-        _shopRepo = shopRepository ?? const ShopRepository(),
-        _explicitUserId = currentUserId,
-        _now = now ?? DateTime.now;
+  }) : _envRepo = environmentsRepository ?? EnvironmentsRepository(),
+       _tasksRepo = tasksRepository ?? const TasksRepository(),
+       _streaksRepo = streaksRepository ?? const StreaksRepository(),
+       _shopRepo = shopRepository ?? const ShopRepository(),
+       _explicitUserId = currentUserId,
+       _now = now ?? DateTime.now;
 
   final EnvironmentsRepository _envRepo;
   final TasksRepository _tasksRepo;
@@ -56,8 +56,7 @@ class HomeController extends ChangeNotifier {
   List<TaskListItem> _todayTasks = const [];
   List<TaskListItem> get todayTasks => _todayTasks;
 
-  String? get currentUserId =>
-      _explicitUserId ?? AuthService.currentUser?.id;
+  String? get currentUserId => _explicitUserId ?? AuthService.currentUser?.id;
 
   Future<void> load() async {
     _status = HomeStatus.loading;
@@ -98,16 +97,14 @@ class HomeController extends ChangeNotifier {
   // "Tarefas de hoje" do morador: assignee = eu, isExpectedOn(hoje), e
   // não concluída ainda hoje. Sem assignee → não aparece (decisão MVP em
   // linha com IDEA.md §5.7).
-  List<TaskListItem> _filterTodayForUser(
-    List<TaskListItem> all,
-    DateTime now,
-  ) {
+  List<TaskListItem> _filterTodayForUser(List<TaskListItem> all, DateTime now) {
     final me = currentUserId;
     return [
       for (final t in all)
-        if (t.assigneeId == me && me != null
-            && t.isExpectedOn(now)
-            && !t.completedOn(now))
+        if (t.assigneeId == me &&
+            me != null &&
+            t.isExpectedOn(now) &&
+            !t.completedOn(now))
           t,
     ];
   }

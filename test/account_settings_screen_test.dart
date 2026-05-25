@@ -7,10 +7,9 @@ import 'package:ninho/ui/core/theme.dart';
 import 'package:ninho/ui/features/account/account_settings_screen.dart';
 
 class _FakeUsersRepo extends UsersRepository {
-  _FakeUsersRepo({this.snapshot, this.throwOnUpdate = false});
+  _FakeUsersRepo({this.snapshot});
 
   UserProfileSnapshot? snapshot;
-  bool throwOnUpdate;
   String? lastLocale;
   String? lastDisplayName;
 
@@ -19,7 +18,6 @@ class _FakeUsersRepo extends UsersRepository {
 
   @override
   Future<void> updateProfile({String? displayName, String? locale}) async {
-    if (throwOnUpdate) throw StateError('boom');
     lastDisplayName = displayName;
     lastLocale = locale;
     if (snapshot != null) {
@@ -41,30 +39,30 @@ Widget _wrap(Widget child) {
   final router = GoRouter(
     initialLocation: '/profile/account',
     routes: [
-      GoRoute(path: '/profile/account', builder: (_, __) => child),
+      GoRoute(path: '/profile/account', builder: (_, _) => child),
       GoRoute(
         path: '/profile/account/edit',
-        builder: (_, __) => const Scaffold(body: Text('edit')),
+        builder: (_, _) => const Scaffold(body: Text('edit')),
       ),
       GoRoute(
         path: '/settings/notifications',
-        builder: (_, __) => const Scaffold(body: Text('notif')),
+        builder: (_, _) => const Scaffold(body: Text('notif')),
       ),
       GoRoute(
         path: '/profile/export',
-        builder: (_, __) => const Scaffold(body: Text('export')),
+        builder: (_, _) => const Scaffold(body: Text('export')),
       ),
       GoRoute(
         path: '/profile/delete',
-        builder: (_, __) => const Scaffold(body: Text('delete')),
+        builder: (_, _) => const Scaffold(body: Text('delete')),
       ),
-      GoRoute(path: '/', builder: (_, __) => const Scaffold(body: Text('splash'))),
+      GoRoute(
+        path: '/',
+        builder: (_, _) => const Scaffold(body: Text('splash')),
+      ),
     ],
   );
-  return MaterialApp.router(
-    theme: NinhoTheme.light(),
-    routerConfig: router,
-  );
+  return MaterialApp.router(theme: NinhoTheme.light(), routerConfig: router);
 }
 
 void main() {

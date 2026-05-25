@@ -14,7 +14,7 @@ enum MembersStatus { idle, loading, ready, error }
 
 class EnvironmentMembersController extends ChangeNotifier {
   EnvironmentMembersController({EnvironmentsRepository? repository})
-      : _repo = repository ?? EnvironmentsRepository();
+    : _repo = repository ?? EnvironmentsRepository();
 
   final EnvironmentsRepository _repo;
 
@@ -104,9 +104,9 @@ class EnvironmentMembersScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider<EnvironmentMembersController>(
-      create: (_) => EnvironmentMembersController(
-        repository: environmentsRepository,
-      )..load(),
+      create: (_) =>
+          EnvironmentMembersController(repository: environmentsRepository)
+            ..load(),
       child: const _View(),
     );
   }
@@ -183,9 +183,9 @@ class _Body extends StatelessWidget {
     final ok = await controller.removeMember(member.userId);
     if (!context.mounted) return;
     if (!ok && controller.error != null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(controller.error!)),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(controller.error!)));
     }
   }
 
@@ -228,9 +228,9 @@ class _MembersError extends StatelessWidget {
               message,
               key: const Key('members_error'),
               textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                color: NinhoColors.error,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyLarge?.copyWith(color: NinhoColors.error),
             ),
             const SizedBox(height: NinhoSpacing.stackMd),
             FilledButton.tonal(

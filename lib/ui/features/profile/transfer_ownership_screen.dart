@@ -18,8 +18,8 @@ class TransferOwnershipController extends ChangeNotifier {
   TransferOwnershipController({
     EnvironmentsRepository? environmentsRepository,
     String? currentUserId,
-  })  : _envRepo = environmentsRepository ?? EnvironmentsRepository(),
-        _currentUserIdOverride = currentUserId;
+  }) : _envRepo = environmentsRepository ?? EnvironmentsRepository(),
+       _currentUserIdOverride = currentUserId;
 
   final EnvironmentsRepository _envRepo;
   final String? _currentUserIdOverride;
@@ -200,9 +200,7 @@ class _BodyState extends State<_Body> {
     if (!mounted) return;
     if (ok) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Propriedade transferida com sucesso.'),
-        ),
+        const SnackBar(content: Text('Propriedade transferida com sucesso.')),
       );
       context.go(NinhoRoutes.profile);
     }
@@ -250,9 +248,9 @@ class _ErrorEmpty extends StatelessWidget {
               message,
               key: const Key('transfer_error'),
               textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                color: NinhoColors.error,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyLarge?.copyWith(color: NinhoColors.error),
             ),
             const SizedBox(height: NinhoSpacing.stackMd),
             FilledButton.tonal(
@@ -344,8 +342,7 @@ class _ReadyBody extends StatelessWidget {
                             ),
                             child: _MemberTile(
                               member: m,
-                              selected:
-                                  controller.selected?.userId == m.userId,
+                              selected: controller.selected?.userId == m.userId,
                               onTap: submitting
                                   ? null
                                   : () => controller.select(m),

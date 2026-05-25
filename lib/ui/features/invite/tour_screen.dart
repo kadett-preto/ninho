@@ -15,11 +15,7 @@ import '../../core/spacing.dart';
 // Não-bloqueante: skip a qualquer momento (texto "Pular"). Conclusão leva
 // pra /home.
 class TourScreen extends StatefulWidget {
-  const TourScreen({
-    super.key,
-    this.environmentName,
-    this.pageController,
-  });
+  const TourScreen({super.key, this.environmentName, this.pageController});
 
   final String? environmentName;
   final PageController? pageController;
@@ -149,7 +145,11 @@ class _TourScreenState extends State<TourScreen> {
 }
 
 class _TourCard {
-  const _TourCard({required this.icon, required this.title, required this.body});
+  const _TourCard({
+    required this.icon,
+    required this.title,
+    required this.body,
+  });
   final IconData icon;
   final String title;
   final String body;
@@ -225,9 +225,7 @@ class _Dots extends StatelessWidget {
           width: selected ? 24 : 8,
           height: 8,
           decoration: BoxDecoration(
-            color: selected
-                ? NinhoColors.primary
-                : NinhoColors.outlineVariant,
+            color: selected ? NinhoColors.primary : NinhoColors.outlineVariant,
             borderRadius: BorderRadius.circular(8),
           ),
         );

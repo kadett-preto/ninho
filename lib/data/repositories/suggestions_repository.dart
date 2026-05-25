@@ -18,10 +18,7 @@ class SuggestionsRepository {
     final client = SupabaseService.client;
     final response = await client.functions.invoke(
       'suggest-tasks',
-      body: {
-        'environmentId': environmentId,
-        'locale': ?locale,
-      },
+      body: {'environmentId': environmentId, 'locale': ?locale},
     );
     final data = response.data as Map<String, dynamic>;
     final raw = (data['suggestions'] as List<dynamic>? ?? const []);
@@ -43,10 +40,7 @@ class SuggestionsRepository {
     final payload = suggestions.map((s) => s.toAcceptJson()).toList();
     final response = await client.rpc(
       'accept_suggested_tasks',
-      params: {
-        'p_environment_id': environmentId,
-        'p_tasks': payload,
-      },
+      params: {'p_environment_id': environmentId, 'p_tasks': payload},
     );
     final data = response as Map<String, dynamic>;
     return AcceptResult(
@@ -123,13 +117,13 @@ class TaskSuggestion {
   }
 
   Map<String, dynamic> toAcceptJson() => {
-        'room_id': roomId,
-        'title': title,
-        if (description != null && description!.isNotEmpty)
-          'description': description,
-        'difficulty': difficulty.wire,
-        'interval_days': intervalDays,
-      };
+    'room_id': roomId,
+    'title': title,
+    if (description != null && description!.isNotEmpty)
+      'description': description,
+    'difficulty': difficulty.wire,
+    'interval_days': intervalDays,
+  };
 }
 
 class SuggestTasksResponse {

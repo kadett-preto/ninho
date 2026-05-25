@@ -23,9 +23,9 @@ class ExportDataController extends ChangeNotifier {
     UsersRepository? usersRepository,
     ShareXFn? shareFn,
     DateTime Function()? now,
-  })  : _usersRepo = usersRepository ?? UsersRepository(),
-        _shareFn = shareFn ?? _defaultShare,
-        _now = now ?? DateTime.now;
+  }) : _usersRepo = usersRepository ?? UsersRepository(),
+       _shareFn = shareFn ?? _defaultShare,
+       _now = now ?? DateTime.now;
 
   final UsersRepository _usersRepo;
   final ShareXFn _shareFn;
@@ -40,7 +40,10 @@ class ExportDataController extends ChangeNotifier {
   int? _payloadBytes;
   int? get payloadBytes => _payloadBytes;
 
-  static Future<void> _defaultShare(XFile file, {required String subject}) async {
+  static Future<void> _defaultShare(
+    XFile file, {
+    required String subject,
+  }) async {
     await SharePlus.instance.share(
       ShareParams(files: [file], subject: subject),
     );
@@ -83,11 +86,7 @@ class ExportDataController extends ChangeNotifier {
 }
 
 class ExportDataScreen extends StatelessWidget {
-  const ExportDataScreen({
-    super.key,
-    this.usersRepository,
-    this.shareFn,
-  });
+  const ExportDataScreen({super.key, this.usersRepository, this.shareFn});
 
   final UsersRepository? usersRepository;
   final ShareXFn? shareFn;

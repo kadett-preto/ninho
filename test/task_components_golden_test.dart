@@ -5,7 +5,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
 import 'package:ninho/data/repositories/environments_repository.dart';
-import 'package:ninho/data/repositories/suggestions_repository.dart' show TaskDifficulty;
+import 'package:ninho/data/repositories/suggestions_repository.dart'
+    show TaskDifficulty;
 import 'package:ninho/data/repositories/tasks_repository.dart';
 import 'package:ninho/ui/features/tasks/tasks_controller.dart';
 import 'package:ninho/ui/features/tasks/tasks_screen.dart';
@@ -62,10 +63,7 @@ Widget _harness(Widget child, {Size size = const Size(360, 200)}) {
           width: size.width,
           height: size.height,
           child: DefaultTextStyle(
-            style: const TextStyle(
-              fontFamily: 'Roboto',
-              package: null,
-            ),
+            style: const TextStyle(fontFamily: 'Roboto', package: null),
             child: child,
           ),
         ),
@@ -90,7 +88,9 @@ class _FakeTasksRepo extends TasksRepository {
   final List<TaskListItem> items;
 
   @override
-  Future<List<TaskListItem>> fetchTaskList({required String environmentId}) async {
+  Future<List<TaskListItem>> fetchTaskList({
+    required String environmentId,
+  }) async {
     return items;
   }
 }
@@ -153,9 +153,17 @@ void main() {
               builder: (_, _) => TasksScreen(
                 environmentsRepository: _FakeEnvRepo(
                   rooms: const [
-                    RoomRow(id: 'r-cozinha', name: 'Cozinha', sizeCategory: 'G'),
+                    RoomRow(
+                      id: 'r-cozinha',
+                      name: 'Cozinha',
+                      sizeCategory: 'G',
+                    ),
                     RoomRow(id: 'r-sala', name: 'Sala', sizeCategory: 'M'),
-                    RoomRow(id: 'r-banheiro', name: 'Banheiro', sizeCategory: 'P'),
+                    RoomRow(
+                      id: 'r-banheiro',
+                      name: 'Banheiro',
+                      sizeCategory: 'P',
+                    ),
                   ],
                 ),
                 tasksRepository: _FakeTasksRepo(items: tasks),
@@ -248,10 +256,7 @@ Widget _chipsHarness(BuildContext context) {
         selected: ctrl.filter == TaskFilter.all && ctrl.roomFilter == null,
       ),
       const SizedBox(width: 8),
-      _GoldenChip(
-        label: 'Minhas',
-        selected: ctrl.filter == TaskFilter.mine,
-      ),
+      _GoldenChip(label: 'Minhas', selected: ctrl.filter == TaskFilter.mine),
       const SizedBox(width: 8),
       _GoldenChip(
         label: 'Concluídas',

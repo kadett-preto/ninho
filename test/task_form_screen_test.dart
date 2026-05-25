@@ -3,7 +3,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:ninho/data/repositories/environments_repository.dart';
-import 'package:ninho/data/repositories/suggestions_repository.dart' show TaskDifficulty;
+import 'package:ninho/data/repositories/suggestions_repository.dart'
+    show TaskDifficulty;
 import 'package:ninho/data/repositories/tasks_repository.dart';
 import 'package:ninho/ui/core/theme.dart';
 import 'package:ninho/ui/features/tasks/task_form_screen.dart';
@@ -119,15 +120,15 @@ Widget _wrap(TaskFormScreen screen) {
 }
 
 TaskListItem _existing() => TaskListItem(
-      id: 'task-1',
-      title: 'Lavar a louça',
-      roomId: 'r-cozinha',
-      roomName: 'Cozinha',
-      difficulty: TaskDifficulty.embacada,
-      assigneeId: 'me',
-      recurrenceRule: 'RRULE:FREQ=DAILY;INTERVAL=7',
-      recentCompletions: const [],
-    );
+  id: 'task-1',
+  title: 'Lavar a louça',
+  roomId: 'r-cozinha',
+  roomName: 'Cozinha',
+  difficulty: TaskDifficulty.embacada,
+  assigneeId: 'me',
+  recurrenceRule: 'RRULE:FREQ=DAILY;INTERVAL=7',
+  recentCompletions: const [],
+);
 
 void main() {
   testWidgets('create: renderiza Nova tarefa + form vazio', (tester) async {
@@ -237,11 +238,15 @@ void main() {
     expect(find.byKey(const Key('task_form_archive')), findsOneWidget);
     expect(find.text('Criar manualmente'), findsNothing);
     // Title precarregado
-    final field = tester.widget<TextField>(find.byKey(const Key('task_form_title')));
+    final field = tester.widget<TextField>(
+      find.byKey(const Key('task_form_title')),
+    );
     expect(field.controller?.text, 'Lavar a louça');
   });
 
-  testWidgets('edit: muda dificuldade + salva chama updateTask', (tester) async {
+  testWidgets('edit: muda dificuldade + salva chama updateTask', (
+    tester,
+  ) async {
     _setMobile(tester);
     final repo = _FakeTasksRepo(existingTask: _existing());
     await tester.pumpWidget(

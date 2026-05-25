@@ -176,14 +176,11 @@ class StreakEngine {
 
     // Modo viagem: dia em vacationDays → tudo pausado. Streaks intactos,
     // freezes preservados.
-    final isVacation = input.vacationDays.any(
-      (d) => _truncate(d) == day,
-    );
+    final isVacation = input.vacationDays.any((d) => _truncate(d) == day);
     if (isVacation) {
       final users = <String, StreakState>{};
       for (final uid in input.userIds) {
-        final prior = input.priorUserStreaks[uid] ??
-            StreakState.initial(day);
+        final prior = input.priorUserStreaks[uid] ?? StreakState.initial(day);
         users[uid] = _rollMonth(prior, monthKey);
       }
       return StreakOutcome(
@@ -285,10 +282,7 @@ class StreakEngine {
   // freezesLeftMonth para 2 (IDEA.md §5.7: não acumuláveis).
   StreakState _rollMonth(StreakState state, String monthKey) {
     if (state.monthKey == monthKey) return state;
-    return state.copyWith(
-      freezesLeftMonth: 2,
-      monthKey: monthKey,
-    );
+    return state.copyWith(freezesLeftMonth: 2, monthKey: monthKey);
   }
 }
 

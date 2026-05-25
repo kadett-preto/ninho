@@ -15,7 +15,7 @@ enum RoomsStatus { idle, loading, ready, error }
 
 class EnvironmentRoomsController extends ChangeNotifier {
   EnvironmentRoomsController({EnvironmentsRepository? repository})
-      : _repo = repository ?? EnvironmentsRepository();
+    : _repo = repository ?? EnvironmentsRepository();
 
   final EnvironmentsRepository _repo;
 
@@ -99,7 +99,11 @@ class EnvironmentRoomsController extends ChangeNotifier {
       _rooms = [
         for (final r in _rooms)
           if (r.id == roomId)
-            RoomRow(id: r.id, name: name.trim(), sizeCategory: sizeCategory.toUpperCase())
+            RoomRow(
+              id: r.id,
+              name: name.trim(),
+              sizeCategory: sizeCategory.toUpperCase(),
+            )
           else
             r,
       ];
@@ -115,7 +119,10 @@ class EnvironmentRoomsController extends ChangeNotifier {
   Future<bool> deleteRoom(String roomId) async {
     try {
       await _repo.deleteRoom(roomId);
-      _rooms = [for (final r in _rooms) if (r.id != roomId) r];
+      _rooms = [
+        for (final r in _rooms)
+          if (r.id != roomId) r,
+      ];
       notifyListeners();
       return true;
     } catch (e) {
@@ -141,9 +148,9 @@ class EnvironmentRoomsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider<EnvironmentRoomsController>(
-      create: (_) => EnvironmentRoomsController(
-        repository: environmentsRepository,
-      )..load(),
+      create: (_) =>
+          EnvironmentRoomsController(repository: environmentsRepository)
+            ..load(),
       child: const _View(),
     );
   }
@@ -226,9 +233,9 @@ class _RoomsError extends StatelessWidget {
               message,
               key: const Key('rooms_error'),
               textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                color: NinhoColors.error,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyLarge?.copyWith(color: NinhoColors.error),
             ),
             const SizedBox(height: NinhoSpacing.stackMd),
             FilledButton.tonal(
@@ -578,8 +585,10 @@ class _RoomFormSheetState extends State<_RoomFormSheet> {
                       delete: true,
                     ),
                   ),
-                  icon: const Icon(Icons.delete_outline,
-                      color: NinhoColors.error),
+                  icon: const Icon(
+                    Icons.delete_outline,
+                    color: NinhoColors.error,
+                  ),
                   label: const Text(
                     'Excluir',
                     style: TextStyle(color: NinhoColors.error),
@@ -592,12 +601,9 @@ class _RoomFormSheetState extends State<_RoomFormSheet> {
               FilledButton(
                 key: const Key('room_form_save'),
                 onPressed: _valid
-                    ? () => Navigator.of(context).pop(
-                          _SheetResult(
-                            name: _name.text,
-                            sizeCategory: _size,
-                          ),
-                        )
+                    ? () => Navigator.of(
+                        context,
+                      ).pop(_SheetResult(name: _name.text, sizeCategory: _size))
                     : null,
                 child: Text(isEdit ? 'Salvar' : 'Adicionar'),
               ),

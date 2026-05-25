@@ -1,7 +1,8 @@
 import 'package:flutter/foundation.dart';
 
 import '../../../data/repositories/environments_repository.dart';
-import '../../../data/repositories/suggestions_repository.dart' show TaskDifficulty;
+import '../../../data/repositories/suggestions_repository.dart'
+    show TaskDifficulty;
 import '../../../data/repositories/tasks_repository.dart';
 import '../../../data/services/auth_service.dart';
 
@@ -38,9 +39,9 @@ class TaskFormController extends ChangeNotifier {
     EnvironmentsRepository? environmentsRepository,
     TasksRepository? tasksRepository,
     String? currentUserId,
-  })  : _envRepo = environmentsRepository ?? EnvironmentsRepository(),
-        _tasksRepo = tasksRepository ?? const TasksRepository(),
-        _explicitUserId = currentUserId;
+  }) : _envRepo = environmentsRepository ?? EnvironmentsRepository(),
+       _tasksRepo = tasksRepository ?? const TasksRepository(),
+       _explicitUserId = currentUserId;
 
   final String? taskId;
   final EnvironmentsRepository _envRepo;
@@ -83,8 +84,7 @@ class TaskFormController extends ChangeNotifier {
   TaskRecurrence _recurrence = TaskRecurrence.none;
   TaskRecurrence get recurrence => _recurrence;
 
-  String? get currentUserId =>
-      _explicitUserId ?? AuthService.currentUser?.id;
+  String? get currentUserId => _explicitUserId ?? AuthService.currentUser?.id;
 
   Future<void> load() async {
     _status = TaskFormStatus.loading;

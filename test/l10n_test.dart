@@ -16,8 +16,10 @@ Widget _wrap(Locale locale, Widget child) {
 void main() {
   testWidgets('pt: bottom nav usa rótulos pt-BR', (tester) async {
     await tester.pumpWidget(
-      _wrap(const Locale('pt'),
-          NinhoBottomNav(active: NinhoTab.home, onTap: (_) {})),
+      _wrap(
+        const Locale('pt'),
+        NinhoBottomNav(active: NinhoTab.home, onTap: (_) {}),
+      ),
     );
     await tester.pumpAndSettle();
     expect(find.text('Início'), findsOneWidget);
@@ -29,8 +31,10 @@ void main() {
 
   testWidgets('en: bottom nav usa rótulos en', (tester) async {
     await tester.pumpWidget(
-      _wrap(const Locale('en'),
-          NinhoBottomNav(active: NinhoTab.home, onTap: (_) {})),
+      _wrap(
+        const Locale('en'),
+        NinhoBottomNav(active: NinhoTab.home, onTap: (_) {}),
+      ),
     );
     await tester.pumpAndSettle();
     expect(find.text('Home'), findsOneWidget);
@@ -42,8 +46,10 @@ void main() {
 
   testWidgets('es: bottom nav usa rótulos es', (tester) async {
     await tester.pumpWidget(
-      _wrap(const Locale('es'),
-          NinhoBottomNav(active: NinhoTab.home, onTap: (_) {})),
+      _wrap(
+        const Locale('es'),
+        NinhoBottomNav(active: NinhoTab.home, onTap: (_) {}),
+      ),
     );
     await tester.pumpAndSettle();
     expect(find.text('Inicio'), findsOneWidget);
@@ -53,8 +59,10 @@ void main() {
 
   testWidgets('fr: bottom nav usa rótulos fr', (tester) async {
     await tester.pumpWidget(
-      _wrap(const Locale('fr'),
-          NinhoBottomNav(active: NinhoTab.home, onTap: (_) {})),
+      _wrap(
+        const Locale('fr'),
+        NinhoBottomNav(active: NinhoTab.home, onTap: (_) {}),
+      ),
     );
     await tester.pumpAndSettle();
     expect(find.text('Accueil'), findsOneWidget);

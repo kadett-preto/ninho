@@ -286,27 +286,24 @@ void main() {
     expect(find.byKey(const Key('home_retry')), findsOneWidget);
   });
 
-  testWidgets(
-    'filtro hoje exclui task de outro morador',
-    (tester) async {
-      _setMobile(tester);
-      final tasksList = [
-        _task(id: 'mine', title: 'Tirar o lixo', assigneeId: 'me'),
-        _task(id: 'theirs', title: 'Passar pano', assigneeId: 'other'),
-      ];
-      await tester.pumpWidget(
-        _wrap(
-          env: _FakeEnvRepo(),
-          tasks: _FakeTasksRepo(items: tasksList),
-          streaks: const _FakeStreaksRepo(),
-          shop: const _FakeShopRepo(),
-        ),
-      );
-      await tester.pumpAndSettle();
+  testWidgets('filtro hoje exclui task de outro morador', (tester) async {
+    _setMobile(tester);
+    final tasksList = [
+      _task(id: 'mine', title: 'Tirar o lixo', assigneeId: 'me'),
+      _task(id: 'theirs', title: 'Passar pano', assigneeId: 'other'),
+    ];
+    await tester.pumpWidget(
+      _wrap(
+        env: _FakeEnvRepo(),
+        tasks: _FakeTasksRepo(items: tasksList),
+        streaks: const _FakeStreaksRepo(),
+        shop: const _FakeShopRepo(),
+      ),
+    );
+    await tester.pumpAndSettle();
 
-      // currentUserId='me' (default do _wrap). Só tarefa da pessoa aparece.
-      expect(find.text('Tirar o lixo'), findsOneWidget);
-      expect(find.text('Passar pano'), findsNothing);
-    },
-  );
+    // currentUserId='me' (default do _wrap). Só tarefa da pessoa aparece.
+    expect(find.text('Tirar o lixo'), findsOneWidget);
+    expect(find.text('Passar pano'), findsNothing);
+  });
 }

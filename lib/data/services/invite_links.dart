@@ -24,8 +24,7 @@ class InviteLinks {
     return 'https://ninho.app';
   }
 
-  static String shareableLink(String token) =>
-      '${resolveBaseUrl()}/#/i/$token';
+  static String shareableLink(String token) => '${resolveBaseUrl()}/#/i/$token';
 
   static String? _envOrNull(String key) {
     if (!dotenv.isInitialized) return null;

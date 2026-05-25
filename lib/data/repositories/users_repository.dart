@@ -129,10 +129,7 @@ class UsersRepository {
       patch['locale'] = locale;
     }
     if (patch.isEmpty) return;
-    await SupabaseService.client
-        .from(tableName)
-        .update(patch)
-        .eq('id', userId);
+    await SupabaseService.client.from(tableName).update(patch).eq('id', userId);
   }
 
   // Upload de avatar JPEG já tratado pelo cliente (EXIF strip + resize).
@@ -143,7 +140,9 @@ class UsersRepository {
     final userId = client.auth.currentUser?.id;
     if (userId == null) throw StateError('Sem sessão Supabase ativa');
     final path = '$userId/avatar.jpg';
-    await client.storage.from('user-avatars').uploadBinary(
+    await client.storage
+        .from('user-avatars')
+        .uploadBinary(
           path,
           jpegBytes,
           fileOptions: const FileOptions(
@@ -171,10 +170,7 @@ class UsersRepository {
     } catch (_) {
       // Objeto pode não existir; segue zerando a coluna.
     }
-    await client
-        .from(tableName)
-        .update({'avatar_path': null})
-        .eq('id', userId);
+    await client.from(tableName).update({'avatar_path': null}).eq('id', userId);
   }
 
   // Signed URL p/ exibir avatar (bucket é privado). TTL curto §7.4.

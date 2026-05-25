@@ -16,10 +16,10 @@ class TasksController extends ChangeNotifier {
     TasksRepository? tasksRepository,
     String? currentUserId,
     DateTime Function()? now,
-  })  : _envRepo = environmentsRepository ?? EnvironmentsRepository(),
-        _tasksRepo = tasksRepository ?? const TasksRepository(),
-        _explicitUserId = currentUserId,
-        _now = now ?? DateTime.now;
+  }) : _envRepo = environmentsRepository ?? EnvironmentsRepository(),
+       _tasksRepo = tasksRepository ?? const TasksRepository(),
+       _explicitUserId = currentUserId,
+       _now = now ?? DateTime.now;
 
   final EnvironmentsRepository _envRepo;
   final TasksRepository _tasksRepo;
@@ -52,8 +52,7 @@ class TasksController extends ChangeNotifier {
   String? _roomFilter;
   String? get roomFilter => _roomFilter;
 
-  String? get currentUserId =>
-      _explicitUserId ?? AuthService.currentUser?.id;
+  String? get currentUserId => _explicitUserId ?? AuthService.currentUser?.id;
 
   Future<void> load() async {
     _status = TasksScreenStatus.loading;

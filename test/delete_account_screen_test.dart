@@ -7,10 +7,7 @@ import 'package:ninho/ui/core/theme.dart';
 import 'package:ninho/ui/features/profile/delete_account_screen.dart';
 
 class _FakeUsersRepo extends UsersRepository {
-  _FakeUsersRepo({
-    this.owned = const [],
-    this.deletionError,
-  });
+  _FakeUsersRepo({this.owned = const [], this.deletionError});
 
   final List<OwnedEnvironment> owned;
   final Object? deletionError;
@@ -61,10 +58,12 @@ void main() {
   testWidgets('estado inicial mostra header + CTAs', (tester) async {
     _setMobile(tester);
     await tester.pumpWidget(
-      _wrap(DeleteAccountScreen(
-        usersRepository: _FakeUsersRepo(),
-        signOutFn: () async {},
-      )),
+      _wrap(
+        DeleteAccountScreen(
+          usersRepository: _FakeUsersRepo(),
+          signOutFn: () async {},
+        ),
+      ),
     );
     await tester.pumpAndSettle();
 
@@ -77,10 +76,12 @@ void main() {
   testWidgets('CTA confirma só quando input bate "EXCLUIR"', (tester) async {
     _setMobile(tester);
     await tester.pumpWidget(
-      _wrap(DeleteAccountScreen(
-        usersRepository: _FakeUsersRepo(),
-        signOutFn: () async {},
-      )),
+      _wrap(
+        DeleteAccountScreen(
+          usersRepository: _FakeUsersRepo(),
+          signOutFn: () async {},
+        ),
+      ),
     );
     await tester.pumpAndSettle();
 
@@ -101,19 +102,25 @@ void main() {
     expect(btn2.onPressed, isNotNull);
   });
 
-  testWidgets('owner com membros mostra aviso de auto-promoção', (tester) async {
+  testWidgets('owner com membros mostra aviso de auto-promoção', (
+    tester,
+  ) async {
     _setMobile(tester);
     await tester.pumpWidget(
-      _wrap(DeleteAccountScreen(
-        usersRepository: _FakeUsersRepo(owned: const [
-          OwnedEnvironment(
-            environmentId: 'e1',
-            name: 'Casa',
-            otherMembersCount: 2,
+      _wrap(
+        DeleteAccountScreen(
+          usersRepository: _FakeUsersRepo(
+            owned: const [
+              OwnedEnvironment(
+                environmentId: 'e1',
+                name: 'Casa',
+                otherMembersCount: 2,
+              ),
+            ],
           ),
-        ]),
-        signOutFn: () async {},
-      )),
+          signOutFn: () async {},
+        ),
+      ),
     );
     await tester.pumpAndSettle();
 
@@ -124,16 +131,20 @@ void main() {
   testWidgets('owner solo mostra aviso de arquivamento', (tester) async {
     _setMobile(tester);
     await tester.pumpWidget(
-      _wrap(DeleteAccountScreen(
-        usersRepository: _FakeUsersRepo(owned: const [
-          OwnedEnvironment(
-            environmentId: 'e1',
-            name: 'Casa',
-            otherMembersCount: 0,
+      _wrap(
+        DeleteAccountScreen(
+          usersRepository: _FakeUsersRepo(
+            owned: const [
+              OwnedEnvironment(
+                environmentId: 'e1',
+                name: 'Casa',
+                otherMembersCount: 0,
+              ),
+            ],
           ),
-        ]),
-        signOutFn: () async {},
-      )),
+          signOutFn: () async {},
+        ),
+      ),
     );
     await tester.pumpAndSettle();
 
@@ -146,12 +157,14 @@ void main() {
     final repo = _FakeUsersRepo();
     var signOutCalls = 0;
     await tester.pumpWidget(
-      _wrap(DeleteAccountScreen(
-        usersRepository: repo,
-        signOutFn: () async {
-          signOutCalls++;
-        },
-      )),
+      _wrap(
+        DeleteAccountScreen(
+          usersRepository: repo,
+          signOutFn: () async {
+            signOutCalls++;
+          },
+        ),
+      ),
     );
     await tester.pumpAndSettle();
 
@@ -172,12 +185,14 @@ void main() {
   testWidgets('erro 28000 vira mensagem de sessão', (tester) async {
     _setMobile(tester);
     await tester.pumpWidget(
-      _wrap(DeleteAccountScreen(
-        usersRepository: _FakeUsersRepo(
-          deletionError: Exception('errcode 28000 — sem sessão'),
+      _wrap(
+        DeleteAccountScreen(
+          usersRepository: _FakeUsersRepo(
+            deletionError: Exception('errcode 28000 — sem sessão'),
+          ),
+          signOutFn: () async {},
         ),
-        signOutFn: () async {},
-      )),
+      ),
     );
     await tester.pumpAndSettle();
 
@@ -196,10 +211,12 @@ void main() {
   testWidgets('back navega pra /profile', (tester) async {
     _setMobile(tester);
     await tester.pumpWidget(
-      _wrap(DeleteAccountScreen(
-        usersRepository: _FakeUsersRepo(),
-        signOutFn: () async {},
-      )),
+      _wrap(
+        DeleteAccountScreen(
+          usersRepository: _FakeUsersRepo(),
+          signOutFn: () async {},
+        ),
+      ),
     );
     await tester.pumpAndSettle();
 
@@ -212,10 +229,12 @@ void main() {
   testWidgets('cancelar navega pra /profile', (tester) async {
     _setMobile(tester);
     await tester.pumpWidget(
-      _wrap(DeleteAccountScreen(
-        usersRepository: _FakeUsersRepo(),
-        signOutFn: () async {},
-      )),
+      _wrap(
+        DeleteAccountScreen(
+          usersRepository: _FakeUsersRepo(),
+          signOutFn: () async {},
+        ),
+      ),
     );
     await tester.pumpAndSettle();
 

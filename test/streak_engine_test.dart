@@ -17,11 +17,7 @@ StreakTask _task(
   );
 }
 
-StreakCompletion _completion(
-  String taskId,
-  String by,
-  DateTime at,
-) {
+StreakCompletion _completion(String taskId, String by, DateTime at) {
   return StreakCompletion(taskId: taskId, completedBy: by, completedAt: at);
 }
 
@@ -74,8 +70,9 @@ void main() {
             'alice': StreakState.initial(day).copyWith(current: 3, best: 5),
             'bob': StreakState.initial(day).copyWith(current: 1, best: 1),
           },
-          priorEnvironmentStreak:
-              StreakState.initial(day).copyWith(current: 1, best: 4),
+          priorEnvironmentStreak: StreakState.initial(
+            day,
+          ).copyWith(current: 1, best: 4),
         ),
       );
 
@@ -94,9 +91,7 @@ void main() {
         StreakInput(
           evaluationDate: day,
           userIds: const ['alice'],
-          tasks: [
-            _task('t1', assignee: 'alice', startDate: _day(2026, 5, 1)),
-          ],
+          tasks: [_task('t1', assignee: 'alice', startDate: _day(2026, 5, 1))],
           completions: const [],
           priorUserStreaks: {
             'alice': StreakState.initial(day).copyWith(current: 5),
@@ -116,15 +111,12 @@ void main() {
         StreakInput(
           evaluationDate: day,
           userIds: const ['alice'],
-          tasks: [
-            _task('t1', assignee: 'alice', startDate: _day(2026, 5, 1)),
-          ],
+          tasks: [_task('t1', assignee: 'alice', startDate: _day(2026, 5, 1))],
           completions: const [],
           priorUserStreaks: {
-            'alice': StreakState.initial(day).copyWith(
-              current: 5,
-              freezesLeftMonth: 0,
-            ),
+            'alice': StreakState.initial(
+              day,
+            ).copyWith(current: 5, freezesLeftMonth: 0),
           },
           priorEnvironmentStreak: StreakState.initial(day),
         ),
@@ -149,8 +141,9 @@ void main() {
             'alice': StreakState.initial(day).copyWith(current: 10),
             'bob': StreakState.initial(day).copyWith(current: 10),
           },
-          priorEnvironmentStreak:
-              StreakState.initial(day).copyWith(current: 10),
+          priorEnvironmentStreak: StreakState.initial(
+            day,
+          ).copyWith(current: 10),
         ),
       );
 
@@ -171,18 +164,14 @@ void main() {
         StreakInput(
           evaluationDate: day,
           userIds: const ['alice'],
-          tasks: [
-            _task('t1', assignee: 'alice', startDate: _day(2026, 5, 1)),
-          ],
+          tasks: [_task('t1', assignee: 'alice', startDate: _day(2026, 5, 1))],
           completions: const [],
           priorUserStreaks: {
-            'alice': StreakState.initial(day).copyWith(
-              current: 7,
-              freezesLeftMonth: 2,
-            ),
+            'alice': StreakState.initial(
+              day,
+            ).copyWith(current: 7, freezesLeftMonth: 2),
           },
-          priorEnvironmentStreak:
-              StreakState.initial(day).copyWith(current: 7),
+          priorEnvironmentStreak: StreakState.initial(day).copyWith(current: 7),
           vacationDays: [day],
         ),
       );
@@ -200,9 +189,7 @@ void main() {
         StreakInput(
           evaluationDate: day,
           userIds: const ['alice'],
-          tasks: [
-            _task('t1', assignee: 'alice', startDate: _day(2026, 5, 1)),
-          ],
+          tasks: [_task('t1', assignee: 'alice', startDate: _day(2026, 5, 1))],
           completions: [_completion('t1', 'alice', day)],
           priorUserStreaks: {
             'alice': const StreakState(
@@ -259,9 +246,7 @@ void main() {
         StreakInput(
           evaluationDate: day,
           userIds: const ['alice'],
-          tasks: [
-            _task('t1', assignee: null, startDate: _day(2026, 5, 1)),
-          ],
+          tasks: [_task('t1', assignee: null, startDate: _day(2026, 5, 1))],
           completions: const [],
           priorUserStreaks: {
             'alice': StreakState.initial(day).copyWith(current: 1),

@@ -49,10 +49,7 @@ Widget _wrap(TransferOwnershipScreen screen) {
   final router = GoRouter(
     initialLocation: '/profile/transfer-ownership',
     routes: [
-      GoRoute(
-        path: '/profile/transfer-ownership',
-        builder: (_, _) => screen,
-      ),
+      GoRoute(path: '/profile/transfer-ownership', builder: (_, _) => screen),
       GoRoute(
         path: '/profile',
         builder: (_, _) => const Scaffold(body: Text('PROFILE')),
@@ -88,10 +85,12 @@ void main() {
   testWidgets('lista candidatos exclui o caller', (tester) async {
     _setMobile(tester);
     await tester.pumpWidget(
-      _wrap(TransferOwnershipScreen(
-        environmentsRepository: _FakeEnvRepo(members: _members),
-        currentUserId: _owner,
-      )),
+      _wrap(
+        TransferOwnershipScreen(
+          environmentsRepository: _FakeEnvRepo(members: _members),
+          currentUserId: _owner,
+        ),
+      ),
     );
     await tester.pumpAndSettle();
 
@@ -103,14 +102,18 @@ void main() {
   testWidgets('CTA desabilita até selecionar + ack', (tester) async {
     _setMobile(tester);
     await tester.pumpWidget(
-      _wrap(TransferOwnershipScreen(
-        environmentsRepository: _FakeEnvRepo(members: _members),
-        currentUserId: _owner,
-      )),
+      _wrap(
+        TransferOwnershipScreen(
+          environmentsRepository: _FakeEnvRepo(members: _members),
+          currentUserId: _owner,
+        ),
+      ),
     );
     await tester.pumpAndSettle();
 
-    var btn = tester.widget<FilledButton>(find.byKey(const Key('transfer_submit')));
+    var btn = tester.widget<FilledButton>(
+      find.byKey(const Key('transfer_submit')),
+    );
     expect(btn.onPressed, isNull);
 
     await tester.tap(find.byKey(const Key('transfer_member_ana-id')));
@@ -128,10 +131,12 @@ void main() {
     _setMobile(tester);
     final repo = _FakeEnvRepo(members: _members);
     await tester.pumpWidget(
-      _wrap(TransferOwnershipScreen(
-        environmentsRepository: repo,
-        currentUserId: _owner,
-      )),
+      _wrap(
+        TransferOwnershipScreen(
+          environmentsRepository: repo,
+          currentUserId: _owner,
+        ),
+      ),
     );
     await tester.pumpAndSettle();
 
@@ -149,13 +154,15 @@ void main() {
   testWidgets('erro 42501 vira mensagem human', (tester) async {
     _setMobile(tester);
     await tester.pumpWidget(
-      _wrap(TransferOwnershipScreen(
-        environmentsRepository: _FakeEnvRepo(
-          members: _members,
-          transferError: Exception('errcode 42501 — sem permissão'),
+      _wrap(
+        TransferOwnershipScreen(
+          environmentsRepository: _FakeEnvRepo(
+            members: _members,
+            transferError: Exception('errcode 42501 — sem permissão'),
+          ),
+          currentUserId: _owner,
         ),
-        currentUserId: _owner,
-      )),
+      ),
     );
     await tester.pumpAndSettle();
 
@@ -172,19 +179,21 @@ void main() {
   testWidgets('sem candidatos mostra mensagem de convidar', (tester) async {
     _setMobile(tester);
     await tester.pumpWidget(
-      _wrap(TransferOwnershipScreen(
-        environmentsRepository: _FakeEnvRepo(
-          members: [
-            EnvironmentMember(
-              userId: _owner,
-              displayName: 'Solo',
-              role: 'owner',
-              joinedAt: DateTime(2026, 1, 1),
-            ),
-          ],
+      _wrap(
+        TransferOwnershipScreen(
+          environmentsRepository: _FakeEnvRepo(
+            members: [
+              EnvironmentMember(
+                userId: _owner,
+                displayName: 'Solo',
+                role: 'owner',
+                joinedAt: DateTime(2026, 1, 1),
+              ),
+            ],
+          ),
+          currentUserId: _owner,
         ),
-        currentUserId: _owner,
-      )),
+      ),
     );
     await tester.pumpAndSettle();
 
@@ -194,10 +203,12 @@ void main() {
   testWidgets('sem ninho mostra erro + retry', (tester) async {
     _setMobile(tester);
     await tester.pumpWidget(
-      _wrap(TransferOwnershipScreen(
-        environmentsRepository: _FakeEnvRepo(envId: null),
-        currentUserId: _owner,
-      )),
+      _wrap(
+        TransferOwnershipScreen(
+          environmentsRepository: _FakeEnvRepo(envId: null),
+          currentUserId: _owner,
+        ),
+      ),
     );
     await tester.pumpAndSettle();
 
@@ -208,10 +219,12 @@ void main() {
   testWidgets('back navega pra /profile', (tester) async {
     _setMobile(tester);
     await tester.pumpWidget(
-      _wrap(TransferOwnershipScreen(
-        environmentsRepository: _FakeEnvRepo(members: _members),
-        currentUserId: _owner,
-      )),
+      _wrap(
+        TransferOwnershipScreen(
+          environmentsRepository: _FakeEnvRepo(members: _members),
+          currentUserId: _owner,
+        ),
+      ),
     );
     await tester.pumpAndSettle();
 

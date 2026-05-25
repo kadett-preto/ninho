@@ -22,14 +22,19 @@ void main() {
 
     final source = tsFile.readAsStringSync();
     // Match único do template literal cru entre as crases.
-    final match =
-        RegExp(r'const SYSTEM_PROMPT =\s*`([\s\S]*?)`;').firstMatch(source);
-    expect(match, isNotNull,
-        reason: 'Falha extraindo SYSTEM_PROMPT do index.ts');
+    final match = RegExp(
+      r'const SYSTEM_PROMPT =\s*`([\s\S]*?)`;',
+    ).firstMatch(source);
+    expect(
+      match,
+      isNotNull,
+      reason: 'Falha extraindo SYSTEM_PROMPT do index.ts',
+    );
     final extracted = match!.group(1)!;
 
-    final snapshot =
-        File('test/snapshots/suggest_tasks_system_prompt.txt').readAsStringSync();
+    final snapshot = File(
+      'test/snapshots/suggest_tasks_system_prompt.txt',
+    ).readAsStringSync();
 
     if (extracted != snapshot) {
       // Mensagem clara — devs costumam mexer no prompt sem reler invariantes.
@@ -45,8 +50,9 @@ void main() {
   });
 
   test('SYSTEM_PROMPT contém invariantes de segurança críticas (§7.6)', () {
-    final source =
-        File('supabase/functions/suggest-tasks/index.ts').readAsStringSync();
+    final source = File(
+      'supabase/functions/suggest-tasks/index.ts',
+    ).readAsStringSync();
     final invariants = <String>[
       // Rótulo opaco — base do mitigador de prompt injection
       'rótulo opaco',

@@ -25,14 +25,13 @@ class _FakeRepo extends EnvironmentsRepository {
   @override
   Future<EnvironmentSummary?> fetchEnvironmentSummary({
     required String environmentId,
-  }) async =>
-      EnvironmentSummary(
-        id: environmentId,
-        name: 'Lar Doce Lar',
-        ownerId: role == 'owner' ? 'me' : 'other',
-        role: role,
-        createdAt: DateTime(2026, 1, 1),
-      );
+  }) async => EnvironmentSummary(
+    id: environmentId,
+    name: 'Lar Doce Lar',
+    ownerId: role == 'owner' ? 'me' : 'other',
+    role: role,
+    createdAt: DateTime(2026, 1, 1),
+  );
 
   @override
   Future<List<EnvironmentMember>> listMembers(String environmentId) async =>
@@ -59,10 +58,7 @@ Widget _wrap(EnvironmentMembersScreen screen) {
   final router = GoRouter(
     initialLocation: '/profile/environment/members',
     routes: [
-      GoRoute(
-        path: '/profile/environment/members',
-        builder: (_, _) => screen,
-      ),
+      GoRoute(path: '/profile/environment/members', builder: (_, _) => screen),
       GoRoute(
         path: '/profile/environment',
         builder: (_, _) => const Scaffold(body: Text('SETTINGS')),
@@ -95,9 +91,11 @@ void main() {
   testWidgets('ready: lista membros + label', (tester) async {
     _setMobile(tester);
     await tester.pumpWidget(
-      _wrap(EnvironmentMembersScreen(
-        environmentsRepository: _FakeRepo(members: _members),
-      )),
+      _wrap(
+        EnvironmentMembersScreen(
+          environmentsRepository: _FakeRepo(members: _members),
+        ),
+      ),
     );
     await tester.pumpAndSettle();
 
@@ -110,9 +108,11 @@ void main() {
   testWidgets('owner vê more_vert só pra members regulares', (tester) async {
     _setMobile(tester);
     await tester.pumpWidget(
-      _wrap(EnvironmentMembersScreen(
-        environmentsRepository: _FakeRepo(members: _members),
-      )),
+      _wrap(
+        EnvironmentMembersScreen(
+          environmentsRepository: _FakeRepo(members: _members),
+        ),
+      ),
     );
     await tester.pumpAndSettle();
 
@@ -123,12 +123,11 @@ void main() {
   testWidgets('member regular não vê more_vert', (tester) async {
     _setMobile(tester);
     await tester.pumpWidget(
-      _wrap(EnvironmentMembersScreen(
-        environmentsRepository: _FakeRepo(
-          role: 'member',
-          members: _members,
+      _wrap(
+        EnvironmentMembersScreen(
+          environmentsRepository: _FakeRepo(role: 'member', members: _members),
         ),
-      )),
+      ),
     );
     await tester.pumpAndSettle();
 
@@ -159,9 +158,11 @@ void main() {
   testWidgets('convidar membro navega pra /invite', (tester) async {
     _setMobile(tester);
     await tester.pumpWidget(
-      _wrap(EnvironmentMembersScreen(
-        environmentsRepository: _FakeRepo(members: _members),
-      )),
+      _wrap(
+        EnvironmentMembersScreen(
+          environmentsRepository: _FakeRepo(members: _members),
+        ),
+      ),
     );
     await tester.pumpAndSettle();
 
@@ -174,9 +175,11 @@ void main() {
   testWidgets('sem ninho mostra retry', (tester) async {
     _setMobile(tester);
     await tester.pumpWidget(
-      _wrap(EnvironmentMembersScreen(
-        environmentsRepository: _FakeRepo(envId: null),
-      )),
+      _wrap(
+        EnvironmentMembersScreen(
+          environmentsRepository: _FakeRepo(envId: null),
+        ),
+      ),
     );
     await tester.pumpAndSettle();
 

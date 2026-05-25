@@ -6,7 +6,7 @@ enum AccountSettingsStatus { idle, loading, ready, saving, error }
 
 class AccountSettingsController extends ChangeNotifier {
   AccountSettingsController({UsersRepository? usersRepository})
-      : _users = usersRepository ?? UsersRepository();
+    : _users = usersRepository ?? UsersRepository();
 
   final UsersRepository _users;
 

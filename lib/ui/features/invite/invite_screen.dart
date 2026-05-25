@@ -82,17 +82,21 @@ class _InviteScreenState extends State<InviteScreen> {
   }
 
   Future<void> _copy() async {
-    final link = _invite?.linkFor(widget.inviteBaseUrl ?? InviteLinks.resolveBaseUrl());
+    final link = _invite?.linkFor(
+      widget.inviteBaseUrl ?? InviteLinks.resolveBaseUrl(),
+    );
     if (link == null) return;
     await Clipboard.setData(ClipboardData(text: link));
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Link copiado.')),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Link copiado.')));
   }
 
   Future<void> _share() async {
-    final link = _invite?.linkFor(widget.inviteBaseUrl ?? InviteLinks.resolveBaseUrl());
+    final link = _invite?.linkFor(
+      widget.inviteBaseUrl ?? InviteLinks.resolveBaseUrl(),
+    );
     if (link == null) return;
     await SharePlus.instance.share(
       ShareParams(
@@ -109,7 +113,9 @@ class _InviteScreenState extends State<InviteScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final link = _invite?.linkFor(widget.inviteBaseUrl ?? InviteLinks.resolveBaseUrl());
+    final link = _invite?.linkFor(
+      widget.inviteBaseUrl ?? InviteLinks.resolveBaseUrl(),
+    );
 
     return Scaffold(
       backgroundColor: NinhoColors.background,
@@ -187,7 +193,11 @@ class _InviteScreenState extends State<InviteScreen> {
 }
 
 class _QrCard extends StatelessWidget {
-  const _QrCard({required this.link, required this.loading, required this.error});
+  const _QrCard({
+    required this.link,
+    required this.loading,
+    required this.error,
+  });
 
   final String? link;
   final bool loading;
@@ -331,13 +341,22 @@ class _ShareButtons extends StatelessWidget {
         const SizedBox(width: NinhoSpacing.stackMd),
         _shareBtn(Icons.forum, 'Mensagens', onShare),
         const SizedBox(width: NinhoSpacing.stackMd),
-        _shareBtn(Icons.share, 'Mais opções', onShare, keyName: 'invite_share_button'),
+        _shareBtn(
+          Icons.share,
+          'Mais opções',
+          onShare,
+          keyName: 'invite_share_button',
+        ),
       ],
     );
   }
 
-  Widget _shareBtn(IconData icon, String label, VoidCallback onTap,
-      {String? keyName}) {
+  Widget _shareBtn(
+    IconData icon,
+    String label,
+    VoidCallback onTap, {
+    String? keyName,
+  }) {
     return Semantics(
       button: true,
       label: label,

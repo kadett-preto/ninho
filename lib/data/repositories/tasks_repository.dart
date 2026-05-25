@@ -167,10 +167,7 @@ class TasksRepository {
       updates['description'] = description.trim();
     }
     if (updates.isEmpty) return;
-    await SupabaseService.client
-        .from('tasks')
-        .update(updates)
-        .eq('id', taskId);
+    await SupabaseService.client.from('tasks').update(updates).eq('id', taskId);
   }
 
   // Soft archive via archived_at. RLS: só owner pode setar (policy delete) —
@@ -208,9 +205,11 @@ class TaskListItem {
   });
 
   factory TaskListItem.fromJson(Map<String, dynamic> json) {
-    final difficulty = TaskDifficulty.tryParse(json['difficulty'] as String?) ??
+    final difficulty =
+        TaskDifficulty.tryParse(json['difficulty'] as String?) ??
         TaskDifficulty.mamao;
-    final completionsRaw = json['task_completions'] as List<dynamic>? ?? const [];
+    final completionsRaw =
+        json['task_completions'] as List<dynamic>? ?? const [];
     final completions = <TaskCompletionRef>[];
     for (final item in completionsRaw) {
       if (item is! Map<String, dynamic>) continue;

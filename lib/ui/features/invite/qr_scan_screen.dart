@@ -21,11 +21,7 @@ import '../../core/spacing.dart';
 // Detector é registrado de forma defensiva: `_handled` evita rotear duas
 // vezes se a câmera emitir o mesmo QR em frames consecutivos.
 class QrScanScreen extends StatefulWidget {
-  const QrScanScreen({
-    super.key,
-    this.controller,
-    this.tokenParser,
-  });
+  const QrScanScreen({super.key, this.controller, this.tokenParser});
 
   final MobileScannerController? controller;
   // Injetável p/ testes — default usa InvitesRepository.tokenFromLink.
@@ -43,7 +39,8 @@ class _QrScanScreenState extends State<QrScanScreen> {
   @override
   void initState() {
     super.initState();
-    _controller = widget.controller ??
+    _controller =
+        widget.controller ??
         MobileScannerController(
           formats: const [BarcodeFormat.qrCode],
           detectionSpeed: DetectionSpeed.normal,
@@ -89,7 +86,8 @@ class _QrScanScreenState extends State<QrScanScreen> {
         leading: IconButton(
           key: const Key('qr_scan_back'),
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.canPop() ? context.pop() : context.go(NinhoRoutes.home),
+          onPressed: () =>
+              context.canPop() ? context.pop() : context.go(NinhoRoutes.home),
         ),
         title: Text(
           'Escanear convite',

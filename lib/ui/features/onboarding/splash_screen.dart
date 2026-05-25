@@ -47,9 +47,7 @@ class _SplashScreenState extends State<SplashScreen> {
       if (!mounted) return;
       // Sessão autenticada + LGPD ok → registra push token (no-op se
       // Firebase não estiver configurado).
-      unawaited(
-        PushNotificationsService.requestPermissionAndRegister(),
-      );
+      unawaited(PushNotificationsService.requestPermissionAndRegister());
       context.go(hasEnv ? NinhoRoutes.home : NinhoRoutes.setupStep1);
     } catch (_) {
       if (!mounted) return;
