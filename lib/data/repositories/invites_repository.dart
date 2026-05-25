@@ -77,11 +77,23 @@ class InvitesRepository {
     );
   }
 
-  // Extrai token de um link gerado por `Invite.linkFor`. Suporta `/i/<token>`
-  // em qualquer host. Retorna null se o link não bate com o formato esperado.
+  // Extrai token de um link gerado por `Invite.linkFor`. Aceita tanto o
+  // formato hash (`#/i/<token>` — usado pelo web em GitHub Pages) quanto o
+  // path direto (`/i/<token>` — usado por QR de versões antigas). Retorna
+  // null se o link não bate com nenhum formato esperado.
   static String? tokenFromLink(String link) {
     final uri = Uri.tryParse(link);
     if (uri == null) return null;
+    final fragment = uri.fragment;
+    if (fragment.isNotEmpty) {
+      final segs =
+          fragment.split('/').where((s) => s.isNotEmpty).toList(growable: false);
+      final idx = segs.indexOf('i');
+      if (idx >= 0 && idx + 1 < segs.length) {
+        final tok = segs[idx + 1];
+        if (tok.isNotEmpty) return tok;
+      }
+    }
     final segments = uri.pathSegments;
     final idx = segments.indexOf('i');
     if (idx < 0 || idx + 1 >= segments.length) return null;
@@ -135,8 +147,13 @@ class Invite {
   final String token;
   final DateTime expiresAt;
 
-  // Link compartilhável. Domain real é configurado em produção; para dev
-  // expomos um path universal-link-friendly. Token vai no path, não em query,
-  // para evitar logs de servidores intermediários (§7.3).
-  String linkFor(String baseUrl) => '$baseUrl/i/$token';
+  // Link compartilhável. Hash form (`#/i/<token>`) garante que o web rode em
+  // hosting sem fallback SPA (ex.: GitHub Pages — sem o `#`, o servidor 404).
+  // Token vai no path do fragment, não em query, p/ evitar logs intermediários
+  // (§7.3). Mobile com universal link continua casando via tokenFromLink.
+  String linkFor(String baseUrl) {
+    final base =
+        baseUrl.endsWith('/') ? baseUrl.substring(0, baseUrl.length - 1) : baseUrl;
+    return '$base/#/i/$token';
+  }
 }

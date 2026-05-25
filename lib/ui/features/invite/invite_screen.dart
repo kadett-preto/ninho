@@ -6,6 +6,7 @@ import 'package:share_plus/share_plus.dart';
 
 import '../../../data/repositories/environments_repository.dart';
 import '../../../data/repositories/invites_repository.dart';
+import '../../../data/services/invite_links.dart';
 import '../../core/colors.dart';
 import '../../core/routes.dart';
 import '../../core/spacing.dart';
@@ -26,13 +27,14 @@ class InviteScreen extends StatefulWidget {
     this.fromSetup = false,
     this.environmentsRepository,
     this.invitesRepository,
-    this.inviteBaseUrl = 'https://ninho.app',
+    this.inviteBaseUrl,
   });
 
   final bool fromSetup;
   final EnvironmentsRepository? environmentsRepository;
   final InvitesRepository? invitesRepository;
-  final String inviteBaseUrl;
+  // null = resolve via InviteLinks (env > Uri.base no web). Testes injetam.
+  final String? inviteBaseUrl;
 
   @override
   State<InviteScreen> createState() => _InviteScreenState();
@@ -80,7 +82,7 @@ class _InviteScreenState extends State<InviteScreen> {
   }
 
   Future<void> _copy() async {
-    final link = _invite?.linkFor(widget.inviteBaseUrl);
+    final link = _invite?.linkFor(widget.inviteBaseUrl ?? InviteLinks.resolveBaseUrl());
     if (link == null) return;
     await Clipboard.setData(ClipboardData(text: link));
     if (!mounted) return;
@@ -90,7 +92,7 @@ class _InviteScreenState extends State<InviteScreen> {
   }
 
   Future<void> _share() async {
-    final link = _invite?.linkFor(widget.inviteBaseUrl);
+    final link = _invite?.linkFor(widget.inviteBaseUrl ?? InviteLinks.resolveBaseUrl());
     if (link == null) return;
     await SharePlus.instance.share(
       ShareParams(
@@ -107,7 +109,7 @@ class _InviteScreenState extends State<InviteScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final link = _invite?.linkFor(widget.inviteBaseUrl);
+    final link = _invite?.linkFor(widget.inviteBaseUrl ?? InviteLinks.resolveBaseUrl());
 
     return Scaffold(
       backgroundColor: NinhoColors.background,
