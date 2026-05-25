@@ -63,7 +63,7 @@ jobs:
       - name: Build web
         run: flutter build web --release --base-href /ninho/
 
-      - uses: actions/configure-pages@v5
+      - uses: actions/configure-pages@v6
         with:
           enablement: true
 
