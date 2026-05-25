@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+# Pre-commit Ninho: bloqueia commit de Dart fora do padrão `dart format`.
+# Replica o gate de Flutter CI (`dart format --set-exit-if-changed .`) só
+# nos arquivos staged — execução em <2s mesmo no monorepo.
+#
+# Bypass de emergência: `git commit --no-verify` (evitar — CI bloqueia).
+#
+# Instalação: scripts/install_hooks.sh
+
+set -euo pipefail
+
+staged=$(git diff --cached --name-only --diff-filter=ACM | grep -E '\.dart$' || true)
+
+if [ -z "$staged" ]; then
+  exit 0
+fi
+
+# shellcheck disable=SC2086
+if ! dart format --output=none --set-exit-if-changed $staged; then
+  echo
+  echo "❌ Arquivos Dart acima estão fora do padrão."
+  echo "   Rode: dart format $(echo "$staged" | tr '\n' ' ')"
+  echo "   Ou:   dart format . && git add -u"
+  exit 1
+fi
+
+exit 0

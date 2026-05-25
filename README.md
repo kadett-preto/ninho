@@ -26,6 +26,7 @@ Spec do produto: [`IDEA.md`](./IDEA.md). Plano de execução: [`TASKS.md`](./TAS
 cp .env.example .env
 # preencha SUPABASE_URL e SUPABASE_ANON_KEY (+ SENTRY_DSN/POSTHOG_API_KEY se quiser)
 flutter pub get
+bash scripts/install_hooks.sh   # pre-commit: dart format dos arquivos staged
 ```
 
 ## Rodar o app

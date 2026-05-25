@@ -181,6 +181,11 @@ CI:
 - `.github/workflows/flutter-ci.yml` — format/analyze/test/coverage.
 - `.github/workflows/db-ci.yml` — `supabase start` + `supabase test db` se mudar migrations/tests/config.
 
+Pre-commit (local, espelha o gate de format do CI):
+- `.githooks/pre-commit` roda `dart format --set-exit-if-changed` só nos `.dart` staged.
+- Instala uma vez por checkout: `bash scripts/install_hooks.sh` (seta `core.hooksPath=.githooks`).
+- Bypass de emergência: `git commit --no-verify` (CI ainda bloqueia, evitar).
+
 ---
 
 ## 7. Convenções de copy
