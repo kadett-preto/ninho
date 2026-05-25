@@ -29,18 +29,24 @@ jobs:
           version: 2.101.0
 
       - name: Add swap space
-        # GHA ubuntu-latest tem 16 GB RAM e ZERO swap. Stack Supabase
-        # (db + kong + gotrue + postgrest + realtime + storage + edge_runtime)
-        # + pg_cron + pg_net + pgsodium fica perto do limite. Sob carga
-        # (24 test files seguidos), kernel OOM-kill o backend Postgres no
-        # meio do test 15, deixando o resto em recovery mode. +6 GB swap mata
-        # o flake. Custo: ~5s no setup.
+        # GHA ubuntu-latest tem 16 GB RAM. Stack Supabase (db + kong +
+        # gotrue + postgrest + realtime + storage + edge_runtime) +
+        # extensions (pg_cron, pg_net, pgsodium, vector) sob carga estoura
+        # o limite e OOM-kill o Postgres backend no meio dos testes.
+        # +6 GB swap em /mnt (disco efêmero maior) mata o flake.
         run: |
-          sudo fallocate -l 6G /swapfile
-          sudo chmod 600 /swapfile
-          sudo mkswap /swapfile
-          sudo swapon /swapfile
+          set -euxo pipefail
+          # Desliga swap pré-existente do runner (geralmente /mnt/swapfile 4 GB).
+          sudo swapoff -a || true
+          # Recria com 6 GB em /mnt (mais espaço que /).
+          sudo rm -f /mnt/swapfile
+          sudo fallocate -l 6G /mnt/swapfile || \
+            sudo dd if=/dev/zero of=/mnt/swapfile bs=1M count=6144
+          sudo chmod 600 /mnt/swapfile
+          sudo mkswap /mnt/swapfile
+          sudo swapon /mnt/swapfile
           free -h
+          swapon --show
 
       - name: Start local Supabase
         run: supabase start
