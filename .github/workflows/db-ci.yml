@@ -28,8 +28,25 @@ jobs:
         with:
           version: 2.101.0
 
+      - name: Add swap space
+        # GHA ubuntu-latest tem 16 GB RAM e ZERO swap. Stack Supabase
+        # (db + kong + gotrue + postgrest + realtime + storage + edge_runtime)
+        # + pg_cron + pg_net + pgsodium fica perto do limite. Sob carga
+        # (24 test files seguidos), kernel OOM-kill o backend Postgres no
+        # meio do test 15, deixando o resto em recovery mode. +6 GB swap mata
+        # o flake. Custo: ~5s no setup.
+        run: |
+          sudo fallocate -l 6G /swapfile
+          sudo chmod 600 /swapfile
+          sudo mkswap /swapfile
+          sudo swapon /swapfile
+          free -h
+
       - name: Start local Supabase
         run: supabase start
+
+      - name: Debug — container memory before tests
+        run: docker stats --no-stream --format 'table {{.Name}}\t{{.MemUsage}}\t{{.MemPerc}}'
 
       - name: Run pgTAP tests
         run: supabase test db
